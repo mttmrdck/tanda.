@@ -66,3 +66,19 @@ test('rocking performer → Calm Watch reaches Rising within 20 s with a transla
   await page.getByRole('button', { name:'Bergoyang', exact:true }).click();
   await expect(page.getByTestId('calm-reasons')).toContainText('Irama berulang', {timeout:20_000});
 });
+
+test('untaught gesture → "Not taught yet" describes the hands → Teach what it means preloads the take', async ({ page, guard }) => {
+  void guard;
+  await onboard(page);
+  await page.getByRole('button', { name: 'Use camera' }).click();
+  await startDemo(page);
+  await page.getByRole('button', { name: 'Cover ears', exact: true }).click();
+  await expect(page.getByTestId('sighting-text')).toHaveText('Both hands · open hand · raised high', { timeout: 10_000 });
+  await page.getByRole('button', { name: 'Teach what it means' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Teach a signal' })).toBeVisible();
+  await page.getByLabel('Signal name').first().fill('Too loud');
+  await page.getByLabel('What it means').first().fill('It is too loud');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByText('The moment from Live was added as example 1.')).toBeVisible();
+  await expect(page.getByTestId('take-count')).toHaveText('1 of 5 examples');
+});

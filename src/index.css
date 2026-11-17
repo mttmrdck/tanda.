@@ -391,7 +391,7 @@ li {
 .live-layout { display:flex; flex-direction:column; align-items:stretch; gap:16px; }
 .live-main, .live-aside { display:contents; }
 .live-layout .video-panel { order:1; }
-.live-layout [data-testid='saying-card'], .live-layout .live-empty { order:2; }
+.live-layout [data-testid='saying-card'], .live-layout .live-empty, .live-layout .live-sighting { order:2; }
 .live-layout .source-controls { order:3; }
 .live-layout [data-testid='calm-card'] { order:4; }
 .live-layout .live-recent { order:5; }

@@ -1,8 +1,12 @@
 import { BUFFER_MS, CLIP_N, COOLDOWN_MS, D, EMIT_CONFIDENCE, EVAL_INTERVAL_MS, IDLE_ENERGY } from './constants';
 import { classify, type ClassModel } from './classifier';
+import { describeWindow, guessKey, type Guess } from './guess';
 import { featureMotionEnergy } from './motion';
 import { resampleClip } from './resample';
 import type { FeatureFrame, Recognition } from './types';
+
+/** Consecutive agreeing evaluations (400 ms apart) before an untaught movement is described. */
+export const SIGHTING_STREAK = 3;
 
 export interface RecognizerOptions {
   windowMs: number;
@@ -18,11 +22,20 @@ export interface Emission {
   window: Float32Array;
 }
 
+/** What the hands look like when no taught signal matched — a description, never a meaning. */
+export interface Sighting extends Guess {
+  t: number;
+  /** the resampled window, so the caregiver can teach it as a new signal */
+  window: Float32Array;
+}
+
 export interface Evaluation {
   t: number;
   energy: number;
   result: Recognition;
   emitted: Emission | null;
+  /** set when the same description held for SIGHTING_STREAK evaluations and nothing taught matched */
+  sighting: Sighting | null;
 }
 
 /**
@@ -36,6 +49,9 @@ export class Recognizer {
   private models: readonly ClassModel[] = [];
   private lastEval = -Infinity;
   private prevCandidate: string | null = null;
+  private prevGuess: string | null = null;
+  private guessStreak = 0;
+  private lastAnyEmit = -Infinity;
   private readonly lastEmit = new Map<string, number>();
   private readonly armed = new Map<string, boolean>();
 
@@ -54,6 +70,9 @@ export class Recognizer {
     this.buf = [];
     this.lastEval = -Infinity;
     this.prevCandidate = null;
+    this.prevGuess = null;
+    this.guessStreak = 0;
+    this.lastAnyEmit = -Infinity;
     this.lastEmit.clear();
     this.armed.clear();
   }
@@ -88,12 +107,24 @@ export class Recognizer {
     if (cand && cand === this.prevCandidate && clip && this.canEmit(cand, t)) {
       emitted = { t, signalId: cand, confidence: result.confidence, distance: result.distance, window: clip };
       this.lastEmit.set(cand, t);
+      this.lastAnyEmit = t;
       this.armed.set(cand, false);
       // A different signal appearing re-arms the others.
       for (const k of this.lastEmit.keys()) if (k !== cand) this.armed.set(k, true);
     }
     this.prevCandidate = cand;
-    return { t, energy, result, emitted };
+
+    // Describe untaught movement — but not the tail of a signal that was just recognised, and only once the
+    // description has held for SIGHTING_STREAK evaluations (longer than an emission needs, so a taught signal
+    // is named before it could be called "not taught yet").
+    let sighting: Sighting | null = null;
+    const quiet = t - this.lastAnyEmit < COOLDOWN_MS;
+    const guess = !cand && !quiet && clip && energy >= IDLE_ENERGY && result.reason !== 'low-margin' ? describeWindow(win) : null;
+    const key = guess ? guessKey(guess) : null;
+    this.guessStreak = key && key === this.prevGuess ? this.guessStreak + 1 : key ? 1 : 0;
+    this.prevGuess = key;
+    if (guess && clip && this.guessStreak >= SIGHTING_STREAK) sighting = { ...guess, t, window: clip };
+    return { t, energy, result, emitted, sighting };
   }
 
   private canEmit(id: string, t: number): boolean {

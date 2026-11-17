@@ -5,6 +5,8 @@ import { Link, useLocation } from 'wouter';
 import { CLIP_N, D } from '../../engine/constants';
 import { dtw } from '../../engine/dtw';
 import { ALL_GESTURES } from '../../engine/simulator';
+import { guessKey } from '../../engine/guess';
+import type { Sighting } from '../../engine/recognizer';
 import type { EventRecord } from '../../engine/types';
 import { pickText, useT } from '../../i18n';
 import { addEvent, addExample, listEvents, updateEvent } from '../../store/repo';
@@ -20,6 +22,7 @@ import { EmptyState } from '../components/EmptyState';
 import { CalmMeter, calmReasons, ConfidenceBar, EventList, FeedbackState, tierLabel } from '../components/LiveBits';
 import { iconFor } from '../components/signalIcons';
 import { MotionTrace } from '../components/MotionTrace';
+import { describeSighting, SightingCard } from '../components/SightingCard';
 import { SourceControls, VideoPanel } from '../components/VideoPanel';
 import { speak, speechAvailable } from '../hooks/speech';
 
@@ -30,6 +33,9 @@ interface Current {
   window: Float32Array;
   feedback?: EventRecord['feedback'];
 }
+
+/** A "not taught yet" description stays up this long after it was last seen. */
+const SIGHTING_HOLD_MS = 6000;
 
 /** Add the window as a new example only if it is not already well covered (nearest distance > 0.6·τ). */
 const ADD_IF_FARTHER_THAN = 0.6;
@@ -56,6 +62,7 @@ export default function Live() {
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [current, setCurrent] = useState<Current | null>(null);
   const [sheet, setSheet] = useState(false);
+  const [sighting, setSighting] = useState<Sighting | null>(null);
 
   // latest values for subscription callbacks
   const ref = useRef({ signals, lang, profile, speakAloud, t });
@@ -79,7 +86,23 @@ export default function Live() {
   }, [profile]);
 
   useEffect(() => {
+    let lastKey = '';
+    let hold: ReturnType<typeof setTimeout> | undefined;
+    const offSight = session.onSighting((sg) => {
+      const key = guessKey(sg);
+      if (key !== lastKey) announce(ref.current.t('sightAnnounce', { what: describeSighting(sg, ref.current.t) }));
+      lastKey = key;
+      setSighting(sg);
+      clearTimeout(hold);
+      hold = setTimeout(() => {
+        lastKey = '';
+        setSighting(null);
+      }, SIGHTING_HOLD_MS);
+    });
     const offEmit = session.onEmission((e) => {
+      lastKey = '';
+      clearTimeout(hold);
+      setSighting(null);
       const { signals: sigs, lang: l, profile: p, speakAloud: sa, t: tt } = ref.current;
       const sig = sigs.find((s) => s.id === e.signalId);
       if (!p || !sig) return;
@@ -104,6 +127,8 @@ export default function Live() {
         .catch(() => undefined);
     });
     return () => {
+      clearTimeout(hold);
+      offSight();
       offEmit();
       offCalm();
     };
@@ -247,6 +272,16 @@ export default function Live() {
                 </div>
               )}
             </Card>
+          )}
+
+          {sighting && (
+            <SightingCard
+              sighting={sighting}
+              onTeach={() => {
+                useTeachDraft.getState().set(sighting.window);
+                navigate('/teach');
+              }}
+            />
           )}
 
           <Card aria-labelledby="calm-h" data-testid="calm-card">

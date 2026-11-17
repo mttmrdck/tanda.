@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { CalmWatch, type CalmState, type CalmUpdate } from '../engine/calmWatch';
 import type { ClassModel } from '../engine/classifier';
 import { FrameProcessor } from '../engine/processor';
-import { Recognizer, type Emission, type Evaluation } from '../engine/recognizer';
+import { Recognizer, type Emission, type Evaluation, type Sighting } from '../engine/recognizer';
 import { invalidFraction } from '../engine/resample';
 import type { GestureName } from '../engine/simulator';
 import type { FeatureFrame, SlottedFrame } from '../engine/types';
@@ -65,6 +65,7 @@ class Session {
   private captures: Capture[] = [];
   private frameSubs = new Set<(f: SlottedFrame, valid: boolean) => void>();
   private emissionSubs = new Set<(e: Emission) => void>();
+  private sightingSubs = new Set<(s: Sighting) => void>();
   private calmSubs = new Set<(u: CalmUpdate) => void>();
   private startToken = 0;
   private targetFps = 15;
@@ -184,6 +185,11 @@ class Session {
     this.emissionSubs.add(cb);
     return () => this.emissionSubs.delete(cb);
   }
+  /** "Not taught yet — looks like …" descriptions (Live only). */
+  onSighting(cb: (s: Sighting) => void): () => void {
+    this.sightingSubs.add(cb);
+    return () => this.sightingSubs.delete(cb);
+  }
   onCalm(cb: (u: CalmUpdate) => void): () => void {
     this.calmSubs.add(cb);
     return () => this.calmSubs.delete(cb);
@@ -214,6 +220,7 @@ class Session {
       if (ev) {
         useSession.setState({ lastEval: ev });
         if (ev.emitted) for (const s of this.emissionSubs) s(ev.emitted);
+        if (ev.sighting) for (const s of this.sightingSubs) s(ev.sighting);
       }
       const cu = this.calm.push(raw.t, slotted.pose, slotted.aspect);
       if (cu) {

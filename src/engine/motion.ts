@@ -140,34 +140,34 @@ const SPREAD_QUANTILE = 0.75;
  * mis-tracked frames inflate a standard deviation.
  */
 export function handShapeSpread(frames: readonly FeatureFrame[]): number {
-  let best = 0;
-  for (const [range, presence] of [
-    [RANGE_HAND_L, RANGE_PRESENCE[0]],
-    [RANGE_HAND_R, RANGE_PRESENCE[0] + 1],
-  ] as const) {
-    const raw: PointSample[] = [];
-    for (const f of frames) {
-      if (!f.valid || f.v[presence] !== 1) continue;
-      const xy = new Float32Array(HAND_SHAPE_POINTS.length * 2);
-      HAND_SHAPE_POINTS.forEach((p, k) => {
-        xy[2 * k] = f.v[range[0] + 2 * p]!;
-        xy[2 * k + 1] = f.v[range[0] + 2 * p + 1]!;
-      });
-      raw.push({ t: f.t, xy });
-    }
-    // need the hand for most of the window, or a brief detection blip would read as motion
-    if (raw.length < Math.max(6, frames.length * 0.5)) continue;
-    const samples = averageSamples(raw, HAND_AVG_MS);
-    let sum = 0;
-    for (let k = 0; k < HAND_SHAPE_POINTS.length; k++) {
-      const mx = median(samples.map((s) => s.xy[2 * k]!));
-      const my = median(samples.map((s) => s.xy[2 * k + 1]!));
-      const dev = samples.map((s) => Math.hypot(s.xy[2 * k]! - mx, s.xy[2 * k + 1]! - my)).sort((a, b) => a - b);
-      sum += dev[Math.floor((dev.length - 1) * SPREAD_QUANTILE)]!;
-    }
-    best = Math.max(best, sum / HAND_SHAPE_POINTS.length);
+  return Math.max(handSpread(frames, 'left'), handSpread(frames, 'right'));
+}
+
+/** Finger activity of one hand (the subject's left or right) — see `handShapeSpread`. */
+export function handSpread(frames: readonly FeatureFrame[], side: 'left' | 'right'): number {
+  const range = side === 'left' ? RANGE_HAND_L : RANGE_HAND_R;
+  const presence = RANGE_PRESENCE[0] + (side === 'left' ? 0 : 1);
+  const raw: PointSample[] = [];
+  for (const f of frames) {
+    if (!f.valid || f.v[presence] !== 1) continue;
+    const xy = new Float32Array(HAND_SHAPE_POINTS.length * 2);
+    HAND_SHAPE_POINTS.forEach((p, k) => {
+      xy[2 * k] = f.v[range[0] + 2 * p]!;
+      xy[2 * k + 1] = f.v[range[0] + 2 * p + 1]!;
+    });
+    raw.push({ t: f.t, xy });
   }
-  return best;
+  // need the hand for most of the window, or a brief detection blip would read as motion
+  if (raw.length < Math.max(6, frames.length * 0.5)) return 0;
+  const samples = averageSamples(raw, HAND_AVG_MS);
+  let sum = 0;
+  for (let k = 0; k < HAND_SHAPE_POINTS.length; k++) {
+    const mx = median(samples.map((s) => s.xy[2 * k]!));
+    const my = median(samples.map((s) => s.xy[2 * k + 1]!));
+    const dev = samples.map((s) => Math.hypot(s.xy[2 * k]! - mx, s.xy[2 * k + 1]! - my)).sort((a, b) => a - b);
+    sum += dev[Math.floor((dev.length - 1) * SPREAD_QUANTILE)]!;
+  }
+  return sum / HAND_SHAPE_POINTS.length;
 }
 
 function median(xs: number[]): number {
