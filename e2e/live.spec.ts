@@ -61,7 +61,8 @@ test('rocking performer → Calm Watch reaches Rising within 20 s with a transla
   await page.goto('/#/settings');
   await page.getByRole('radio', { name:'Bahasa Malaysia', exact:true }).press('Space');
   await page.goto('/#/');
-  await page.getByRole('button', { name:'Pelakon demo', exact:true }).click();
+  // video was running when we left, so it resumes on return — no second "Demo performer" press needed
+  await expect(page.getByRole('button', { name:'Pelakon demo', exact:true })).toHaveCount(0);
   await page.getByRole('button', { name:'Bergoyang', exact:true }).click();
   await expect(page.getByTestId('calm-reasons')).toContainText('Irama berulang', {timeout:20_000});
 });

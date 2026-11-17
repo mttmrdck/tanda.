@@ -173,6 +173,7 @@ export const ms: Record<MsgKey, string> = {
   gTapTable: 'Ketuk meja',
   gRock: 'Bergoyang',
   gFlap: 'Kibas tangan',
+  gSqueeze: 'Genggam tangan',
   gIdle: 'Rehat',
 
   liveTitle: 'Langsung',

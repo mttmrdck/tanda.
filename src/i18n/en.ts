@@ -172,6 +172,7 @@ export const en = {
   gTapTable: 'Tap the table',
   gRock: 'Rock',
   gFlap: 'Flap hands',
+  gSqueeze: 'Squeeze hand',
   gIdle: 'Rest',
 
   // live

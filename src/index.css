@@ -353,12 +353,13 @@ li {
   .top-bar > div:first-child { border:none; background:transparent; backdrop-filter:none; box-shadow:none; border-radius:0; }
   .top-bar button { box-shadow:none; }
   .top-bar .privacy-button { background:transparent; color:var(--ink-muted); font-size:13px; padding-inline:8px; }
-  .live-layout { align-items:start; }
   .video-panel { min-width:0; }
-  .video-panel fieldset { padding:16px; background:var(--surface); border-radius:16px; }
-  .video-panel legend { float:left; width:100%; margin-bottom:8px; font-size:13px; color:var(--ink-muted); }
-  .video-panel fieldset > div { clear:both; }
-  .live-aside { display:grid; gap:16px; }
+  .source-controls fieldset { padding:16px; background:var(--surface); border-radius:16px; }
+  .source-controls legend { float:left; width:100%; margin-bottom:8px; font-size:13px; color:var(--ink-muted); }
+  .source-controls fieldset > div { clear:both; }
+  /* Status / skeleton / Stop sit on the video. Solid surface (not glass) so status colours keep their contrast. */
+  .stage-pill { background:var(--surface); border:1px solid var(--border-soft); border-radius:999px; box-shadow:0 1px 3px rgb(0 0 0 / .12); }
+  .stage-pill:is(button):hover { background:var(--surface-2); }
   .live-aside > * { margin:0; }
   .live-aside h2 { font-size:17px; }
   .live-aside h2.uppercase { text-transform:none; letter-spacing:0; }
@@ -383,7 +384,22 @@ li {
   .sheet-grabber::after { content:''; width:36px; height:5px; background:var(--border); border-radius:99px; }
   .press:active:not(:disabled) { opacity:.8; }
 @supports (corner-shape: squircle) { .card, .camera-stage { corner-shape:squircle; } }
-@media (min-width:1024px) { .camera-stage { aspect-ratio: 4 / 3; } .live-layout > .video-panel { position:sticky; top:100px; } }
+@media (min-width:1024px) { .camera-stage { aspect-ratio: 4 / 3; } }
+/* Keep the stage short enough that the page's main action (Record / Yes) is on screen with it. */
+.video-panel .camera-stage[data-phase='running'], .video-panel .camera-stage[data-phase='starting'] { max-width:calc((100svh - var(--stage-reserve, 320px)) * 4 / 3); margin-inline:auto; }
+/* Live: phone order = video, "what they may be saying", controls, Calm Watch, events; desktop = two columns. */
+.live-layout { display:flex; flex-direction:column; align-items:stretch; gap:16px; }
+.live-main, .live-aside { display:contents; }
+.live-layout .video-panel { order:1; }
+.live-layout [data-testid='saying-card'], .live-layout .live-empty { order:2; }
+.live-layout .source-controls { order:3; }
+.live-layout [data-testid='calm-card'] { order:4; }
+.live-layout .live-recent { order:5; }
+@media (min-width:1024px) {
+  .live-layout { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr); align-items:start; gap:20px; }
+  .live-main, .live-aside { display:grid; gap:16px; align-content:start; }
+  .live-main { position:sticky; top:84px; }
+}
 @media (prefers-reduced-transparency:reduce) { .top-bar { background:var(--glass-solid); backdrop-filter:none; } }
 @media (prefers-reduced-motion:no-preference) {
 

@@ -155,6 +155,6 @@
       }
     }
   },
-  "latencyMsPerWindow": 4.705,
+  "latencyMsPerWindow": 4.485,
   "generatedBy": "tests/unit/accuracy.test.ts"
 }

@@ -17,6 +17,9 @@ export function CameraStage({ skeleton, label, children }: { skeleton: boolean; 
     if (!el || !v || kind !== 'camera' || phase !== 'running') return;
     v.className = 'absolute inset-0 h-full w-full object-contain';
     el.appendChild(v);
+    // Moving a <video> between pages detaches it, and a detached media element is paused by the browser.
+    // Without this the picture (and detection, which waits for new frames) freezes after switching pages.
+    if (v.paused) void v.play().catch(() => undefined);
     return () => {
       if (v.parentElement === el) el.removeChild(v);
     };

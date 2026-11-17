@@ -1,4 +1,4 @@
-import { ENERGY_POSE_SLOTS } from './constants';
+import { ENERGY_POSE_SLOTS, HAND_IDLE_SPREAD, IDLE_ENERGY, RANGE_HAND_L, RANGE_HAND_R, RANGE_PRESENCE } from './constants';
 import type { FeatureFrame } from './types';
 
 /** Displacement is measured over this lag rather than frame-to-frame, so landmark jitter adds little. */
@@ -79,8 +79,17 @@ function acc(s: PointSample, xy: Float64Array, cnt: Float64Array, m: number): vo
   }
 }
 
-/** Window motion energy in feature space (nose, elbows, wrists relative to the shoulders), in shoulder widths / s. */
+/**
+ * Window motion energy: the larger of body energy (nose, elbows, wrists) and finger activity, rescaled so that
+ * HAND_IDLE_SPREAD lands exactly on IDLE_ENERGY. Finger-only signals — squeezing a hand, wiggling fingers — move no body point, so without
+ * the hand term they read as "still" and are refused.
+ */
 export function featureMotionEnergy(frames: readonly FeatureFrame[]): number {
+  return Math.max(bodyMotionEnergy(frames), (IDLE_ENERGY * handShapeSpread(frames)) / HAND_IDLE_SPREAD);
+}
+
+/** Body motion energy in feature space (nose, elbows, wrists relative to the shoulders), in shoulder widths / s. */
+export function bodyMotionEnergy(frames: readonly FeatureFrame[]): number {
   const samples: PointSample[] = [];
   for (const f of frames) {
     if (!f.valid) continue;
@@ -115,4 +124,54 @@ export function bestSubWindow(frames: readonly FeatureFrame[], windowMs: number,
     }
   }
   return best;
+}
+
+/** Fingertips + finger middle joints (MediaPipe hand indices) — the points that move when the hand changes shape. */
+const HAND_SHAPE_POINTS = [4, 6, 8, 10, 12, 14, 16, 18, 20] as const;
+/** Positions are averaged over ±this many ms before measuring the spread (hand landmarks jitter more than pose). */
+const HAND_AVG_MS = 100;
+/** Spread = this quantile of each point's distance from its median position (ignores brief tracking glitches). */
+const SPREAD_QUANTILE = 0.75;
+
+/**
+ * Finger activity: how far the hand-shape points (relative to the wrist, in hand units) spread over the window
+ * after smoothing — per point, the 75th-percentile distance from its median position; mean over points, max over
+ * the two hands. A robust spread rather than a speed, because per-landmark jitter inflates speeds and a few
+ * mis-tracked frames inflate a standard deviation.
+ */
+export function handShapeSpread(frames: readonly FeatureFrame[]): number {
+  let best = 0;
+  for (const [range, presence] of [
+    [RANGE_HAND_L, RANGE_PRESENCE[0]],
+    [RANGE_HAND_R, RANGE_PRESENCE[0] + 1],
+  ] as const) {
+    const raw: PointSample[] = [];
+    for (const f of frames) {
+      if (!f.valid || f.v[presence] !== 1) continue;
+      const xy = new Float32Array(HAND_SHAPE_POINTS.length * 2);
+      HAND_SHAPE_POINTS.forEach((p, k) => {
+        xy[2 * k] = f.v[range[0] + 2 * p]!;
+        xy[2 * k + 1] = f.v[range[0] + 2 * p + 1]!;
+      });
+      raw.push({ t: f.t, xy });
+    }
+    // need the hand for most of the window, or a brief detection blip would read as motion
+    if (raw.length < Math.max(6, frames.length * 0.5)) continue;
+    const samples = averageSamples(raw, HAND_AVG_MS);
+    let sum = 0;
+    for (let k = 0; k < HAND_SHAPE_POINTS.length; k++) {
+      const mx = median(samples.map((s) => s.xy[2 * k]!));
+      const my = median(samples.map((s) => s.xy[2 * k + 1]!));
+      const dev = samples.map((s) => Math.hypot(s.xy[2 * k]! - mx, s.xy[2 * k + 1]! - my)).sort((a, b) => a - b);
+      sum += dev[Math.floor((dev.length - 1) * SPREAD_QUANTILE)]!;
+    }
+    best = Math.max(best, sum / HAND_SHAPE_POINTS.length);
+  }
+  return best;
+}
+
+function median(xs: number[]): number {
+  const a = [...xs].sort((x, y) => x - y);
+  const m = a.length >> 1;
+  return a.length % 2 ? a[m]! : (a[m - 1]! + a[m]!) / 2;
 }

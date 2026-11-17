@@ -20,7 +20,7 @@ import { Chip } from '../components/Controls';
 import { SignalGlyph } from '../components/SignalGlyph';
 import { Stepper } from '../components/Stepper';
 import { CoachCard, Countdown, draftValid, emptyDraft, RecordRing, SignalForm, type SignalDraft } from '../components/TeachBits';
-import { GESTURE_LABEL, VideoPanel } from '../components/VideoPanel';
+import { GESTURE_LABEL, SourceControls, VideoPanel } from '../components/VideoPanel';
 
 const TARGET = 5;
 const RECORD_MS = 2500;
@@ -231,23 +231,67 @@ export default function Teach() {
       )}
 
       {stepKey === 'stepRecord' && (
-        <section aria-labelledby="step-h" className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <div className="space-y-3">
-            <div className="relative">
-              <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonTeach: v })} gestures={[]} />
-              {rec.phase === 'countdown' && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden rounded-[28px]">
-                  <Countdown n={rec.count} />
-                </div>
+        <section aria-labelledby="step-h" className="grid grid-cols-1 gap-6 [--stage-reserve:400px] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div className="space-y-4">
+            <h2 id="step-h" ref={heading} tabIndex={-1} className="text-xl outline-none">
+              {t('teachRecordTitle')}
+            </h2>
+            <VideoPanel
+              skeleton={skeleton}
+              onSkeleton={(v) => setSettings({ skeletonTeach: v })}
+              overlay={
+                rec.phase === 'countdown' ? (
+                  <div className="pointer-events-none absolute inset-0 z-20">
+                    <Countdown n={rec.count} />
+                  </div>
+                ) : rec.phase === 'recording' ? (
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16">
+                    <RecordRing progress={rec.progress} />
+                  </div>
+                ) : null
+              }
+            />
+
+            {/* The main action sits right under the video so both are on screen together. */}
+            <div className="space-y-3">
+              {notice && (
+                <p role="alert" className="rounded-[16px] bg-rising-bg p-3 font-bold text-rising-fg">
+                  {t(notice)}
+                </p>
               )}
-              {rec.phase === 'recording' && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden rounded-[28px]">
-                  <RecordRing progress={rec.progress} />
+              {rec.phase === 'review' && pending ? (
+                <div className="flex flex-wrap items-center gap-4 rounded-[16px] border border-border-soft bg-surface-2 p-3">
+                  <SignalGlyph data={pending.clip} n={CLIP_N} playing size="sm" label={t('glyphLabel', { name: t('teachTake', { n: takes.length + 1 }) })} />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <p className="font-bold">{t('teachTake', { n: takes.length + 1 })}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={keep}>{t('teachKeep')}</Button>
+                      <Button variant="secondary" icon={<RotateCcw aria-hidden className="size-5" />} onClick={() => void startTake()}>
+                        {t('teachRedo')}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                <Button size="lg" className="w-full" disabled={busy} loading={busy} onClick={() => void startTake()}>
+                  {busy ? t(rec.phase === 'countdown' ? 'teachGetReady' : 'teachRecording') : t('teachRecordTake', { n: takes.length + 1 })}
+                </Button>
               )}
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-bold tabular" aria-live="polite" data-testid="take-count">
+                  {t('teachTarget', { n: takes.length, target: TARGET })}
+                </p>
+                <ol className="flex gap-1.5" aria-hidden>
+                  {Array.from({ length: TARGET }, (_, i) => (
+                    <li key={i}>{i < takes.length ? <CircleCheck className="size-6 text-calm-fg" /> : <Circle className="size-6 text-border" />}</li>
+                  ))}
+                </ol>
+              </div>
             </div>
+
+            <SourceControls gestures={[]} />
             {sourceKind === 'demo' && sessionPhase === 'running' && (
-              <fieldset>
+              <fieldset className="source-controls rounded-[16px] bg-surface p-4">
                 <legend className="font-bold">{t('teachPerformerGesture')}</legend>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {TEACHABLE_GESTURES.map((g) => (
@@ -261,45 +305,9 @@ export default function Teach() {
           </div>
 
           <Card className="space-y-4 self-start">
-            <h2 id="step-h" ref={heading} tabIndex={-1} className="text-xl outline-none">
-              {t('teachRecordTitle')}
-            </h2>
             <p className="text-ink-muted">{t('teachRecordHint')}</p>
             {usedPreload && <p className="rounded-[16px] bg-primary-soft p-3 text-primary">{t('teachPreloaded')}</p>}
-            <p className="font-bold tabular" aria-live="polite" data-testid="take-count">
-              {t('teachTarget', { n: takes.length, target: TARGET })}
-            </p>
-            <ol className="flex gap-2" aria-hidden>
-              {Array.from({ length: TARGET }, (_, i) => (
-                <li key={i}>{i < takes.length ? <CircleCheck className="size-6 text-calm-fg" /> : <Circle className="size-6 text-border" />}</li>
-              ))}
-            </ol>
             <p className="text-sm text-ink-muted">{t('teachMinNote', { min: MIN_EXAMPLES, target: TARGET })}</p>
-
-            {notice && (
-              <p role="alert" className="rounded-[16px] bg-rising-bg p-3 font-bold text-rising-fg">
-                {t(notice)}
-              </p>
-            )}
-
-            {rec.phase === 'review' && pending ? (
-              <div className="rounded-[16px] border border-border-soft bg-surface-2 p-4">
-                <p className="font-bold">{t('teachTake', { n: takes.length + 1 })}</p>
-                <div className="mt-2 flex justify-center">
-                  <SignalGlyph data={pending.clip} n={CLIP_N} playing label={t('glyphLabel', { name: t('teachTake', { n: takes.length + 1 }) })} />
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button onClick={keep}>{t('teachKeep')}</Button>
-                  <Button variant="secondary" icon={<RotateCcw aria-hidden className="size-5" />} onClick={() => void startTake()}>
-                    {t('teachRedo')}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Button size="lg" className="w-full" disabled={busy} loading={busy} onClick={() => void startTake()}>
-                {busy ? t(rec.phase === 'countdown' ? 'teachGetReady' : 'teachRecording') : t('teachRecordTake', { n: takes.length + 1 })}
-              </Button>
-            )}
 
             {takes.length > 0 && (
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-3" aria-label={t('teachTarget', { n: takes.length, target: TARGET })}>

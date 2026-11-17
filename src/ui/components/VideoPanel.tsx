@@ -1,13 +1,13 @@
 import { clsx } from 'clsx';
-import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, ScanLine } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, PersonStanding, ScanLine, Square } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useT, type MsgKey } from '../../i18n';
 import type { GestureName } from '../../engine/simulator';
 import { session, useSession } from '../../store/useSession';
 import { onVisionStatus, visionStatus } from '../../vision/loader';
 import { Button } from './Button';
 import { CameraStage } from './CameraStage';
-import { Chip, SegmentedControl, Switch } from './Controls';
+import { Chip, SegmentedControl } from './Controls';
 
 export const GESTURE_LABEL: Record<GestureName, MsgKey> = {
   wave: 'gWave',
@@ -20,6 +20,7 @@ export const GESTURE_LABEL: Record<GestureName, MsgKey> = {
   flap: 'gFlap',
   idle: 'gIdle',
   flail: 'gFlap',
+  squeeze: 'gSqueeze',
 };
 
 const ERR: Record<string, MsgKey> = {
@@ -33,20 +34,20 @@ const ERR: Record<string, MsgKey> = {
 };
 
 /**
- * Camera / demo stage with source switching, status line and (for the demo performer) gesture buttons.
- * The camera is only started by an explicit button press.
+ * Camera / demo stage. While video runs, the status, skeleton toggle and Stop sit ON the stage so the picture
+ * and the page's main action fit in one screen; source switching and demo gestures live in `SourceControls`,
+ * which each page places itself. The camera is only started by an explicit button press (or resumed on return
+ * to a camera page when the caregiver had it running — see SessionSync).
  */
 export function VideoPanel({
   skeleton,
   onSkeleton,
-  gestures,
-  onPerform,
+  overlay,
 }: {
   skeleton: boolean;
   onSkeleton: (v: boolean) => void;
-  /** demo gestures to offer as buttons */
-  gestures: GestureName[];
-  onPerform?: (g: GestureName) => void;
+  /** extra layer on top of the stage (teach countdown / recording ring) */
+  overlay?: ReactNode;
 }) {
   const t = useT();
   const s = useSession();
@@ -70,10 +71,38 @@ export function VideoPanel({
           : s.seeing === 'lost'
             ? { Icon: CircleExclamationPoint, text: t('statusLost'), tone: 'text-rising-fg' }
             : { Icon: LoaderCircle, text: t('statusWaiting'), tone: 'text-ink-muted' };
+  const active = s.phase === 'running' || s.phase === 'starting';
 
   return (
-    <div className="video-panel space-y-3">
+    <div className="video-panel">
       <CameraStage skeleton={skeleton} label={label}>
+        {overlay}
+        {active && (
+          <div className="stage-toolbar pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 p-2 sm:p-3">
+            <p className={clsx('stage-pill pointer-events-auto flex min-h-12 items-center gap-2 px-4 font-bold', status.tone)} data-testid="status-line">
+              <status.Icon aria-hidden className={clsx('size-5 shrink-0', status.Icon === LoaderCircle && 'animate-spin motion-reduce:animate-none')} />
+              {status.text}
+            </p>
+            <div className="pointer-events-auto flex gap-2">
+              {s.kind === 'camera' && (
+                <button
+                  type="button"
+                  aria-pressed={skeleton}
+                  aria-label={t('showSkeleton')}
+                  title={t('showSkeleton')}
+                  onClick={() => onSkeleton(!skeleton)}
+                  className={clsx('stage-pill grid size-12 place-items-center', skeleton ? 'text-primary' : 'text-ink-muted')}
+                >
+                  <PersonStanding aria-hidden className="size-5" />
+                </button>
+              )}
+              <button type="button" onClick={() => session.stop()} className="stage-pill flex min-h-12 items-center gap-2 px-4 font-bold text-ink">
+                <Square aria-hidden className="size-4" />
+                {t('camStop')}
+              </button>
+            </div>
+          </div>
+        )}
         {(s.phase === 'idle' || s.phase === 'error') && (
           <div className="stage-idle absolute inset-0 grid place-items-center p-4 sm:p-6">
             <div className="max-w-sm text-center">
@@ -101,12 +130,27 @@ export function VideoPanel({
           </div>
         )}
       </CameraStage>
+    </div>
+  );
+}
 
-      <div className={clsx('flex flex-wrap items-center justify-between gap-3', s.phase === 'idle' && 'sr-only')}>
-        <p className={clsx('flex min-h-12 items-center gap-2 font-bold', status.tone)} data-testid="status-line">
-          <status.Icon aria-hidden className={clsx('size-5 shrink-0', status.Icon === LoaderCircle && 'animate-spin motion-reduce:animate-none')} />
-          {status.text}
-        </p>
+/** Camera ⇄ demo switch, low-power note, and (for the demo performer) the gesture buttons. Hidden while video is off. */
+export function SourceControls({ gestures, onPerform }: { gestures: GestureName[]; onPerform?: (g: GestureName) => void }) {
+  const t = useT();
+  const s = useSession();
+  if (s.phase !== 'running' && s.phase !== 'starting') return null;
+  return (
+    <div className="source-controls space-y-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <SegmentedControl
+          label={t('sourceLabel')}
+          value={s.kind ?? 'demo'}
+          onChange={(k) => void session.start(k)}
+          options={[
+            { value: 'camera', label: t('sourceCamera') },
+            { value: 'demo', label: t('sourceDemo') },
+          ]}
+        />
         {s.stats?.lowPower && (
           <span className="inline-flex min-h-9 items-center gap-2 rounded-full bg-surface-2 px-3 text-sm font-bold text-ink-muted">
             <Battery aria-hidden className="size-4" />
@@ -114,25 +158,6 @@ export function VideoPanel({
           </span>
         )}
       </div>
-
-      {(s.phase === 'running' || s.phase === 'starting') && (
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <SegmentedControl
-            label={t('sourceLabel')}
-            value={s.kind ?? 'demo'}
-            onChange={(k) => void session.start(k)}
-            options={[
-              { value: 'camera', label: t('sourceCamera') },
-              { value: 'demo', label: t('sourceDemo') },
-            ]}
-          />
-          <Button variant="secondary" onClick={() => session.stop()}>
-            {t('camStop')}
-          </Button>
-        </div>
-      )}
-
-      {s.kind === 'camera' && <Switch label={t('showSkeleton')} checked={skeleton} onChange={onSkeleton} />}
 
       {s.kind === 'demo' && s.phase === 'running' && gestures.length > 0 && (
         <fieldset>

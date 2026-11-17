@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { updateProfile } from '../store/repo';
 import { useSettings } from '../store/useApp';
 import { useData } from '../store/useData';
-import { session, useSession } from '../store/useSession';
+import { session, useSession, type SourceKind } from '../store/useSession';
 
 const CAMERA_ROUTES = ['/', '/teach', '/debug'];
 
@@ -18,11 +18,22 @@ export function SessionSync() {
   const batterySaver = useSettings((s) => s.batterySaver);
   const deviceId = useSettings((s) => s.cameraDeviceId);
 
-  // Stop the camera (all tracks) when leaving camera pages.
+  // Stop the camera (all tracks) when leaving camera pages. If video was running when the caregiver left, start
+  // the same source again when they come back to a camera page — they already chose to turn it on, and pressing
+  // Stop clears that choice. Leaving the app or reloading never resumes it.
+  const resume = useRef<SourceKind | null>(null);
   useEffect(() => {
     const onCameraPage = CAMERA_ROUTES.some((r) => loc === r || (r !== '/' && loc.startsWith(`${r}/`)));
-    if (!onCameraPage) session.stop();
     session.setMode(loc.startsWith('/teach') ? 'teach' : 'live');
+    if (!onCameraPage) {
+      const { kind, phase } = useSession.getState();
+      if (kind && (phase === 'running' || phase === 'starting')) resume.current = kind;
+      session.stop();
+    } else if (resume.current && useSession.getState().phase === 'idle') {
+      const kind = resume.current;
+      resume.current = null;
+      void session.start(kind);
+    }
   }, [loc]);
 
   useEffect(() => session.setModels(models), [models]);

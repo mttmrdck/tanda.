@@ -20,7 +20,7 @@ import { EmptyState } from '../components/EmptyState';
 import { CalmMeter, calmReasons, ConfidenceBar, EventList, FeedbackState, tierLabel } from '../components/LiveBits';
 import { iconFor } from '../components/signalIcons';
 import { MotionTrace } from '../components/MotionTrace';
-import { VideoPanel } from '../components/VideoPanel';
+import { SourceControls, VideoPanel } from '../components/VideoPanel';
 import { speak, speechAvailable } from '../hooks/speech';
 
 interface Current {
@@ -163,8 +163,8 @@ export default function Live() {
   const reasons = calm ? calmReasons(calm, lang, t) : [];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl sm:text-3xl">{t('liveTitle')}</h1>
+    <div className="space-y-6 [--stage-reserve:300px] max-sm:[--stage-reserve:420px]">
+      <h1 className="max-sm:sr-only text-2xl sm:text-3xl">{t('liveTitle')}</h1>
 
       {calm?.tier === 'high' && (
         <div role="status" className="flex items-start gap-3 rounded-[16px] border border-high-fg/40 bg-high-bg p-4 text-high-fg" data-testid="high-banner">
@@ -175,11 +175,15 @@ export default function Live() {
         </div>
       )}
 
-      <div className="live-layout grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(300px,1fr)]">
-        <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonLive: v })} gestures={ALL_GESTURES} />
+      <div className="live-layout">
+        <div className="live-main">
+          <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonLive: v })} />
+          <SourceControls gestures={ALL_GESTURES} />
+        </div>
 
         <div className="live-aside">
           {signals.length === 0 ? (
+            <div className="live-empty">
             <EmptyState
               title={t('emptyNoSignalsTitle')}
               body={t('emptyNoSignalsBody', { name: profile?.nickname ?? '' })}
@@ -189,6 +193,7 @@ export default function Live() {
                 </Link>
               }
             />
+            </div>
           ) : (
             <Card aria-labelledby="saying-h" data-testid="saying-card">
               <h2 id="saying-h" className="font-sans text-sm font-bold uppercase tracking-wide text-ink-muted">
@@ -277,7 +282,7 @@ export default function Live() {
             </p>
           </Card>
 
-          <Card aria-labelledby="recent-h">
+          <Card aria-labelledby="recent-h" className="live-recent">
             <h2 id="recent-h" className="text-lg">
               {t('recentTitle')}
             </h2>

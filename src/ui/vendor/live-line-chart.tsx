@@ -36,7 +36,7 @@ export interface LiveLineChartProps {
    * Your data feed. Called once; call `push(value)` whenever a new reading arrives
    * and return a cleanup function (close the socket, clear the timer…).
    */
-  source?: (push: (value: number, time?: number) => void) => void | (() => void);
+  source?: (push: (value: number, time?: number) => void) => (() => void) | undefined;
   /** Values already known, oldest → newest, spaced `intervalMs` apart and ending now */
   initial?: number[];
   /** How often readings arrive, roughly. Also the small delay that makes motion silky (default 1000) */

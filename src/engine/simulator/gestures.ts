@@ -17,6 +17,7 @@ import { REST_L, REST_R, type V2 } from './skeleton';
  * | rock         | whole upper body sways side to side at ~1 Hz, hands in the lap            | Calm Watch        |
  * | flap         | both open hands at chest height flapping up and down at ~3 Hz             | Calm Watch        |
  * | flail        | large, irregular arm and torso movement (multi-sine, test helper)         | Calm Watch tests  |
+ * | squeeze      | arms resting, right hand opens and closes at ~1.5 Hz — fingers only       | minimal movement  |
  */
 export type GestureName =
   | 'idle'
@@ -28,7 +29,8 @@ export type GestureName =
   | 'tapTable'
   | 'rock'
   | 'flap'
-  | 'flail';
+  | 'flail'
+  | 'squeeze';
 
 export const TEACHABLE_GESTURES: GestureName[] = ['wave', 'handToMouth', 'coverEars', 'armsUp', 'pointRight', 'tapTable'];
 export const ALL_GESTURES: GestureName[] = [...TEACHABLE_GESTURES, 'idle', 'rock', 'flap'];
@@ -119,6 +121,11 @@ export function gestureState(name: GestureName, p: GestureParams): GestureState 
       const y = 0.3 + 0.28 * amp * Math.sin(ph);
       s.left = { wrist: [0.95, y], shape: 'open', angle: -0.6 + 0.4 * Math.sin(ph) };
       s.right = { wrist: [-0.95, y], shape: 'open', angle: 0.6 - 0.4 * Math.sin(ph) };
+      return s;
+    }
+    case 'squeeze': {
+      const closed = k > 0.2 && Math.sin(2 * Math.PI * 1.5 * rate * t) > 0;
+      s.right = { wrist: REST_R, shape: closed ? 'fist' : 'open', angle: 0.35 };
       return s;
     }
     case 'flail': {
