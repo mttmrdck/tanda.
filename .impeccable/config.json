@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "createdAt": "2026-11-17T05:24:39.262Z",
+        "reason": "Pinned by the build brief (ISYARAT_BUILD_PROMPT.md §2 Fonts: @fontsource-variable/fraunces for display)"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "dist-e2e/index.html"
+        ],
+        "createdAt": "2026-11-17T05:24:39.277Z",
+        "reason": "Pinned by the build brief (§7.1 token bg #FAF7F2, 'soft paper-tone background'); file is generated build output"
+      }
+    ]
+  }
+}
