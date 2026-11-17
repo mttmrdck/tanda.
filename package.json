@@ -20,7 +20,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "pree2e": "node scripts/setup-assets.mjs --if-missing",
+    "pree2e": "node scripts/setup-assets.mjs --if-missing && tsc -b && vite build --mode e2e",
     "setup": "node scripts/setup-assets.mjs",
     "contrast": "node scripts/check-contrast.mjs",
     "check": "npm run typecheck && npm run lint && npm run contrast && npm test && npm run build"
