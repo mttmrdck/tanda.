@@ -139,6 +139,7 @@ export const en = {
   sourceCamera: 'Camera',
   sourceDemo: 'Demo performer',
   camStart: 'Start camera',
+  camFlip: 'Flip camera',
   camStop: 'Stop',
   camStarting: 'Starting the camera…',
   camPreparing: 'Getting on-device recognition ready…',

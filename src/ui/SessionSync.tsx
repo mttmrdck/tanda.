@@ -17,6 +17,7 @@ export function SessionSync() {
   const targetFps = useSettings((s) => s.targetFps);
   const batterySaver = useSettings((s) => s.batterySaver);
   const deviceId = useSettings((s) => s.cameraDeviceId);
+  const facing = useSettings((s) => s.cameraFacing);
 
   // Stop the camera (all tracks) when leaving camera pages. If video was running when the caregiver left, start
   // the same source again when they come back to a camera page — they already chose to turn it on, and pressing
@@ -38,7 +39,7 @@ export function SessionSync() {
 
   useEffect(() => session.setModels(models), [models]);
   useEffect(() => session.setRecognizerOptions({ sensitivity, windowMs }), [sensitivity, windowMs]);
-  useEffect(() => session.setCameraOptions({ targetFps: batterySaver ? 10 : targetFps, deviceId }), [targetFps, batterySaver, deviceId]);
+  useEffect(() => session.setCameraOptions({ targetFps: batterySaver ? 10 : targetFps, deviceId, facing }), [targetFps, batterySaver, deviceId, facing]);
 
   // Calm Watch baseline per profile: load on switch, save periodically and on switch/unload.
   const profileId = profile?.id;

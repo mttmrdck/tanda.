@@ -1,7 +1,7 @@
 import { DEFAULT_PLACEMENT, PERFORMANCE_MS, createRng, renderFrame, type GestureName, type Placement } from '../engine/simulator';
 import type { Rng } from '../engine/simulator/rng';
 import type { RawFrame } from '../engine/types';
-import { openCamera, stopStream, CameraError, mapCameraError } from './camera';
+import { openCamera, stopStream, streamInfo, CameraError, mapCameraError, type Facing } from './camera';
 import { loadLandmarkers } from './loader';
 import { CameraPipeline, type PipelineStats } from './pipeline';
 
@@ -35,6 +35,7 @@ export class CameraSource extends BaseSource implements FrameSource {
   constructor(
     private readonly opts: {
       deviceId?: string;
+      facing?: Facing;
       targetFps: number;
       onStats: (s: PipelineStats) => void;
       onError: (e: CameraError | Error) => void;
@@ -51,7 +52,10 @@ export class CameraSource extends BaseSource implements FrameSource {
 
   async start(): Promise<void> {
     this.stopped = false;
-    const [lm, stream] = await Promise.all([loadLandmarkers(), openCamera(this.opts.deviceId)]);
+    const [lm, stream] = await Promise.all([
+      loadLandmarkers(),
+      openCamera({ ...(this.opts.deviceId ? { deviceId: this.opts.deviceId } : {}), ...(this.opts.facing ? { facing: this.opts.facing } : {}) }),
+    ]);
     if (this.stopped) {
       stopStream(stream);
       return;
@@ -86,6 +90,11 @@ export class CameraSource extends BaseSource implements FrameSource {
     stopStream(this.stream);
     this.stream = null;
     this.videoEl.srcObject = null;
+  }
+
+  /** The device / side actually opened (empty / null before start). */
+  info(): { deviceId: string; facing: Facing | null } {
+    return this.stream ? streamInfo(this.stream) : { deviceId: '', facing: null };
   }
 
   /** for tests: are any tracks still live? */

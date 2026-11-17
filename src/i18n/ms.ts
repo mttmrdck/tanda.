@@ -140,6 +140,7 @@ export const ms: Record<MsgKey, string> = {
   sourceCamera: 'Kamera',
   sourceDemo: 'Pelakon demo',
   camStart: 'Hidupkan kamera',
+  camFlip: 'Tukar kamera',
   camStop: 'Henti',
   camStarting: 'Menghidupkan kamera…',
   camPreparing: 'Menyediakan pengecaman pada peranti…',

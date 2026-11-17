@@ -30,20 +30,30 @@ export function mapCameraError(err: unknown): CameraError {
   }
 }
 
-export async function openCamera(deviceId?: string): Promise<MediaStream> {
+export type Facing = 'user' | 'environment';
+
+/** Open a camera: an exact device when given, otherwise the preferred side (front / back) as a hint. */
+export async function openCamera(opts: { deviceId?: string; facing?: Facing } = {}): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia) throw new CameraError(window.isSecureContext ? 'no-device' : 'insecure');
   try {
     return await navigator.mediaDevices.getUserMedia({
       video: {
         width: { ideal: 640 },
         height: { ideal: 480 },
-        ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'user' }),
+        ...(opts.deviceId ? { deviceId: { exact: opts.deviceId } } : { facingMode: { ideal: opts.facing ?? 'user' } }),
       },
       audio: false,
     });
   } catch (err) {
     throw mapCameraError(err);
   }
+}
+
+/** Which device / side a stream actually came from (facing is unknown on most laptop webcams). */
+export function streamInfo(stream: MediaStream): { deviceId: string; facing: Facing | null } {
+  const s = stream.getVideoTracks()[0]?.getSettings();
+  const f = s?.facingMode;
+  return { deviceId: s?.deviceId ?? '', facing: f === 'user' || f === 'environment' ? f : null };
 }
 
 export function stopStream(stream: MediaStream | null | undefined): void {

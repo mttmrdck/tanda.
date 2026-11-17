@@ -6,7 +6,7 @@ import { Recognizer, type Emission, type Evaluation, type Sighting } from '../en
 import { invalidFraction } from '../engine/resample';
 import type { GestureName } from '../engine/simulator';
 import type { FeatureFrame, SlottedFrame } from '../engine/types';
-import { CameraError, type CameraErrorCode } from '../vision/camera';
+import { CameraError, listCameras, type CameraErrorCode, type Facing } from '../vision/camera';
 import type { PipelineStats } from '../vision/pipeline';
 import { CameraSource, DemoSource, type FrameSource } from '../vision/sources';
 
@@ -26,6 +26,10 @@ export interface SessionUiState {
   demoGesture: GestureName;
   /** source to offer first on Live/Teach (set from onboarding) */
   preferredSource: SourceKind;
+  /** preview is mirrored (selfie view) — false for a back camera */
+  mirrored: boolean;
+  /** video inputs available (known after camera permission); the flip button shows when > 1 */
+  cameraCount: number;
 }
 
 export const useSession = create<SessionUiState>(() => ({
@@ -38,6 +42,8 @@ export const useSession = create<SessionUiState>(() => ({
   calm: null,
   demoGesture: 'idle',
   preferredSource: 'demo',
+  mirrored: true,
+  cameraCount: 0,
 }));
 
 const LOST_MS = 1000;
@@ -70,6 +76,7 @@ class Session {
   private startToken = 0;
   private targetFps = 15;
   private deviceId = '';
+  private facing: Facing = 'user';
 
   get demo(): DemoSource | null {
     return this.source instanceof DemoSource ? this.source : null;
@@ -91,7 +98,8 @@ class Session {
     this.recognizer.setOptions(o);
   }
 
-  setCameraOptions(o: { targetFps?: number; deviceId?: string }) {
+  setCameraOptions(o: { targetFps?: number; deviceId?: string; facing?: Facing }) {
+    if (o.facing !== undefined) this.facing = o.facing;
     if (o.targetFps !== undefined) {
       this.targetFps = o.targetFps;
       if (this.source instanceof CameraSource) this.source.setTargetFps(o.targetFps);
@@ -118,6 +126,7 @@ class Session {
         ? new DemoSource()
         : new CameraSource({
             ...(this.deviceId ? { deviceId: this.deviceId } : {}),
+            facing: this.facing,
             targetFps: this.targetFps,
             onStats: (s) => useSession.setState({ stats: s }),
             onError: (e) => this.fail(e),
@@ -136,7 +145,13 @@ class Session {
       return;
     }
     if (token !== this.startToken) return;
-    useSession.setState({ phase: 'running' });
+    const facing = src instanceof CameraSource ? src.info().facing : null;
+    useSession.setState({ phase: 'running', mirrored: facing !== 'environment' });
+    if (src instanceof CameraSource) {
+      void listCameras()
+        .then((cams) => useSession.setState({ cameraCount: cams.length }))
+        .catch(() => undefined);
+    }
     this.lostTimer = setInterval(() => this.updateSeeing(performance.now()), 250);
   }
 
@@ -161,6 +176,33 @@ class Session {
     this.stopSource();
     const code = err instanceof CameraError ? err.code : 'vision';
     useSession.setState({ phase: 'error', error: code });
+  }
+
+  /**
+   * Switch between the front and back camera. Asks for the other side; when the browser ignores that (most
+   * laptops with two webcams report no side) it moves to the next camera instead. Returns what to remember.
+   */
+  async flipCamera(): Promise<{ facing: Facing; deviceId: string } | null> {
+    if (!(this.source instanceof CameraSource)) return null;
+    const before = this.source.info();
+    const facing: Facing = (before.facing ?? this.facing) === 'environment' ? 'user' : 'environment';
+    this.facing = facing;
+    this.deviceId = '';
+    await this.start('camera');
+    const src = this.source as FrameSource | null;
+    if (!(src instanceof CameraSource) || useSession.getState().phase !== 'running') return { facing, deviceId: '' };
+    const after = src.info();
+    if (after.deviceId && after.deviceId === before.deviceId) {
+      const cams = await listCameras();
+      const i = cams.findIndex((c) => c.deviceId === before.deviceId);
+      const next = cams[(i + 1) % cams.length];
+      if (next && next.deviceId !== before.deviceId) {
+        this.deviceId = next.deviceId;
+        await this.start('camera');
+        return { facing, deviceId: next.deviceId };
+      }
+    }
+    return { facing, deviceId: '' };
   }
 
   performDemo(g: GestureName) {

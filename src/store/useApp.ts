@@ -16,6 +16,7 @@ export const settingsSchema = z.object({
   speakAloud: z.boolean(),
   vibration: z.boolean(),
   cameraDeviceId: z.string(),
+  cameraFacing: z.enum(['user', 'environment']),
   consented: z.boolean(),
   activeProfileId: z.string(),
 });
@@ -34,6 +35,7 @@ export function defaultSettings(navLang?: string): Settings {
     speakAloud: false,
     vibration: false,
     cameraDeviceId: '',
+    cameraFacing: 'user',
     consented: false,
     activeProfileId: '',
   };

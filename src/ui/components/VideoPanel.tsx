@@ -1,8 +1,9 @@
 import { clsx } from 'clsx';
-import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, PersonStanding, ScanLine, Square } from 'lucide-react';
+import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, PersonStanding, ScanLine, Square, SwitchCamera } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useT, type MsgKey } from '../../i18n';
 import type { GestureName } from '../../engine/simulator';
+import { useSettings } from '../../store/useApp';
 import { session, useSession } from '../../store/useSession';
 import { onVisionStatus, visionStatus } from '../../vision/loader';
 import { Button } from './Button';
@@ -53,6 +54,16 @@ export function VideoPanel({
   const s = useSession();
   const [vision, setVision] = useState(visionStatus());
   useEffect(() => onVisionStatus(setVision), []);
+  const [flipping, setFlipping] = useState(false);
+  const flip = async () => {
+    setFlipping(true);
+    try {
+      const r = await session.flipCamera();
+      if (r) useSettings.getState().set({ cameraFacing: r.facing, cameraDeviceId: r.deviceId });
+    } finally {
+      setFlipping(false);
+    }
+  };
 
   const label =
     s.kind === 'demo'
@@ -84,6 +95,19 @@ export function VideoPanel({
               {status.text}
             </p>
             <div className="pointer-events-auto flex gap-2">
+              {s.kind === 'camera' && s.cameraCount > 1 && (
+                <button
+                  type="button"
+                  aria-label={t('camFlip')}
+                  title={t('camFlip')}
+                  disabled={flipping || s.phase !== 'running'}
+                  onClick={() => void flip()}
+                  className="stage-pill grid size-12 place-items-center text-ink disabled:opacity-55"
+                  data-testid="flip-camera"
+                >
+                  <SwitchCamera aria-hidden className="size-5" />
+                </button>
+              )}
               {s.kind === 'camera' && (
                 <button
                   type="button"
