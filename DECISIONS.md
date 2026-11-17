@@ -24,3 +24,4 @@
 | 2026-11-17 | e2e preview runs on dedicated port 4319 with `reuseExistingServer: false` | Port 4173 was occupied by an unrelated local app, which Playwright silently reused |
 | 2026-11-17 | `/debug` route + `window.__isyaratDebug` are bundled when `DEV` or build mode `e2e` (never in the production `dist`; verified by grep) | Phase 3 gate needs them in the e2e preview build |
 | 2026-11-17 | IDLE_ENERGY 0.30 → 0.22 | A demo "tap the table" take measured below 0.30, so it was refused when teaching and would be gated out in Live too; synthetic benchmark unchanged at 0.22 (95.8% / 95.0% / 100% rejection) |
+| 2026-11-17 | "Speak aloud" uses on-device voices only (`SpeechSynthesisVoice.localService`); if none exists for the language, text stays on screen | Network voices (e.g. Chrome "Google" voices) send text to a cloud service, which would break "zero network requests / on this device only" |

@@ -70,3 +70,21 @@ export async function teachWithDemo(page: Page, opts: { name: string; meaning: s
   await page.getByRole('button', { name: 'Next' }).click();
   await expect(page.getByRole('heading', { name: 'Quality check' })).toBeVisible();
 }
+
+/** Seed signals for the active profile via the test hook, then reload so the app picks them up. */
+export async function seedSignals(page: Page, gestures: string[], withEvents = false) {
+  await page.evaluate(
+    async ([g, ev]) => {
+      const d = (window as unknown as { __isyaratDebug: { repo: { listProfiles: () => Promise<{ id: string }[]> }; seed: (p: string, e: boolean, g: string[]) => Promise<string[]> } }).__isyaratDebug;
+      const p = (await d.repo.listProfiles())[0]!;
+      await d.seed(p.id, ev as boolean, g as string[]);
+    },
+    [gestures, withEvents] as const,
+  );
+  await page.reload();
+}
+
+export async function startDemo(page: Page) {
+  await page.getByRole('button', { name: 'Demo performer' }).click();
+  await expect(page.getByTestId('status-line')).toHaveText('Seeing the child');
+}
