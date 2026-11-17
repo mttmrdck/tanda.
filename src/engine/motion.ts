@@ -175,3 +175,23 @@ function median(xs: number[]): number {
   const m = a.length >> 1;
   return a.length % 2 ? a[m]! : (a[m - 1]! + a[m]!) / 2;
 }
+
+/** The contiguous `windowMs` sub-window with the LEAST motion — where a held handshape is clearest. */
+export function stillestSubWindow(frames: readonly FeatureFrame[], windowMs: number, stepMs = 100): FeatureFrame[] {
+  if (frames.length === 0) return [];
+  const t0 = frames[0]!.t;
+  const tEnd = frames[frames.length - 1]!.t;
+  if (tEnd - t0 <= windowMs) return [...frames];
+  let best: FeatureFrame[] = [];
+  let bestE = Infinity;
+  for (let s = t0; s + windowMs <= tEnd + 1; s += stepMs) {
+    const win = frames.filter((f) => f.t >= s && f.t <= s + windowMs && f.valid);
+    if (win.length < 4) continue;
+    const e = featureMotionEnergy(win);
+    if (e < bestE) {
+      bestE = e;
+      best = win;
+    }
+  }
+  return best.length ? best : [...frames];
+}

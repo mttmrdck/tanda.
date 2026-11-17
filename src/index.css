@@ -356,7 +356,7 @@ li {
   .video-panel { min-width:0; }
   .source-controls fieldset { padding:16px; background:var(--surface); border-radius:16px; }
   .source-controls legend { float:left; width:100%; margin-bottom:8px; font-size:13px; color:var(--ink-muted); }
-  .source-controls fieldset > div { clear:both; }
+  .source-controls fieldset > div, fieldset.source-controls > div { clear:both; }
   /* Status / skeleton / Stop sit on the video. Solid surface (not glass) so status colours keep their contrast. */
   .stage-pill { background:var(--surface); border:1px solid var(--border-soft); border-radius:999px; box-shadow:0 1px 3px rgb(0 0 0 / .12); }
   .stage-pill:is(button):hover { background:var(--surface-2); }

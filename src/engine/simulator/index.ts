@@ -5,7 +5,7 @@ import { placeHand } from './hands';
 import { createRng, type Rng } from './rng';
 import { CANONICAL, solveElbow, type V2 } from './skeleton';
 
-export { ALL_GESTURES, TEACHABLE_GESTURES, type GestureName } from './gestures';
+export { ALL_GESTURES, SHAPE_GESTURES, TEACHABLE_GESTURES, type GestureName } from './gestures';
 export { createRng } from './rng';
 
 /** Where the body sits in the image for a session/clip. */

@@ -11,6 +11,8 @@
 | Examples | Numbers describing body and hand **positions** (about 1 700 numbers per example) from signals you chose to record | IndexedDB |
 | Events | "Water, 10:05, confirmed"; "Calm Watch: Rising, 11:20" | IndexedDB |
 | Settings | Language, theme, sensitivity | This browser's localStorage |
+| Sign packs (Labs, off by default) | Packs you recorded or imported: glosses, signer credit (a name, or anonymous), and landmark numbers for each take | IndexedDB |
+| Sign practice progress (Labs) | "Practised 4 times, best run 3", per sign | IndexedDB |
 
 There is no photo, surname, date of birth, face data, audio or video anywhere.
 
@@ -23,6 +25,14 @@ There is no photo, surname, date of birth, face data, audio or video anywhere.
 - No analytics, trackers, adverts, third-party fonts or CDNs.
 - Never diagnoses, screens for or treats any condition. Calm Watch describes a movement pattern only.
 - "Speak aloud" uses only voices installed on the device; network voices are skipped.
+
+## Sign packs (Labs)
+
+Off by default. A reference signer agrees on a consent screen before recording. Their recordings are landmark
+numbers only (no video, face or audio), and they can withdraw at any time: **Withdraw signer** deletes their
+recordings. **Delete pack** removes the pack, its landmark data and its practice progress. Exported `.signpack`
+files can be encrypted with a passphrase. Benchmark video clips are processed on the device and are not kept.
+Sign packs are separate from the child's profile and are never mixed into a handover file.
 
 ## Sharing with another carer (Handover)
 

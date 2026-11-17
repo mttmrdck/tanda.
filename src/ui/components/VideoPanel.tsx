@@ -22,6 +22,10 @@ export const GESTURE_LABEL: Record<GestureName, MsgKey> = {
   idle: 'gIdle',
   flail: 'gFlap',
   squeeze: 'gSqueeze',
+  shapeOpen: 'gShapeOpen',
+  shapeFist: 'gShapeFist',
+  shapePoint: 'gShapePoint',
+  shapeThumb: 'gShapeThumb',
 };
 
 const ERR: Record<string, MsgKey> = {

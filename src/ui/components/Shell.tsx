@@ -1,6 +1,6 @@
 import { PillNavigation } from '../vendor/pill-navigation';
 import { clsx } from 'clsx';
-import { Hand, BookOpen, ChartColumn, House, Info, Lock, PanelLeftClose, PanelLeftOpen, Radio, Settings, Share2, type LucideIcon } from 'lucide-react';
+import { Hand, BookOpen, ChartColumn, FlaskConical, House, Info, Lock, PanelLeftClose, PanelLeftOpen, Radio, Settings, Share2, type LucideIcon } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useT, type MsgKey } from '../../i18n';
@@ -29,6 +29,8 @@ const MORE: NavItem[] = [
   { href: '/settings', label: 'navProfile', Icon: Settings },
   { href: '/about', label: 'navAbout', Icon: Info },
 ];
+
+const SIGNS: NavItem = { href: '/signs', label: 'navSigns', Icon: FlaskConical };
 
 const STROKE = 1.75;
 
@@ -142,6 +144,7 @@ function ProfileSwitcher() {
 
 function NavRail({ hidden }: { hidden: boolean }) {
   const t = useT();
+  const signsOn = useSettings((s) => s.labsSignPacks);
   const [loc] = useLocation();
   const link = (it: NavItem) => {
     const active = isActive(loc, it.href);
@@ -167,7 +170,7 @@ function NavRail({ hidden }: { hidden: boolean }) {
         <Logo />
       </Link>
       <ul className="space-y-1">{TABS.map(link)}</ul>
-      <ul className="space-y-1 border-t border-border-soft pt-4">{MORE.map(link)}</ul>
+      <ul className="space-y-1 border-t border-border-soft pt-4">{(signsOn ? [...MORE, SIGNS] : MORE).map(link)}</ul>
       <div className="mt-auto rounded-[24px] bg-surface p-4 ">
         <ProfileSwitcher />
       </div>
@@ -215,7 +218,7 @@ function TopBar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-  const item = [...TABS, ...MORE].find(it => isActive(loc, it.href));
+  const item = [...TABS, ...MORE, SIGNS].find(it => isActive(loc, it.href));
   const navHidden = useSettings((s) => s.navHidden);
   const setSettings = useSettings((s) => s.set);
   return (

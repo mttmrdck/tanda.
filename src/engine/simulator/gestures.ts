@@ -18,6 +18,7 @@ import { REST_L, REST_R, type V2 } from './skeleton';
  * | flap         | both open hands at chest height flapping up and down at ~3 Hz             | Calm Watch        |
  * | flail        | large, irregular arm and torso movement (multi-sine, test helper)         | Calm Watch tests  |
  * | squeeze      | arms resting, right hand opens and closes at ~1.5 Hz — fingers only       | minimal movement  |
+ * | shape*       | right hand raised to the chest and held in one shape (open/fist/point/thumb) | demo sign pack  |
  */
 export type GestureName =
   | 'idle'
@@ -30,7 +31,14 @@ export type GestureName =
   | 'rock'
   | 'flap'
   | 'flail'
-  | 'squeeze';
+  | 'squeeze'
+  | 'shapeOpen'
+  | 'shapeFist'
+  | 'shapePoint'
+  | 'shapeThumb';
+
+/** Held hand shapes used by the simulator-made demo sign pack (static "signs" — not real signs). */
+export const SHAPE_GESTURES = { shapeOpen: 'open', shapeFist: 'fist', shapePoint: 'point', shapeThumb: 'thumbsUp' } as const;
 
 export const TEACHABLE_GESTURES: GestureName[] = ['wave', 'handToMouth', 'coverEars', 'armsUp', 'pointRight', 'tapTable'];
 export const ALL_GESTURES: GestureName[] = [...TEACHABLE_GESTURES, 'idle', 'rock', 'flap'];
@@ -128,6 +136,12 @@ export function gestureState(name: GestureName, p: GestureParams): GestureState 
       s.right = { wrist: REST_R, shape: closed ? 'fist' : 'open', angle: 0.35 };
       return s;
     }
+    case 'shapeOpen':
+    case 'shapeFist':
+    case 'shapePoint':
+    case 'shapeThumb':
+      s.right = { wrist: toward(REST_R, [-0.3, 0.2 + 0.02 * Math.sin(2 * Math.PI * 0.7 * t)], k, amp), shape: SHAPE_GESTURES[name], angle: 0.35 * (1 - k) };
+      return s;
     case 'flail': {
       const w = (f: number, ph: number) => Math.sin(2 * Math.PI * f * rate * t + ph);
       s.left = { wrist: [0.9 + 0.6 * amp * w(1.7, 0.3), 0.2 + 0.9 * amp * w(2.3, 1.1)], shape: 'open', angle: w(2.9, 0) };

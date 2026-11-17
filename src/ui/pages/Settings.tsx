@@ -174,6 +174,24 @@ export default function Settings() {
           </form>
         </Section>
 
+        <Section id="s-labs" title={t('labsTitle')}>
+          <p className="text-sm text-ink-muted">{t('labsHint')}</p>
+          <Switch label={t('labsSignPacks')} hint={t('labsSignPacksHint')} checked={s.labsSignPacks} onChange={(v) => s.set({ labsSignPacks: v })} />
+          {s.labsSignPacks && (
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" onClick={() => navigate('/signs')}>
+                {t('labsOpenPacks')}
+              </Button>
+              <Button variant="secondary" onClick={() => navigate('/signs/author')}>
+                {t('labsAuthor')}
+              </Button>
+              <Button variant="secondary" onClick={() => navigate('/signs/benchmark')}>
+                {t('labsBenchmark')}
+              </Button>
+            </div>
+          )}
+        </Section>
+
         <Section id="s-data" title={t('secData')}>
           <Button variant="secondary" className="handover-button w-full" icon={<Share2 aria-hidden className="size-5 shrink-0" />} onClick={() => navigate('/handover')}>
             {t('handoverLink')}

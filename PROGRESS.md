@@ -45,3 +45,16 @@
 - [x] Compact Profile groups and a filled handover action; 12 follow-up accessibility, reflow, navigation and screenshot checks pass.
 - [x] Standalone Tanda splash preview from the supplied brief, with four-stroke artwork, one-time entrance and reduced-motion support.
 - [x] Splash preview: dedicated accessibility, four-stroke, no-navigation, reduced-motion and full-resolution capture check passes.
+
+## Sign packs (Labs, behind a flag)
+
+- [x] `.signpack` format (zod, versioned, plain or encrypted), registry with built-in and device packs; a BIM pack is data only.
+- [x] Ships an **empty ASL pack** plus a simulator **demo pack** labelled "Demo only, not real signs". No dataset bundled.
+- [x] Dynamic signs reuse the existing DTW/kNN/τ engine unchanged; new static handshape classifier (scale/rotation/mirror invariant) with a location gate.
+- [x] Learn mode: pack browser, search, Practice with skeleton reference replay and per-part feedback (handshape / movement / location), fingerspelling sequences, local progress with runs and no loss framing.
+- [x] Recognise mode: one candidate with "Is this …?", otherwise "Not sure"; never sentences.
+- [x] Author a pack: signer consent, optional credit, 5+ takes, quality checks, confusables, export/import (licence and credits shown), withdraw signer, delete pack.
+- [x] Benchmark: real clips + labels file with signer metadata, honest empty state; synthetic demo-pack run labelled synthetic.
+- [x] Settings › Labs flag, off by default; first-run notice "Seeking review by Deaf signers".
+- [x] Tests: 20 unit (schema, files, registry, invariance, held window, confusables, feedback, metrics, quality, synthetic demo benchmark) + 6 e2e (flag off, framing/practice, fingerspelling, recognise, authoring/import/export/withdraw, benchmark); every e2e test also enforces zero third-party requests.
+- [ ] Needs Deaf-signer review before any public use (see docs/SIGN_PACKS.md).

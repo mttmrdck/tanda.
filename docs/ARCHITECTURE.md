@@ -41,8 +41,9 @@ Camera frames exist only inside the `<video>` element and MediaPipe's call. Resu
 | `src/engine/coach.ts` | Distinctiveness advice after teaching |
 | `src/engine/simulator/` | Synthetic performer (skeleton, hands, gestures, renderer) |
 | `src/engine/crypto.ts`, `handover.ts` | Encrypted `.isyarat` file format |
-| `src/vision/` | Camera, MediaPipe loader (shared, idempotent), inference loop, `CameraSource`/`DemoSource` |
-| `src/store/` | IndexedDB repo (`idb`), data/session/settings stores (Zustand) |
+| `src/engine/sign/` | Sign packs (Labs): pack schema/files, registry, static handshape classifier, held/busy windows, per-component practice feedback, confusables, authoring quality checks, benchmark metrics, simulator demo pack. See `docs/SIGN_PACKS.md` |
+| `src/vision/` | Camera, MediaPipe loader (shared, idempotent), inference loop, `CameraSource`/`DemoSource`, `videoFile.ts` (benchmark clips through the same pipeline) |
+| `src/store/` | IndexedDB repo (`idb`, schema v2 adds `signPacks` and `signProgress`), data/session/settings/sign-pack stores (Zustand) |
 | `src/ui/` | Pages, components, hooks, theme |
 
 ## Key algorithms

@@ -23,6 +23,13 @@ const Timeline = lazy(() => import('./ui/pages/Timeline'));
 const Handover = lazy(() => import('./ui/pages/Handover'));
 const Settings = lazy(() => import('./ui/pages/Settings'));
 const ImportPage = lazy(() => import('./ui/pages/ImportPage'));
+const SignPacks = lazy(() => import('./ui/pages/signs/SignPacks'));
+const PackDetail = lazy(() => import('./ui/pages/signs/PackDetail'));
+const Practice = lazy(() => import('./ui/pages/signs/Practice'));
+const Spell = lazy(() => import('./ui/pages/signs/Spell'));
+const Recognise = lazy(() => import('./ui/pages/signs/Recognise'));
+const Author = lazy(() => import('./ui/pages/signs/Author'));
+const Benchmark = lazy(() => import('./ui/pages/signs/Benchmark'));
 const DebugPage = import.meta.env.DEV || import.meta.env.MODE === 'e2e' ? lazy(() => import('./ui/pages/DebugPage')) : null;
 
 function PageSkeleton() {
@@ -92,6 +99,7 @@ function Routes() {
   const status = useData((s) => s.status);
   const profiles = useData((s) => s.profiles);
   const consented = useSettings((s) => s.consented);
+  const signsOn = useSettings((s) => s.labsSignPacks);
   const [loc] = useLocation();
 
   if (loc === '/splash') return <Suspense fallback={<div className="splash-loading" />}><Splash /></Suspense>;
@@ -172,6 +180,24 @@ function Routes() {
           <Route path="/settings" component={Settings} />
           <Route path="/about" component={About} />
           {DebugPage && <Route path="/debug" component={DebugPage} />}
+          {/* Labs: sign packs — behind a flag (Settings › Labs), off by default */}
+          {signsOn && <Route path="/signs" component={SignPacks} />}
+          {signsOn && <Route path="/signs/author" component={Author} />}
+          {signsOn && <Route path="/signs/benchmark" component={Benchmark} />}
+          {signsOn && <Route path="/signs/pack/:packId" component={PackDetail} />}
+          {signsOn && <Route path="/signs/pack/:packId/practice/:signId" component={Practice} />}
+          {signsOn && <Route path="/signs/pack/:packId/spell" component={Spell} />}
+          {signsOn && <Route path="/signs/pack/:packId/recognise" component={Recognise} />}
+          {!signsOn && (
+            <Route path="/signs">
+              <Redirect to="/settings" />
+            </Route>
+          )}
+          {!signsOn && (
+            <Route path="/signs/*">
+              <Redirect to="/settings" />
+            </Route>
+          )}
           <Route>
             <Redirect to="/" />
           </Route>

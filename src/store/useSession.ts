@@ -72,6 +72,7 @@ class Session {
   private frameSubs = new Set<(f: SlottedFrame, valid: boolean) => void>();
   private emissionSubs = new Set<(e: Emission) => void>();
   private sightingSubs = new Set<(s: Sighting) => void>();
+  private featureSubs = new Set<(f: FeatureFrame) => void>();
   private calmSubs = new Set<(u: CalmUpdate) => void>();
   private startToken = 0;
   private targetFps = 15;
@@ -227,6 +228,12 @@ class Session {
     this.emissionSubs.add(cb);
     return () => this.emissionSubs.delete(cb);
   }
+  /** Processed feature frames (sign recognition runs its own matcher on these). */
+  subscribeFeatures(cb: (f: FeatureFrame) => void): () => void {
+    this.featureSubs.add(cb);
+    return () => this.featureSubs.delete(cb);
+  }
+
   /** "Not taught yet — looks like …" descriptions (Live only). */
   onSighting(cb: (s: Sighting) => void): () => void {
     this.sightingSubs.add(cb);
@@ -249,6 +256,7 @@ class Session {
     if (features.valid) this.lastValid = now;
     this.updateSeeing(now);
     for (const s of this.frameSubs) s(slotted, features.valid);
+    for (const s of this.featureSubs) s(features);
 
     for (const c of this.captures) c.frames.push(features);
     const done = this.captures.filter((c) => now >= c.until);

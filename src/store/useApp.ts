@@ -19,6 +19,10 @@ export const settingsSchema = z.object({
   cameraFacing: z.enum(['user', 'environment']),
   /** desktop: side menu hidden (main tabs move into the top bar) */
   navHidden: z.boolean(),
+  /** Labs: sign packs (practice aid). Off until the product owner says otherwise. */
+  labsSignPacks: z.boolean(),
+  /** the sign-packs first-run notice was acknowledged */
+  signsNoticeSeen: z.boolean(),
   consented: z.boolean(),
   activeProfileId: z.string(),
 });
@@ -39,6 +43,8 @@ export function defaultSettings(navLang?: string): Settings {
     cameraDeviceId: '',
     cameraFacing: 'user',
     navHidden: false,
+    labsSignPacks: false,
+    signsNoticeSeen: false,
     consented: false,
     activeProfileId: '',
   };
