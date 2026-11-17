@@ -409,3 +409,44 @@ a { text-underline-offset: 3px; }
 .stage-idle .font-display, .text-lg.font-display { font-family: var(--font-ui); font-weight: 600; }
 /* earlier timeline decorations are replaced by .event-node */
 .monitor-event::before, .monitor-event::after { content: none !important; display: none !important; }
+
+/* ── Alignment pass ────────────────────────────────────────────────────────────────────────────────── */
+/* Stage: everything sits INSIDE the inner frame, with the same gap on every side. */
+.monitor-stage { padding: 30px !important; }
+.monitor-stage::before { inset: 14px; border-radius: calc(var(--r-xl) - 8px); }
+@media (max-width: 767px) {
+  .monitor-stage { padding: 22px !important; }
+  .monitor-stage::before { inset: 10px; border-radius: calc(var(--r-lg) - 4px); }
+}
+/* Status values: the dot sits with the first line when a value wraps. */
+.operating-value { align-items: flex-start; }
+.operating-value .status-dot { margin-top: 0.42em; }
+.focus-value { align-items: center; }
+/* The four-up status band needs desktop width; tablets get a calm 2 × 2. */
+@media (max-width: 1023px) {
+  .operating-band { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .operating-item:nth-child(3) { padding-left: 0; border-left: 0; }
+  .operating-item:nth-child(n + 3) { border-top: var(--hair); }
+}
+/* stage rows span the full frame (an earlier rule centred every child) */
+.monitor-stage { justify-items: stretch !important; place-items: stretch !important; text-align: left; }
+.monitor-stage > .stage-top, .monitor-stage > .stage-bottom { justify-self: stretch; width: 100%; }
+.monitor-stage > .stage-center { justify-self: center; }
+.monitor-stage { grid-template-columns: minmax(0, 1fr); justify-content: stretch !important; align-content: stretch; }
+
+/* ── Type: one sans family (Inter). Display sizes use weight and tight tracking instead of a second face. ── */
+h1, .care-focus-name, .focus-value, .stage-room, .monitor-event h2, .dialog-content h2, .communication-entry h2, .stat-value {
+  font-family: var(--font-ui);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+h1 { line-height: 1.05; }
+.overview-greeting { font-family: var(--font-ui); font-style: normal; font-weight: 500; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem); letter-spacing: -0.015em; line-height: 1.35; }
+.care-focus-name { font-size: clamp(1.5rem, 1.25rem + 0.9vw, 1.9rem); }
+.focus-value { font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.6rem); }
+.stage-room { font-size: clamp(1.5rem, 1.25rem + 1vw, 2.1rem); }
+.monitor-event h2 { font-size: 1.375rem !important; letter-spacing: -0.02em; }
+.dialog-content h2, .communication-entry h2 { font-size: 1.5rem; letter-spacing: -0.025em; }
+.stat-value { font-size: 2.25rem; letter-spacing: -0.03em; }
+.brand-word { font-family: var(--font-ui); font-weight: 700; font-size: 21px; letter-spacing: -0.04em; }
+.individual-avatar { font-family: var(--font-ui) !important; font-weight: 600 !important; }

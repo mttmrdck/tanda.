@@ -2,8 +2,6 @@
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
-@import '@fontsource/instrument-serif/latin-400.css';
-@import '@fontsource/instrument-serif/latin-400-italic.css';
 
 @custom-variant dark (&:where([data-theme='dim'], [data-theme='dim'] *));
 @custom-variant dim (&:where([data-theme='dim'], [data-theme='dim'] *));
@@ -77,8 +75,8 @@
 
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Inter', sans-serif;
-  /* Editorial display face for titles and hero numbers; Inter for everything people read and operate. */
-  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  /* One family: Inter for titles and text alike; hierarchy comes from weight, size and tracking. */
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --text-xs: 0.75rem; /* caption */
   --text-sm: 0.875rem; /* footnote (14px: small metadata stays readable) */

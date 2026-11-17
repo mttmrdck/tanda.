@@ -142,7 +142,7 @@ export default function Home() {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block font-semibold">{pickText(s.name, lang)}</span>
-                        <span className="block truncate text-sm text-ink-muted">{pickText(s.meaning, lang)}</span>
+                        <span className="block text-sm text-ink-muted line-clamp-2">{pickText(s.meaning, lang)}</span>
                       </span>
                       <ChevronRight aria-hidden className="size-4 text-ink-muted" />
                     </Link>

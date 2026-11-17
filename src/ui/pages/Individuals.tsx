@@ -83,7 +83,7 @@ export default function Individuals() {
                 <div className="flex items-center gap-3">
                   <Avatar name={p.nickname} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-lg font-semibold">{p.nickname}</p>
+                    <p className="text-lg font-semibold leading-snug break-words">{p.nickname}</p>
                     <p className="text-sm text-ink-muted">{t('indGestures', { n: counts[p.id] ?? 0 })}</p>
                   </div>
                   {active ? (

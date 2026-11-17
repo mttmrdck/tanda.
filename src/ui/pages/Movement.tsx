@@ -12,7 +12,7 @@ import { useSession } from '../../store/useSession';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { TextField } from '../components/Controls';
-import { dayLabel, timeOfDay } from '../components/format';
+import { dayLabel, shortDayLabel, timeOfDay } from '../components/format';
 import { CalmMeter, calmReasons, SimulatedTag, tierLabel } from '../components/LiveBits';
 
 const DAYS = 7;
@@ -159,7 +159,8 @@ export default function Movement() {
         ) : (
           <>
             <p data-testid="mv-summary">{t('mvPatternsSummary', { n: total, above })}</p>
-            <table className="w-full text-left text-sm">
+            <div className="-mx-1 overflow-x-auto px-1">
+            <table className="w-full min-w-[18rem] text-left text-sm">
               <caption className="sr-only">{t('mvPatterns')}</caption>
               <thead>
                 <tr className="text-ink-muted">
@@ -181,7 +182,8 @@ export default function Movement() {
                 {rows.map((r) => (
                   <tr key={r.date.toISOString()} className="border-t border-border-soft">
                     <th scope="row" className="py-2 pr-3 font-normal">
-                      {dayLabel(r.date, lang)}
+                      <span className="max-sm:hidden">{dayLabel(r.date, lang)}</span>
+                      <span className="sm:hidden">{shortDayLabel(r.date, lang)}</span>
                     </th>
                     <td className="py-2 pr-3">
                       <span className="flex items-center gap-2 tabular">
@@ -195,6 +197,7 @@ export default function Movement() {
                 ))}
               </tbody>
             </table>
+            </div>
           </>
         )}
       </Card>

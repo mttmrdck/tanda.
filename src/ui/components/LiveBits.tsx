@@ -112,7 +112,7 @@ export function EventList({ events, signals, lang }: { events: EventRecord[]; si
               <Icon className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-bold">
+              <p className="font-bold leading-snug break-words">
                 {e.kind === 'signal' ? (s ? pickText(s.name, lang) : t('deletedSignal')) : t('eventTier', { tier: t(tierLabel(e.tier ?? 'calm')) })}
               </p>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

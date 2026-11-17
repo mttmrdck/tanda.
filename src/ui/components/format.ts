@@ -23,6 +23,11 @@ export function hourLabel(h: number, lang: Lang): string {
   return new Intl.DateTimeFormat(locale(lang), { hour: '2-digit', minute: '2-digit' }).format(d);
 }
 
+/** Compact day for narrow tables, e.g. "Wed 11". */
+export function shortDayLabel(d: Date, lang: Lang): string {
+  return new Intl.DateTimeFormat(locale(lang), { weekday: 'short', day: 'numeric' }).format(d);
+}
+
 export function dayLabel(d: Date, lang: Lang): string {
   return new Intl.DateTimeFormat(locale(lang), { weekday: 'long', day: 'numeric', month: 'long' }).format(d);
 }
