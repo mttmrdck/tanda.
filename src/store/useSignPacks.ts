@@ -3,7 +3,7 @@ import { demoPack } from '../engine/sign/demoPack';
 import { buildPackModels, type PackModels } from '../engine/sign/models';
 import type { SignPack } from '../engine/sign/pack';
 import { ASL_STARTER, PackRegistry } from '../engine/sign/registry';
-import { deleteSignPack, listSignPacks, saveSignPack } from './repo';
+import { deleteSignPack, listSignPacks, saveSignPack } from './signRepo';
 
 /** Sign packs (Labs). Built-in packs come from code; device packs from IndexedDB. Loaded only on sign pages. */
 const registry = new PackRegistry([ASL_STARTER, demoPack()]);

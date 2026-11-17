@@ -30,6 +30,7 @@ const Spell = lazy(() => import('./ui/pages/signs/Spell'));
 const Recognise = lazy(() => import('./ui/pages/signs/Recognise'));
 const Author = lazy(() => import('./ui/pages/signs/Author'));
 const Benchmark = lazy(() => import('./ui/pages/signs/Benchmark'));
+const Translate = lazy(() => import('./ui/pages/translate/Translate'));
 const DebugPage = import.meta.env.DEV || import.meta.env.MODE === 'e2e' ? lazy(() => import('./ui/pages/DebugPage')) : null;
 
 function PageSkeleton() {
@@ -188,6 +189,12 @@ function Routes() {
           {signsOn && <Route path="/signs/pack/:packId/practice/:signId" component={Practice} />}
           {signsOn && <Route path="/signs/pack/:packId/spell" component={Spell} />}
           {signsOn && <Route path="/signs/pack/:packId/recognise" component={Recognise} />}
+          {signsOn && <Route path="/translate" component={Translate} />}
+          {!signsOn && (
+            <Route path="/translate">
+              <Redirect to="/settings" />
+            </Route>
+          )}
           {!signsOn && (
             <Route path="/signs">
               <Redirect to="/settings" />

@@ -2,41 +2,10 @@ import { evictionIndex } from '../engine/calibration';
 import { MAX_EXAMPLES_PER_SIGNAL } from '../engine/constants';
 import type { ProfileBundle } from '../engine/handover';
 import type { AgeBand, ComfortSteps, EventRecord, Example, Profile, Signal } from '../engine/types';
-import { validatePack, type SignPack } from '../engine/sign/pack';
-import { deleteDatabase, getDB, type SignProgress, type StoredExample } from './db';
+import { deleteDatabase, getDB, type StoredExample } from './db';
 
-export type RepoErrorCode = 'quota' | 'unavailable' | 'unknown';
-
-/** Friendly wrapper for IndexedDB failures (quota, private mode, blocked). */
-export class RepoError extends Error {
-  constructor(
-    public readonly code: RepoErrorCode,
-    cause?: unknown,
-  ) {
-    super(code, { cause });
-    this.name = 'RepoError';
-  }
-}
-
-async function guard<T>(fn: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch (err) {
-    if (err instanceof RepoError) throw err;
-    const name = err instanceof DOMException ? err.name : '';
-    if (name === 'QuotaExceededError') throw new RepoError('quota', err);
-    if (name === 'InvalidStateError' || name === 'SecurityError' || name === 'UnknownError') throw new RepoError('unavailable', err);
-    throw new RepoError('unknown', err);
-  }
-}
-
-export function uid(): string {
-  const c = globalThis.crypto;
-  if (typeof c.randomUUID === 'function') return c.randomUUID();
-  const b = new Uint8Array(16);
-  c.getRandomValues(b);
-  return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
-}
+export { RepoError, uid, type RepoErrorCode } from './repoBase';
+import { guard, RepoError, uid } from './repoBase';
 
 const nowIso = () => new Date().toISOString();
 
@@ -265,58 +234,4 @@ export async function deleteAllData(): Promise<void> {
   } catch {
     // storage unavailable
   }
-}
-
-/* ---------- Sign packs (Labs) ---------- */
-
-/** Device packs; anything that no longer validates is skipped rather than crashing the list. */
-export const listSignPacks = () =>
-  guard(async () => {
-    const out: SignPack[] = [];
-    for (const raw of await (await getDB()).getAll('signPacks')) {
-      try {
-        out.push({ ...validatePack(raw), builtIn: false });
-      } catch {
-        // skip invalid stored pack
-      }
-    }
-    return out;
-  });
-
-export const saveSignPack = (pack: SignPack) => guard(async () => void (await getDB()).put('signPacks', { ...validatePack(pack), builtIn: false }));
-
-/** Delete a pack with all of its landmark data and the practice progress that refers to it. */
-export function deleteSignPack(packId: string): Promise<void> {
-  return guard(async () => {
-    const db = await getDB();
-    const tx = db.transaction(['signPacks', 'signProgress'], 'readwrite');
-    await tx.objectStore('signPacks').delete(packId);
-    const prog = tx.objectStore('signProgress');
-    for (const key of await prog.index('packId').getAllKeys(packId)) await prog.delete(key);
-    await tx.done;
-  });
-}
-
-export const listSignProgress = (packId: string) => guard(async () => (await getDB()).getAllFromIndex('signProgress', 'packId', packId));
-
-/** Record one practice attempt. A "try again" ends the current run quietly; the best run is kept. */
-export function recordSignAttempt(packId: string, signId: string, close: boolean, now: string): Promise<SignProgress> {
-  return guard(async () => {
-    const db = await getDB();
-    const key = `${packId}:${signId}`;
-    const prev = await db.get('signProgress', key);
-    const streak = close ? (prev?.streak ?? 0) + 1 : 0;
-    const next: SignProgress = {
-      key,
-      packId,
-      signId,
-      attempts: (prev?.attempts ?? 0) + 1,
-      close: (prev?.close ?? 0) + (close ? 1 : 0),
-      streak,
-      bestStreak: Math.max(prev?.bestStreak ?? 0, streak),
-      lastAt: now,
-    };
-    await db.put('signProgress', next);
-    return next;
-  });
 }

@@ -3,7 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import { D, D_HAND, RANGE_HAND_L, RANGE_HAND_R, RANGE_PRESENCE } from '../../engine/constants';
 
 /** Feature-slot order of POSE_IDX: nose, L ear, R ear, L sh, R sh, L el, R el, L wr, R wr, L hip, R hip */
-const BONES: [number, number][] = [
+export const BONES: [number, number][] = [
   [3, 4],
   [3, 5],
   [5, 7],
@@ -16,15 +16,15 @@ const HAND_BONES: [number, number][] = [
   [0, 4], [0, 8], [0, 12], [0, 16], [0, 20],
 ];
 /** palm length in shoulder widths, for drawing hand shapes at the wrists */
-const PALM = 0.36;
+export const PALM = 0.36;
 const FRAME_MS = 125;
 
-interface Frame {
+export interface Frame {
   pts: ([number, number] | null)[];
   hands: ([number, number][] | null)[];
 }
 
-function decode(data: Float32Array, n: number): Frame[] {
+export function decode(data: Float32Array, n: number): Frame[] {
   const frames: Frame[] = [];
   for (let i = 0; i < n; i++) {
     const o = i * D;

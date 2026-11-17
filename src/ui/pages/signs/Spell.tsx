@@ -4,7 +4,7 @@ import { Link, useParams } from 'wouter';
 import { DEMO_GESTURE } from '../../../engine/sign/demoPack';
 import { practiceFeedback, type PracticeFeedback } from '../../../engine/sign/feedback';
 import { useT } from '../../../i18n';
-import { recordSignAttempt } from '../../../store/repo';
+import { recordSignAttempt } from '../../../store/signRepo';
 import { useSettings } from '../../../store/useApp';
 import { modelsFor, useSignPacks } from '../../../store/useSignPacks';
 import { useSession } from '../../../store/useSession';

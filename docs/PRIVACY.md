@@ -34,6 +34,13 @@ recordings. **Delete pack** removes the pack, its landmark data and its practice
 files can be encrypted with a passphrase. Benchmark video clips are processed on the device and are not kept.
 Sign packs are separate from the child's profile and are never mixed into a handover file.
 
+## Translate (Labs)
+
+Translate uses its own camera session that runs only while its Sign-to-word or Fingerspell tab is open; leaving
+the tab or the page stops every camera track. It matches only against sign packs, never the child's signals. The
+"Signs so far" list, the fingerspelled word and the chosen pack are kept in memory only and are gone when the app
+closes. "Speak" is off by default and uses on-device voices only. Nothing from Translate is stored or sent.
+
 ## Sharing with another carer (Handover)
 
 A handover file is encrypted with a passphrase you choose (PBKDF2-SHA-256 with 310 000 iterations, AES-GCM 256). Without the passphrase the file is unreadable. Send the passphrase separately (in person or by phone). History (events) is only included if you tick the box.

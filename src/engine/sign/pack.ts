@@ -35,6 +35,8 @@ export const signSchema = z.object({
   templates: z.array(templateSchema).max(50),
   notes: z.string().max(500),
   confusableWith: z.array(z.string().max(64)).max(50),
+  /** the written letter this sign fingerspells (alphabet packs); set by the pack author, never inferred */
+  letter: z.string().regex(/^\p{Lu}$/u).optional(),
 });
 
 export const signerCreditSchema = z.object({

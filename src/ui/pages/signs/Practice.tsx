@@ -4,7 +4,7 @@ import { CLIP_N } from '../../../engine/constants';
 import { DEMO_GESTURE } from '../../../engine/sign/demoPack';
 import { practiceFeedback, type PracticeFeedback } from '../../../engine/sign/feedback';
 import { useT } from '../../../i18n';
-import { listSignProgress, recordSignAttempt } from '../../../store/repo';
+import { listSignProgress, recordSignAttempt } from '../../../store/signRepo';
 import type { SignProgress } from '../../../store/db';
 import { useSettings } from '../../../store/useApp';
 import { modelsFor, useSignPacks } from '../../../store/useSignPacks';

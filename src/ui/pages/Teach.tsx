@@ -20,7 +20,8 @@ import { Chip } from '../components/Controls';
 import { SignalGlyph } from '../components/SignalGlyph';
 import { Stepper } from '../components/Stepper';
 import { CoachCard, Countdown, draftValid, emptyDraft, RecordRing, SignalForm, type SignalDraft } from '../components/TeachBits';
-import { GESTURE_LABEL, SourceControls, VideoPanel } from '../components/VideoPanel';
+import { GESTURE_LABEL } from '../components/gestureLabels';
+import { SourceControls, VideoPanel } from '../components/VideoPanel';
 
 const TARGET = 5;
 const RECORD_MS = 2500;

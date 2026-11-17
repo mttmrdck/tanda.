@@ -10,7 +10,7 @@ import { checkTakes, MIN_TAKES, type SetIssue, type TakeIssue } from '../../../e
 import { handShapeOfClip } from '../../../engine/sign/staticHand';
 import { TEACHABLE_GESTURES, type GestureName } from '../../../engine/simulator';
 import { useT, type MsgKey } from '../../../i18n';
-import { uid } from '../../../store/repo';
+import { uid } from '../../../store/repoBase';
 import { useSettings } from '../../../store/useApp';
 import { useSignPacks } from '../../../store/useSignPacks';
 import { useSession } from '../../../store/useSession';
@@ -18,7 +18,8 @@ import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Chip, SegmentedControl, Select, TextField } from '../../components/Controls';
 import { SignalGlyph } from '../../components/SignalGlyph';
-import { GESTURE_LABEL, SourceControls, VideoPanel } from '../../components/VideoPanel';
+import { GESTURE_LABEL } from '../../components/gestureLabels';
+import { SourceControls, VideoPanel } from '../../components/VideoPanel';
 import { useSignCapture, windowFor } from '../../hooks/useSignCapture';
 import { CaptureOverlay, FramingNotes } from './SignBits';
 

@@ -20,6 +20,8 @@ interface DemoDef {
   gloss: string;
   gloss_ms: string;
   type: Sign['type'];
+  /** demo "letter" so the fingerspelling flows can be shown; NOT the real letter of any sign language */
+  letter?: string;
 }
 
 const DEFS: DemoDef[] = [
@@ -27,10 +29,10 @@ const DEFS: DemoDef[] = [
   { id: 'demo-mouth', gesture: 'handToMouth', gloss: 'Demo: hand to mouth', gloss_ms: 'Demo: tangan ke mulut', type: 'dynamic' },
   { id: 'demo-tap', gesture: 'tapTable', gloss: 'Demo: tap the table', gloss_ms: 'Demo: ketuk meja', type: 'dynamic' },
   { id: 'demo-arms-up', gesture: 'armsUp', gloss: 'Demo: arms up', gloss_ms: 'Demo: angkat tangan', type: 'dynamic' },
-  { id: 'demo-open', gesture: 'shapeOpen', gloss: 'Demo: open hand', gloss_ms: 'Demo: tapak terbuka', type: 'static' },
-  { id: 'demo-fist', gesture: 'shapeFist', gloss: 'Demo: fist', gloss_ms: 'Demo: genggam', type: 'static' },
-  { id: 'demo-point', gesture: 'shapePoint', gloss: 'Demo: point', gloss_ms: 'Demo: tunjuk', type: 'static' },
-  { id: 'demo-thumb', gesture: 'shapeThumb', gloss: 'Demo: thumb up', gloss_ms: 'Demo: ibu jari', type: 'static' },
+  { letter: 'A', id: 'demo-open', gesture: 'shapeOpen', gloss: 'Demo: open hand', gloss_ms: 'Demo: tapak terbuka', type: 'static' },
+  { letter: 'B', id: 'demo-fist', gesture: 'shapeFist', gloss: 'Demo: fist', gloss_ms: 'Demo: genggam', type: 'static' },
+  { letter: 'C', id: 'demo-point', gesture: 'shapePoint', gloss: 'Demo: point', gloss_ms: 'Demo: tunjuk', type: 'static' },
+  { letter: 'D', id: 'demo-thumb', gesture: 'shapeThumb', gloss: 'Demo: thumb up', gloss_ms: 'Demo: ibu jari', type: 'static' },
 ];
 
 /** Demo sign → the simulator gesture the demo performer plays for it. */
@@ -51,7 +53,8 @@ export function demoPack(): SignPack {
     gloss: def.gloss,
     gloss_ms: def.gloss_ms,
     type: def.type,
-    notes: 'Simulator movement. Not a real sign.',
+    notes: def.letter ? `Simulator shape used as demo letter ${def.letter}. Not a real sign or letter.` : 'Simulator movement. Not a real sign.',
+    ...(def.letter ? { letter: def.letter } : {}),
     confusableWith: [],
     templates: Array.from({ length: TAKES }, (_, k) => demoTake(def.gesture, 7000 + i * 100 + k, 0.006, def.type))
       .filter((c): c is Float32Array => !!c)

@@ -58,3 +58,16 @@
 - [x] Settings › Labs flag, off by default; first-run notice "Seeking review by Deaf signers".
 - [x] Tests: 20 unit (schema, files, registry, invariance, held window, confusables, feedback, metrics, quality, synthetic demo benchmark) + 6 e2e (flag off, framing/practice, fingerspelling, recognise, authoring/import/export/withdraw, benchmark); every e2e test also enforces zero third-party requests.
 - [ ] Needs Deaf-signer review before any public use (see docs/SIGN_PACKS.md).
+
+## Translate (Labs, same flag)
+
+- [x] `/translate` with its own nav item, store slice (memory only), camera session and matcher; three tabs: Sign to word, Word to sign, Fingerspell.
+- [x] Sign to word: capture → up to 3 candidates with EN/BM gloss, strength label, replay; "Not sure"; "None of these"; Signs-so-far strip with copy/undo/clear; local-voice-only speech, off by default.
+- [x] Word to sign: EN/BM search with suggestions, skeleton player (play/pause, 0.5×/1×, loop, mirror, highlight, step-through, captions), multi-word queue, not-in-pack with fingerspelling from real templates only.
+- [x] Fingerspell: camera letters with candidates and confusable warning, word box (space, backspace, clear), reverse spelling; J/Z only as dynamic templates.
+- [x] Empty-pack state in every mode; persistent demo banner; pack/language/review status on every screen.
+- [x] Isolation from Live: import-graph test (mutation-checked) + storage/runtime test.
+- [x] Tests: 18 unit + 6 e2e (flag, empty state, sign-to-word, word-to-sign, fingerspell, camera lifecycle; axe on every mode; zero third-party requests).
+- [x] Measured: 4 ms from capture end to result; ranking ~1.4 ms; synthetic demo top-1 95.8 % / top-3 100 %.
+- [ ] Early stop on stillness, so a short sign does not wait for the full 2.5 s window.
+- [ ] Real ASL needs recorded signs/alphabet from real signers and a Deaf signer's review.

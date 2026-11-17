@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import type { Pt, SlottedFrame } from '../../engine/types';
-import { session } from '../../store/useSession';
 
 const BONES: [number, number][] = [
   [11, 12],
@@ -31,7 +30,10 @@ function cssVar(name: string): string {
  * Draws the tracked pose points, bones and hands over the stage. `figure` = draw the demo performer as the
  * picture itself (paper background, table edge). Nothing is drawn for an invalid frame. Never persists pixels.
  */
-export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton: boolean }) {
+/** Subscribe to smoothed frames; returns an unsubscribe function. */
+export type FrameSubscribe = (cb: (f: SlottedFrame, valid: boolean) => void) => () => void;
+
+export function OverlayCanvas({ figure, skeleton, subscribe }: { figure: boolean; skeleton: boolean; subscribe: FrameSubscribe }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const latest = useRef<{ f: SlottedFrame; valid: boolean } | null>(null);
 
@@ -41,7 +43,7 @@ export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton:
     if (!ctx) return;
     let raf = 0;
     let dirty = true;
-    const unsub = session.subscribeFrame((f, valid) => {
+    const unsub = subscribe((f, valid) => {
       latest.current = { f, valid };
       dirty = true;
     });
@@ -149,7 +151,7 @@ export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton:
       mo.disconnect();
       unsub();
     };
-  }, [figure, skeleton]);
+  }, [figure, skeleton, subscribe]);
 
   return <canvas ref={ref} aria-hidden="true" className="absolute inset-0 h-full w-full" />;
 }

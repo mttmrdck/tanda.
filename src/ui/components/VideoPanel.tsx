@@ -3,6 +3,7 @@ import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, Per
 import { useEffect, useState, type ReactNode } from 'react';
 import { useT, type MsgKey } from '../../i18n';
 import type { GestureName } from '../../engine/simulator';
+import { GESTURE_LABEL } from './gestureLabels';
 import { useSettings } from '../../store/useApp';
 import { session, useSession } from '../../store/useSession';
 import { onVisionStatus, visionStatus } from '../../vision/loader';
@@ -10,23 +11,6 @@ import { Button } from './Button';
 import { CameraStage } from './CameraStage';
 import { Chip, SegmentedControl } from './Controls';
 
-export const GESTURE_LABEL: Record<GestureName, MsgKey> = {
-  wave: 'gWave',
-  handToMouth: 'gHandToMouth',
-  coverEars: 'gCoverEars',
-  armsUp: 'gArmsUp',
-  pointRight: 'gPointRight',
-  tapTable: 'gTapTable',
-  rock: 'gRock',
-  flap: 'gFlap',
-  idle: 'gIdle',
-  flail: 'gFlap',
-  squeeze: 'gSqueeze',
-  shapeOpen: 'gShapeOpen',
-  shapeFist: 'gShapeFist',
-  shapePoint: 'gShapePoint',
-  shapeThumb: 'gShapeThumb',
-};
 
 const ERR: Record<string, MsgKey> = {
   denied: 'errDenied',
