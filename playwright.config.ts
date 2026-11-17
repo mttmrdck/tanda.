@@ -10,15 +10,15 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:4319',
     trace: 'retain-on-failure',
     launchOptions: { args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'npm run preview -- --mode e2e',
-    url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
+    url: 'http://localhost:4319',
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

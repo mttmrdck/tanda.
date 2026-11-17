@@ -34,5 +34,5 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), cspPlugin()],
   // `e2e` mode is a production build that also exposes window.__isyaratDebug for Playwright.
   build: { outDir: mode === 'e2e' ? 'dist-e2e' : 'dist', chunkSizeWarningLimit: 900 },
-  preview: { port: mode === 'e2e' ? 4173 : 4174, strictPort: true },
+  preview: { port: mode === 'e2e' ? 4319 : 4174, strictPort: true },
 }));
