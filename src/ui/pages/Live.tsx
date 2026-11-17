@@ -108,10 +108,11 @@ export default function Live() {
     };
   }, []);
 
-  const setFeedback = (eventId: string, patch: Partial<EventRecord>) => {
+  /** Persist feedback first, then show it — so a reload right after pressing a button never loses the answer. */
+  const setFeedback = async (eventId: string, patch: Partial<EventRecord>) => {
+    await updateEvent(eventId, patch);
     setEvents((xs) => xs.map((x) => (x.id === eventId ? { ...x, ...patch } : x)));
     setCurrent((c) => (c && c.eventId === eventId ? { ...c, ...(patch.feedback ? { feedback: patch.feedback } : {}), ...(patch.signalId ? { signalId: patch.signalId } : {}) } : c));
-    return updateEvent(eventId, patch);
   };
 
   const onYes = async () => {
