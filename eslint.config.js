@@ -20,6 +20,10 @@ export default tseslint.config(
     },
   },
   {
+    files: ['tests/**/*.{ts,tsx}', 'e2e/**/*.ts', 'scripts/**/*.mjs'],
+    rules: { 'no-console': 'off' },
+  },
+  {
     files: ['scripts/**/*.mjs'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.node },

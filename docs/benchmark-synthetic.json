@@ -1,0 +1,160 @@
+{
+  "label": "synthetic benchmark — not a clinical or real-child result",
+  "setup": {
+    "gestures": [
+      "wave",
+      "handToMouth",
+      "coverEars",
+      "armsUp",
+      "pointRight",
+      "tapTable"
+    ],
+    "untaught": [
+      "flap",
+      "rock",
+      "idle"
+    ],
+    "testClipsPerGesture": 20,
+    "noise": "0.006–0.012",
+    "speed": "±20%",
+    "amplitude": "±15%",
+    "dropout": 0.02,
+    "clipMs": 2000
+  },
+  "fiveExamples": {
+    "accuracy": 0.9583333333333334,
+    "rejectionRate": 1,
+    "confusion": {
+      "wave": {
+        "wave": 20,
+        "handToMouth": 0,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "handToMouth": {
+        "wave": 0,
+        "handToMouth": 20,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "coverEars": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 20,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "armsUp": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 5,
+        "armsUp": 15,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "pointRight": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 20,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "tapTable": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 20,
+        "rejected": 0
+      }
+    },
+    "rejection": {
+      "flap": {
+        "rejected": 20,
+        "total": 20
+      },
+      "rock": {
+        "rejected": 20,
+        "total": 20
+      },
+      "idle": {
+        "rejected": 20,
+        "total": 20
+      }
+    }
+  },
+  "threeExamples": {
+    "accuracy": 0.95,
+    "rejectionRate": 1,
+    "confusion": {
+      "wave": {
+        "wave": 20,
+        "handToMouth": 0,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "handToMouth": {
+        "wave": 0,
+        "handToMouth": 20,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "coverEars": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 20,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "armsUp": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 6,
+        "armsUp": 14,
+        "pointRight": 0,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "pointRight": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 20,
+        "tapTable": 0,
+        "rejected": 0
+      },
+      "tapTable": {
+        "wave": 0,
+        "handToMouth": 0,
+        "coverEars": 0,
+        "armsUp": 0,
+        "pointRight": 0,
+        "tapTable": 20,
+        "rejected": 0
+      }
+    }
+  },
+  "latencyMsPerWindow": 4.485,
+  "generatedBy": "tests/unit/accuracy.test.ts"
+}
