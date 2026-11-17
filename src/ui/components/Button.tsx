@@ -5,13 +5,13 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 export type ButtonVariant = 'primary' | 'secondary' | 'quiet' | 'destructive';
 
 const base =
-  'inline-flex select-none items-center justify-center gap-2 rounded-[12px] font-bold transition-[transform,background-color,border-color,color] duration-[120ms] ease-[var(--ease-out)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100';
+  'press inline-flex select-none items-center justify-center gap-2 rounded-full font-bold transition-[transform,background-color,color,box-shadow] duration-[160ms] ease-[var(--ease-out)] disabled:cursor-not-allowed disabled:opacity-55';
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
-  secondary: 'border border-border bg-surface text-ink hover:bg-surface-2',
+  primary: 'bg-primary-fill text-on-primary shadow-[0_8px_24px_-8px_rgb(42_99_242/0.7)] hover:bg-primary-hover',
+  secondary: 'bg-surface-2 text-ink shadow-[var(--hairline),inset_0_0_0_1px_var(--border-soft)] hover:shadow-[var(--hairline),inset_0_0_0_1px_var(--border)]',
   quiet: 'text-primary hover:bg-primary-soft',
-  destructive: 'border border-high-fg bg-high-bg text-high-fg hover:brightness-95',
+  destructive: 'bg-high-bg text-high-fg shadow-[inset_0_0_0_1px_var(--high-fg)] hover:brightness-110',
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -31,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={clsx(base, variants[variant], size === 'lg' ? 'min-h-14 px-6 text-lg' : 'min-h-12 px-5', className)}
+      className={clsx(base, variants[variant], size === 'lg' ? 'min-h-14 px-7 text-lg' : 'min-h-12 px-5', className)}
       {...rest}
     >
       {loading ? <LoaderCircle aria-hidden className="size-5 animate-spin motion-reduce:animate-none" /> : icon}

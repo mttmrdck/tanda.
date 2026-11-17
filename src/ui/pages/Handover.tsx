@@ -84,7 +84,7 @@ function ExportPanel() {
             {busy ? t('creatingFile') : t('createFile')}
           </Button>
           {done && (
-            <p role="status" className="flex items-center gap-2 rounded-[12px] bg-calm-bg p-3 font-bold text-calm-fg">
+            <p role="status" className="flex items-center gap-2 rounded-[16px] bg-calm-bg p-3 font-bold text-calm-fg">
               <CircleCheck aria-hidden className="size-5" />
               {t('fileCreated', { file: done })}
             </p>
@@ -200,11 +200,11 @@ export function ImportPanel({ onDone }: { onDone?: (profileId: string) => void }
           setDrag(false);
           void choose(e.dataTransfer.files[0]);
         }}
-        className={clsx('flex flex-col items-center gap-2 rounded-[20px] border-2 border-dashed p-8 text-center', drag ? 'border-primary bg-primary-soft' : 'border-border bg-surface-2')}
+        className={clsx('flex flex-col items-center gap-2 rounded-[28px] border-2 border-dashed p-8 text-center', drag ? 'border-primary bg-primary-soft' : 'border-border bg-surface-2')}
       >
         <FileUp aria-hidden className="size-10 text-primary" />
         <input ref={input} type="file" accept=".isyarat,application/json,application/octet-stream" className="sr-only" id="import-file" onChange={(e) => void choose(e.target.files?.[0])} />
-        <label htmlFor="import-file" className="inline-flex min-h-12 cursor-pointer items-center rounded-[12px] bg-primary px-5 font-bold text-on-primary hover:bg-primary-hover has-[:focus-visible]:outline">
+        <label htmlFor="import-file" className="inline-flex min-h-12 cursor-pointer items-center rounded-full bg-primary-fill px-5 font-bold text-on-primary hover:bg-primary-hover has-[:focus-visible]:outline">
           {t('importChoose')}
         </label>
         <p className="text-ink-muted">{t('importDropHint')}</p>
@@ -228,7 +228,7 @@ export function ImportPanel({ onDone }: { onDone?: (profileId: string) => void }
       )}
 
       {error && (
-        <p role="alert" className="rounded-[12px] bg-high-bg p-4 font-bold text-high-fg" data-testid="import-error">
+        <p role="alert" className="rounded-[16px] bg-high-bg p-4 font-bold text-high-fg" data-testid="import-error">
           {error}
         </p>
       )}

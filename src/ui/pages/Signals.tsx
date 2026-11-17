@@ -66,7 +66,7 @@ function SignalCard({ s, lastSeen, onEdit, onDelete }: { s: Signal; lastSeen?: s
         </div>
       </dl>
       <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-border-soft pt-3">
-        <Link href={`/teach/${s.id}/add`} className="inline-flex min-h-12 items-center gap-2 rounded-[12px] px-3 font-bold text-primary hover:bg-primary-soft">
+        <Link href={`/teach/${s.id}/add`} className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 font-bold text-primary hover:bg-primary-soft">
           <Plus aria-hidden className="size-5" />
           {t('addExamples')}
         </Link>
@@ -125,7 +125,7 @@ export default function Signals() {
           <h1 className="text-2xl sm:text-3xl">{t('signalsTitle')}</h1>
           <p className="mt-1 text-ink-muted tabular">{t('signalsCount', { n: signals.length })}</p>
         </div>
-        <Link href="/teach" className="inline-flex min-h-12 items-center gap-2 rounded-[12px] bg-primary px-5 font-bold text-on-primary hover:bg-primary-hover">
+        <Link href="/teach" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary-fill px-5 font-bold text-on-primary hover:bg-primary-hover">
           <Plus aria-hidden className="size-5" />
           {t('newSignal')}
         </Link>
@@ -136,7 +136,7 @@ export default function Signals() {
           title={t('emptyNoSignalsTitle')}
           body={t('emptyNoSignalsBody', { name: profile?.nickname ?? '' })}
           action={
-            <Link href="/teach" className="inline-flex min-h-12 items-center rounded-[12px] bg-primary px-5 font-bold text-on-primary hover:bg-primary-hover">
+            <Link href="/teach" className="inline-flex min-h-12 items-center rounded-full bg-primary-fill px-5 font-bold text-on-primary hover:bg-primary-hover">
               {t('teachFirst')}
             </Link>
           }
@@ -152,7 +152,7 @@ export default function Signals() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('signalsSearch')}
-                className="block min-h-12 w-full rounded-[12px] border border-border bg-surface pl-12 pr-4 text-ink placeholder:text-ink-muted"
+                className="block min-h-12 w-full rounded-[16px] border border-border bg-surface pl-12 pr-4 text-ink placeholder:text-ink-muted"
               />
             </label>
             <fieldset>

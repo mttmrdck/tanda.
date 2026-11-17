@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
-import { useHashLocation } from 'wouter/use-hash-location';
 import { useT } from './i18n';
 import { useSettings } from './store/useApp';
 import { useData } from './store/useData';
@@ -10,6 +9,7 @@ import { Button } from './ui/components/Button';
 import { ErrorBoundary } from './ui/components/ErrorBoundary';
 import { AppShell, BareShell } from './ui/components/Shell';
 import { SessionSync } from './ui/SessionSync';
+import { useTransitionHashLocation } from './ui/navigation';
 import Live from './ui/pages/Live';
 
 const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
@@ -163,7 +163,7 @@ export function App() {
   }, []);
   const toastTheme = theme === 'system' ? 'system' : theme === 'dim' ? 'dark' : 'light';
   return (
-    <Router hook={useHashLocation}>
+    <Router hook={useTransitionHashLocation} hrefs={(href) => `#${href}`}>
       <RouteFocus />
       <SessionSync />
       <Announcer />
@@ -172,8 +172,19 @@ export function App() {
         position="top-center"
         theme={toastTheme}
         closeButton
+        offset={{ top: 'calc(env(safe-area-inset-top) + 12px)' }}
         toastOptions={{
-          style: { background: 'var(--surface)', color: 'var(--ink)', border: '1px solid var(--border-soft)', fontSize: '1rem', borderRadius: '16px' },
+          style: {
+            background: 'var(--glass-tint)',
+            backdropFilter: 'blur(24px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow)',
+            color: 'var(--ink)',
+            fontSize: '1rem',
+            borderRadius: '24px',
+            fontFamily: 'var(--font-sans)',
+          },
         }}
       />
     </Router>

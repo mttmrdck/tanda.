@@ -78,7 +78,7 @@ export function VideoPanel({
           <div className="absolute inset-0 grid place-items-center p-4 sm:p-6">
             <div className="max-w-sm text-center">
               {s.phase === 'error' && s.error ? (
-                <p role="alert" className="flex items-start gap-2 rounded-[12px] bg-high-bg p-3 text-left font-bold text-high-fg">
+                <p role="alert" className="flex items-start gap-2 rounded-[16px] bg-high-bg p-3 text-left font-bold text-high-fg">
                   <CircleExclamationPoint aria-hidden className="mt-0.5 size-5 shrink-0" />
                   {t(ERR[s.error] ?? 'errUnknown')}
                 </p>

@@ -15,7 +15,7 @@ function Illustration() {
 
 export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-[20px] border border-dashed border-border bg-surface-2 px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-[28px] border border-dashed border-border bg-surface-2 px-6 py-10 text-center">
       <Illustration />
       <h2 className="text-xl">{title}</h2>
       <p className="max-w-md text-ink-muted">{body}</p>

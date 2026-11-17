@@ -19,7 +19,7 @@ export function ConfidenceBar({ confidence, compact = false }: { confidence: num
     <div className="flex items-center gap-3 whitespace-nowrap">
       <span aria-hidden className="flex gap-1">
         {[1, 2, 3].map((i) => (
-          <span key={i} className={clsx('h-2.5 w-8 rounded-full', i <= filled ? 'bg-primary' : 'bg-surface-2 ring-1 ring-border-soft')} />
+          <span key={i} className={clsx('h-2.5 w-8 rounded-full', i <= filled ? 'bg-primary-fill' : 'bg-surface-2 ring-1 ring-border-soft')} />
         ))}
       </span>
       <span className="font-bold text-ink-muted">{compact ? level : t('confLabel', { level })}</span>
@@ -96,7 +96,7 @@ export function EventList({ events, signals, lang }: { events: EventRecord[]; si
         const Icon = e.kind === 'signal' ? iconFor(s?.icon ?? '') : TIERS.find((x) => x.tier === e.tier)?.Icon ?? Leaf;
         return (
           <li key={e.id} className="flex items-center gap-3 py-3">
-            <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-[12px] bg-surface-2 text-primary">
+            <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-[16px] bg-surface-2 text-primary">
               <Icon className="size-5" />
             </span>
             <div className="min-w-0 flex-1">

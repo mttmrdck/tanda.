@@ -128,7 +128,7 @@ export default function Timeline() {
               value={date}
               max={todayStr()}
               onChange={(e) => setDate(e.target.value || todayStr())}
-              className="mt-2 block min-h-12 rounded-[12px] border border-border bg-surface px-4 text-ink"
+              className="mt-2 block min-h-12 rounded-[16px] border border-border bg-surface px-4 text-ink"
             />
           </label>
           <Button variant="secondary" icon={<Download aria-hidden className="size-5" />} disabled={!events} onClick={() => exportFile('csv')}>
@@ -141,15 +141,15 @@ export default function Timeline() {
       </header>
 
       {error && (
-        <p role="alert" className="rounded-[12px] bg-high-bg p-4 font-bold text-high-fg">
+        <p role="alert" className="rounded-[16px] bg-high-bg p-4 font-bold text-high-fg">
           {t('loadError')}
         </p>
       )}
 
       {!events && !error ? (
         <div aria-hidden className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="h-80 rounded-[20px] bg-surface-2" />
-          <div className="h-80 rounded-[20px] bg-surface-2" />
+          <div className="h-80 rounded-[28px] bg-surface-2" />
+          <div className="h-80 rounded-[28px] bg-surface-2" />
         </div>
       ) : events ? (
         <>

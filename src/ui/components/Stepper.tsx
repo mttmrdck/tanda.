@@ -12,7 +12,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
         {t('stepOf', { n: current + 1, total: steps.length, label: steps[current] ?? '' })}
       </p>
       <Progress.Root value={current + 1} max={steps.length} aria-label={t('stepOf', { n: current + 1, total: steps.length, label: steps[current] ?? '' })} className="relative h-1.5 overflow-hidden rounded-full bg-surface-2">
-        <Progress.Indicator className="h-full bg-primary transition-[width] duration-[320ms] ease-[var(--ease-out)]" style={{ width: `${pct}%` }} />
+        <Progress.Indicator className="h-full bg-primary-fill transition-[width] duration-[320ms] ease-[var(--ease-out)]" style={{ width: `${pct}%` }} />
       </Progress.Root>
       <ol className="mt-3 grid gap-2" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}>
         {steps.map((s, i) => (
@@ -21,7 +21,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
               aria-hidden
               className={clsx(
                 'grid size-7 shrink-0 place-items-center rounded-full border text-xs tabular',
-                i < current ? 'border-primary bg-primary text-on-primary' : i === current ? 'border-primary text-primary' : 'border-border',
+                i < current ? 'border-primary bg-primary-fill text-on-primary' : i === current ? 'border-primary text-primary' : 'border-border',
               )}
             >
               {i < current ? <Check className="size-4" /> : i + 1}

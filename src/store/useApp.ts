@@ -24,7 +24,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 export function defaultSettings(navLang?: string): Settings {
   return {
     lang: defaultLang(navLang),
-    theme: 'system',
+    theme: 'dim',
     sensitivity: 1,
     windowMs: 2000,
     targetFps: 15,

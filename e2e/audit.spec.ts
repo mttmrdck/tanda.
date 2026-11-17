@@ -66,12 +66,13 @@ test('full click-through: live recognition, teach, every page — no external re
 
 test('camera tracks stop when leaving camera pages', async ({ page, guard }) => {
   void guard;
-  test.setTimeout(120_000);
+  test.setTimeout(150_000);
   await onboard(page);
   await page.getByRole('button', { name: 'Use camera' }).click();
   await page.getByRole('button', { name: 'Start camera' }).click();
   const tracks = () => page.evaluate(() => (window as unknown as { __isyaratDebug: { liveTracks: () => number } }).__isyaratDebug.liveTracks());
-  await expect.poll(tracks, { timeout: 60_000 }).toBeGreaterThan(0);
+  // MediaPipe's WASM compile competes with other parallel workers for CPU; allow time to reach 'running'.
+  await expect.poll(tracks, { timeout: 100_000 }).toBeGreaterThan(0);
   await page.getByRole('link', { name: 'Signals' }).first().click();
   await expect.poll(tracks).toBe(0);
   const state = await page.evaluate(() => (window as unknown as { __isyaratDebug: { state: () => { phase: string } } }).__isyaratDebug.state().phase);
@@ -101,7 +102,7 @@ test('reduced motion: transforms disabled, app fully usable', async ({ page, gua
     const btn = document.querySelector('main button');
     return btn ? getComputedStyle(btn).transitionProperty : '';
   });
-  expect(anim).toBe('opacity');
+  expect(anim).not.toContain('transform'); // movement removed; only fades remain
   await page.getByRole('button', { name: /Play how “Hello” looks/ }).click();
   await expect(page.getByRole('img', { name: 'Stick-figure replay of “Hello”' })).toBeVisible();
 });

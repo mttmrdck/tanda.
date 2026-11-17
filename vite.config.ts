@@ -40,6 +40,11 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), cspPlugin(), ...(mode === 'https' ? [basicSsl({ name: 'isyarat-dev' })] : [])],
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   // `e2e` mode is a production build that also exposes window.__isyaratDebug for Playwright.
-  build: { outDir: mode === 'e2e' ? 'dist-e2e' : 'dist', chunkSizeWarningLimit: 900 },
+  build: {
+    outDir: mode === 'e2e' ? 'dist-e2e' : 'dist',
+    chunkSizeWarningLimit: 900,
+    // Never inline fonts as data: URIs — the CSP allows fonts only from 'self'.
+    assetsInlineLimit: (file: string) => (/\.woff2?$/.test(file) ? false : undefined),
+  },
   preview: { port: mode === 'e2e' ? 4319 : 4174, strictPort: true },
 }));

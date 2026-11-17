@@ -28,20 +28,20 @@ export default function DebugPage() {
       <div>
         <CameraStage skeleton label={`source ${s.kind ?? 'none'}, seeing ${s.seeing}`} />
         <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" className="min-h-12 rounded-[12px] border border-border px-4" onClick={() => void session.start('camera')}>
+          <button type="button" className="min-h-12 rounded-[16px] border border-border px-4" onClick={() => void session.start('camera')}>
             Camera
           </button>
-          <button type="button" className="min-h-12 rounded-[12px] border border-border px-4" onClick={() => void session.start('demo')}>
+          <button type="button" className="min-h-12 rounded-[16px] border border-border px-4" onClick={() => void session.start('demo')}>
             Demo
           </button>
-          <button type="button" className="min-h-12 rounded-[12px] border border-border px-4" onClick={() => session.stop()}>
+          <button type="button" className="min-h-12 rounded-[16px] border border-border px-4" onClick={() => session.stop()}>
             Stop
           </button>
         </div>
         {s.kind === 'demo' && (
           <div className="mt-3 flex flex-wrap gap-2">
             {ALL_GESTURES.map((g) => (
-              <button key={g} type="button" className="min-h-12 rounded-[12px] border border-border px-3" onClick={() => session.performDemo(g)}>
+              <button key={g} type="button" className="min-h-12 rounded-[16px] border border-border px-3" onClick={() => session.performDemo(g)}>
                 {g}
               </button>
             ))}

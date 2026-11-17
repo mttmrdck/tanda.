@@ -8,6 +8,9 @@ export const en = {
   // shell
   skipToContent: 'Skip to main content',
   navMain: 'Main navigation',
+  navHome: 'Home',
+  navInsights: 'Insights',
+  navProfile: 'Profile',
   navLive: 'Live',
   navTeach: 'Teach',
   navSignals: 'Signals',
@@ -28,7 +31,7 @@ export const en = {
   langShort: 'BM',
   themeLabel: 'Theme',
   themeLight: 'Light',
-  themeDim: 'Dim',
+  themeDim: 'Dark',
   themeSystem: 'Match device',
   profileLabel: 'Child profile',
   profileSwitch: 'Switch child profile',
@@ -435,7 +438,7 @@ export const en = {
   aboutA11yBody: 'Isyarat aims to meet WCAG 2.2 AA: full keyboard use, screen-reader labels, large touch targets, reduced motion and high contrast.',
   aboutPrivacy: 'Privacy',
   aboutCredits: 'Built with open source',
-  aboutCreditsBody: 'MediaPipe Tasks Vision (Google, Apache-2.0), React, Vite, Tailwind CSS, Radix UI, Lucide icons, Motion, Sonner, Recharts, Zustand, wouter, idb, zod, Atkinson Hyperlegible and Fraunces fonts (SIL OFL).',
+  aboutCreditsBody: 'MediaPipe Tasks Vision (Google, Apache-2.0), React, Vite, Tailwind CSS, Radix UI, Lucide icons, Motion, Sonner, Recharts, Zustand, wouter, idb, zod, the Manrope font (SIL OFL).',
 } as const;
 
 export type MsgKey = keyof typeof en;

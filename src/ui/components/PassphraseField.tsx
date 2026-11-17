@@ -48,14 +48,14 @@ export function PassphraseField({
           spellCheck={false}
           aria-describedby={describedBy}
           aria-invalid={!!error || undefined}
-          className={clsx('block min-h-12 w-full rounded-[12px] border bg-surface pl-4 pr-14 text-ink', error ? 'border-high-fg' : 'border-border')}
+          className={clsx('block min-h-12 w-full rounded-[16px] border bg-surface pl-4 pr-14 text-ink', error ? 'border-high-fg' : 'border-border')}
         />
         <button
           type="button"
           onClick={() => setShown((v) => !v)}
           aria-label={shown ? t('passHide') : t('passShow')}
           aria-pressed={shown}
-          className="absolute right-0 top-0 grid size-12 place-items-center rounded-[12px] text-ink-muted hover:text-ink"
+          className="absolute right-0 top-0 grid size-12 place-items-center rounded-[16px] text-ink-muted hover:text-ink"
         >
           {shown ? <EyeOff aria-hidden className="size-5" /> : <Eye aria-hidden className="size-5" />}
         </button>

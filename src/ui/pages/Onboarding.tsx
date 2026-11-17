@@ -109,7 +109,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
                   checked={consent[i]}
                   onChange={(e) => setConsent((c) => c.map((v, j) => (j === i ? e.target.checked : v)))}
                 />
-                <span aria-hidden className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-[8px] border-2 border-border bg-surface peer-checked:border-primary peer-checked:bg-primary peer-checked:text-on-primary peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus">
+                <span aria-hidden className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-[8px] border-2 border-border bg-surface peer-checked:border-primary peer-checked:bg-primary-fill peer-checked:text-on-primary peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus">
                   {consent[i] && <Check className="size-5" />}
                 </span>
                 <span>{t(k)}</span>
@@ -173,7 +173,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
               ]}
             />
             {saveError && (
-              <p role="alert" className="rounded-[12px] bg-high-bg p-4 font-bold text-high-fg">
+              <p role="alert" className="rounded-[16px] bg-high-bg p-4 font-bold text-high-fg">
                 {saveError}
               </p>
             )}

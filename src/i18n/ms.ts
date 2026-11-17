@@ -12,6 +12,9 @@ export const ms: Record<MsgKey, string> = {
 
   skipToContent: 'Langkau ke kandungan utama',
   navMain: 'Navigasi utama',
+  navHome: 'Utama',
+  navInsights: 'Statistik',
+  navProfile: 'Profil',
   navLive: 'Langsung',
   navTeach: 'Ajar',
   navSignals: 'Isyarat',
@@ -32,7 +35,7 @@ export const ms: Record<MsgKey, string> = {
   langShort: 'EN',
   themeLabel: 'Tema',
   themeLight: 'Cerah',
-  themeDim: 'Malap',
+  themeDim: 'Gelap',
   themeSystem: 'Ikut peranti',
   profileLabel: 'Profil anak',
   profileSwitch: 'Tukar profil anak',
@@ -429,5 +432,5 @@ export const ms: Record<MsgKey, string> = {
   aboutA11yBody: 'Isyarat menyasarkan WCAG 2.2 AA: boleh digunakan sepenuhnya dengan papan kekunci, label pembaca skrin, sasaran sentuh yang besar, pergerakan dikurangkan dan kontras tinggi.',
   aboutPrivacy: 'Privasi',
   aboutCredits: 'Dibina dengan sumber terbuka',
-  aboutCreditsBody: 'MediaPipe Tasks Vision (Google, Apache-2.0), React, Vite, Tailwind CSS, Radix UI, ikon Lucide, Motion, Sonner, Recharts, Zustand, wouter, idb, zod, fon Atkinson Hyperlegible dan Fraunces (SIL OFL).',
+  aboutCreditsBody: 'MediaPipe Tasks Vision (Google, Apache-2.0), React, Vite, Tailwind CSS, Radix UI, ikon Lucide, Motion, Sonner, Recharts, Zustand, wouter, idb, zod, fon Manrope (SIL OFL).',
 };

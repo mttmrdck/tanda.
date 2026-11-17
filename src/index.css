@@ -1,57 +1,78 @@
 @import 'tailwindcss';
-@import '@fontsource/atkinson-hyperlegible/400.css';
-@import '@fontsource/atkinson-hyperlegible/700.css';
-@import '@fontsource/atkinson-hyperlegible/400-italic.css';
-@import '@fontsource-variable/fraunces';
+@import '@fontsource-variable/manrope';
 
 @custom-variant dim (&:where([data-theme='dim'], [data-theme='dim'] *));
 
-/* Design tokens — keep in sync with DESIGN.md and src/ui/theme/tokens.json */
+/* Design tokens — keep in sync with DESIGN.md and src/ui/theme/tokens.json (checked by `npm run contrast`).
+   Dark-first: the `dim` theme is the default; `light` is the alternative. */
 :root {
   color-scheme: light;
-  --bg: #faf7f2;
+  --bg: #eef0f4;
   --surface: #ffffff;
-  --surface-2: #f3eee6;
-  --border: #8c8172;
-  --border-soft: #e3dccf;
-  --ink: #1b2430;
-  --ink-muted: #4a5565;
-  --primary: #0b6e6e;
-  --primary-hover: #095858;
+  --surface-2: #f3f4f7;
+  --border: #7d8594;
+  --border-soft: #dde1e8;
+  --ink: #0e1116;
+  --ink-muted: #4b5260;
+  --primary: #1e4fd8;
+  --primary-fill: #2a63f2;
+  --primary-hover: #2255dd;
   --on-primary: #ffffff;
-  --primary-soft: #e1f0ef;
-  --calm-fg: #1e6b4a;
-  --calm-bg: #e7f4ec;
+  --primary-soft: #e5ecff;
+  --calm-fg: #1d6e35;
+  --calm-bg: #e2f5e5;
   --rising-fg: #8a5a00;
-  --rising-bg: #fff4db;
-  --high-fg: #a4261a;
-  --high-bg: #fdecea;
-  --focus: #0b6e6e;
-  --shadow: 0 1px 2px rgb(27 36 48 / 0.06), 0 8px 24px -12px rgb(27 36 48 / 0.18);
-  --scrim: rgb(20 24 29 / 0.45);
+  --rising-bg: #fff3d6;
+  --high-fg: #b42318;
+  --high-bg: #fde8e8;
+  --focus: #2f6bff;
+  --green: #5cc23a;
+  --green-2: #9ee67a;
+  --amber: #ffb020;
+  --coral: #ff5a5f;
+  --hairline: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 0 0 1px rgb(14 17 22 / 0.05);
+  --shadow: 0 1px 2px rgb(14 17 22 / 0.05), 0 12px 32px -16px rgb(14 17 22 / 0.18);
+  --glass-tint: rgb(255 255 255 / 0.72);
+  --glass-border: rgb(14 17 22 / 0.08);
+  --glass-solid: #ffffff;
+  --scrim: rgb(14 17 22 / 0.4);
+  --blob-a: rgb(47 107 255 / 0.18);
+  --blob-b: rgb(126 217 87 / 0.16);
 }
 [data-theme='dim'] {
   color-scheme: dark;
-  --bg: #14181d;
-  --surface: #1c2229;
-  --surface-2: #242c35;
-  --border: #6b7a89;
-  --border-soft: #34404c;
-  --ink: #eef2f6;
-  --ink-muted: #b6c0cc;
-  --primary: #4db6b0;
-  --primary-hover: #6ccbc5;
-  --on-primary: #0b1114;
-  --primary-soft: #1d3534;
-  --calm-fg: #8fd9b0;
-  --calm-bg: #16302a;
-  --rising-fg: #f2c46b;
-  --rising-bg: #33280f;
-  --high-fg: #f6a59b;
-  --high-bg: #3a1d1a;
-  --focus: #4db6b0;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --bg: #0b0b0d;
+  --surface: #17181b;
+  --surface-2: #1e2024;
+  --border: #6c727d;
+  --border-soft: #2a2d33;
+  --ink: #f4f5f7;
+  --ink-muted: #a7adb8;
+  --primary: #8aa8ff;
+  --primary-fill: #2a63f2;
+  --primary-hover: #2255dd;
+  --on-primary: #ffffff;
+  --primary-soft: #1a2547;
+  --calm-fg: #7ed957;
+  --calm-bg: #14261a;
+  --rising-fg: #ffb020;
+  --rising-bg: #2e2208;
+  --high-fg: #ff7a7e;
+  --high-bg: #35171a;
+  --focus: #8aa8ff;
+  --green: #7ed957;
+  --green-2: #b6f08f;
+  --amber: #ffb020;
+  --coral: #ff5a5f;
+  --hairline: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  --shadow: 0 8px 32px rgb(0 0 0 / 0.35);
+  /* tint over the near-black base renders ≈ #26282D, the token the contrast check uses */
+  --glass-tint: rgb(38 40 45 / 0.72);
+  --glass-border: rgb(255 255 255 / 0.12);
+  --glass-solid: #1e2024;
   --scrim: rgb(0 0 0 / 0.6);
+  --blob-a: rgb(47 107 255 / 0.22);
+  --blob-b: rgb(126 217 87 / 0.14);
 }
 
 @theme inline {
@@ -64,6 +85,10 @@
   --color-ink-muted: var(--ink-muted);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-fill: var(--primary-fill);
+  --color-green: var(--green);
+  --color-amber: var(--amber);
+  --color-coral: var(--coral);
   --color-on-primary: var(--on-primary);
   --color-primary-soft: var(--primary-soft);
   --color-calm-fg: var(--calm-fg);
@@ -78,22 +103,24 @@
 }
 
 @theme {
-  --font-sans: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Fraunces Variable', Georgia, serif;
-  --text-xs: 0.875rem; /* 14 — floor */
-  --text-sm: 1rem; /* 16 */
-  --text-base: 1.125rem; /* 18 */
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --text-xs: 0.875rem; /* 14 — meta labels only */
+  --text-sm: 1rem; /* 16 — body floor */
+  --text-base: 1.0625rem; /* 17 */
   --text-lg: 1.375rem; /* 22 */
   --text-xl: 1.75rem; /* 28 */
   --text-2xl: 2.25rem; /* 36 */
   --text-3xl: 3rem; /* 48 */
-  --radius-control: 12px;
-  --radius-card: 20px;
-  --radius-sheet: 28px;
+  --text-4xl: 4rem; /* 64 — hero numerals */
+  --radius-control: 16px;
+  --radius-card: 28px;
+  --radius-sheet: 32px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 120ms;
-  --duration-base: 200ms;
-  --duration-slow: 320ms;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 160ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
 }
 
 @layer base {
@@ -139,16 +166,218 @@ li {
 .tabular {
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Surfaces ─────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--hairline), var(--shadow);
+}
+/* Glass: only for floating chrome (tab bar, header, sheets, dialogs, confirm prompt, toasts). */
+.glass {
+  background: var(--glass-solid);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--hairline), var(--shadow);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-tint);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
+/* Soft drifting colour behind the page so glass has something to blur. Decorative. */
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-blobs::before,
+.bg-blobs::after {
+  content: '';
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  /* the radial gradient is already soft — no filter: blur() (expensive on large layers) */
+}
+.bg-blobs::before {
+  background: radial-gradient(circle, var(--blob-a), transparent 65%);
+  top: -30vmax;
+  left: -20vmax;
+  animation: drift-a 38s ease-in-out infinite alternate;
+}
+.bg-blobs::after {
+  background: radial-gradient(circle, var(--blob-b), transparent 65%);
+  bottom: -35vmax;
+  right: -25vmax;
+  animation: drift-b 46s ease-in-out infinite alternate;
+}
+html[data-vision] .bg-blobs::before,
+html[data-vision] .bg-blobs::after {
+  animation-play-state: paused;
+}
+@keyframes drift-a {
+  to {
+    transform: translate3d(12vmax, 8vmax, 0);
+  }
+}
+@keyframes drift-b {
+  to {
+    transform: translate3d(-10vmax, -6vmax, 0);
+  }
+}
+
+/* ── Motion utilities (CSS, compositor-only: the vision loop can block the main thread) ── */
+.press {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.enter > * {
+  animation: rise-in 420ms var(--ease-out) both;
+}
+.enter > *:nth-child(2) {
+  animation-delay: 45ms;
+}
+.enter > *:nth-child(3) {
+  animation-delay: 95ms;
+}
+.enter > *:nth-child(4) {
+  animation-delay: 140ms;
+}
+.enter > *:nth-child(5) {
+  animation-delay: 180ms;
+}
+.enter > *:nth-child(n + 6) {
+  animation-delay: 215ms;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.page-enter {
+  animation: page-in 300ms var(--ease-out) both;
+}
+@keyframes tab-bounce {
+  40% {
+    transform: translateY(-3px) scale(1.08);
+  }
+}
+.tab-bounce {
+  animation: tab-bounce 360ms var(--ease-spring);
+}
+@keyframes orb-breathe {
+  50% {
+    transform: scale(1.04);
+    opacity: 0.85;
+  }
+}
+.orb-glow {
+  animation: orb-breathe 5s ease-in-out infinite;
+}
+.orb-glow[data-state='listening'] {
+  animation-duration: 3.2s;
+}
+.orb-glow[data-state='matched'] {
+  animation-duration: 2.4s;
+}
+
+/* Route transitions (View Transitions API, where supported). Direction follows tab order. */
+@keyframes vt-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+@keyframes vt-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes vt-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes vt-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+::view-transition-old(main-content) {
+  animation: vt-out-left 220ms var(--ease-out) both;
+}
+::view-transition-new(main-content) {
+  animation: vt-in-right 300ms var(--ease-out) both;
+}
+html[data-nav-dir='back']::view-transition-old(main-content) {
+  animation-name: vt-out-right;
+}
+html[data-nav-dir='back']::view-transition-new(main-content) {
+  animation-name: vt-in-left;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+#main {
+  view-transition-name: main-content;
+}
+}
+
+/* Reduced motion: movement becomes simple fades; background drift and pulses stop. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-property: opacity !important;
     scroll-behavior: auto !important;
+    transition-property: opacity, color, background-color, border-color !important;
+  }
+  .bg-blobs::before,
+  .bg-blobs::after,
+  .orb-glow {
+    animation: none !important;
+  }
+  .enter > *,
+  .page-enter,
+  .tab-bounce,
+  .countdown-num {
+    animation: fade-only 200ms ease both !important;
+  }
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+  ::view-transition-old(main-content),
+  ::view-transition-new(main-content) {
+    animation: fade-only 150ms ease both !important;
+  }
+}
+@keyframes fade-only {
+  from {
+    opacity: 0;
   }
 }
 @media (prefers-contrast: more) {

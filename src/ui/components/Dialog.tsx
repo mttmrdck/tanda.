@@ -25,10 +25,10 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
         <RD.Overlay className="dialog-overlay fixed inset-0 z-40 bg-scrim" />
         <RD.Content
           className={clsx(
-            'dialog-content fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden border border-border-soft bg-surface text-ink shadow-soft',
+            'dialog-content glass fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden text-ink',
             sheet
-              ? 'inset-x-0 bottom-0 rounded-t-[28px] sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(560px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[28px]'
-              : 'left-1/2 top-1/2 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[28px]',
+              ? 'inset-x-0 bottom-0 rounded-t-[32px] pb-[env(safe-area-inset-bottom)] sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(560px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px]'
+              : 'left-1/2 top-1/2 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[32px]',
           )}
           {...(description ? {} : { 'aria-describedby': undefined })}
         >
@@ -44,7 +44,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
             {description && <RD.Description className="mt-1 text-ink-muted">{description}</RD.Description>}
             {children}
           </div>
-          {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-border-soft px-6 py-4">{footer}</div>}
+          {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-[var(--glass-border)] px-6 py-4">{footer}</div>}
         </RD.Content>
       </RD.Portal>
     </RD.Root>
@@ -111,7 +111,7 @@ export function ConfirmDelete({
         <label className="mt-5 block">
           <span className="font-bold">{t('deleteAllType', { word: confirmWord })}</span>
           <input
-            className="mt-2 block min-h-12 w-full rounded-[12px] border border-border bg-surface px-4 text-ink"
+            className="mt-2 block min-h-12 w-full rounded-[16px] border border-border bg-surface-2 px-4 text-ink"
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
             autoComplete="off"

@@ -87,7 +87,7 @@ export function SignalForm({ draft, onChange, lang, error }: { draft: SignalDraf
             <label
               key={key}
               className={clsx(
-                'flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-[12px] border p-2 text-xs font-bold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus',
+                'flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-[16px] border p-2 text-xs font-bold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus',
                 draft.icon === key ? 'border-primary bg-primary-soft text-primary' : 'border-border-soft bg-surface text-ink hover:bg-surface-2',
               )}
             >

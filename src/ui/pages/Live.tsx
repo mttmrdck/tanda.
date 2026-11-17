@@ -183,7 +183,7 @@ export default function Live() {
               title={t('emptyNoSignalsTitle')}
               body={t('emptyNoSignalsBody', { name: profile?.nickname ?? '' })}
               action={
-                <Link href="/teach" className="inline-flex min-h-12 items-center rounded-[12px] bg-primary px-5 font-bold text-on-primary hover:bg-primary-hover">
+                <Link href="/teach" className="inline-flex min-h-12 items-center rounded-full bg-primary-fill px-5 font-bold text-on-primary hover:bg-primary-hover">
                   {t('teachFirst')}
                 </Link>
               }
@@ -196,7 +196,7 @@ export default function Live() {
               {current && sig && SigIcon ? (
                 <div className="mt-4 space-y-4">
                   <div className="flex items-start gap-4">
-                    <span aria-hidden className="grid size-20 shrink-0 place-items-center rounded-[20px] bg-primary-soft text-primary">
+                    <span aria-hidden className="grid size-20 shrink-0 place-items-center rounded-[28px] bg-primary-soft text-primary">
                       <SigIcon className="size-11" />
                     </span>
                     <div className="min-w-0">
@@ -217,7 +217,7 @@ export default function Live() {
                     )}
                   </div>
                   {current.feedback ? (
-                    <div className="rounded-[12px] bg-surface-2 p-3">
+                    <div className="rounded-[16px] bg-surface-2 p-3">
                       <FeedbackState fb={current.feedback} />
                     </div>
                   ) : (

@@ -50,15 +50,15 @@ test('language switch changes copy and <html lang>, and persists', async ({ page
   await expect(page.getByRole('button', { name: 'Mula' })).toBeVisible();
 });
 
-test('theme switch persists', async ({ page, guard }) => {
+test('theme is dark by default, and a switch persists', async ({ page, guard }) => {
   void guard;
   await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dim');
+  await page.getByRole('button', { name: 'Theme: Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.getByRole('button', { name: 'Theme: Light' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dim');
   await page.reload();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dim');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
 for (const lang of ['en', 'ms'] as const) {

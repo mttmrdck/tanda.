@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { updateProfile } from '../store/repo';
 import { useSettings } from '../store/useApp';
 import { useData } from '../store/useData';
-import { session } from '../store/useSession';
+import { session, useSession } from '../store/useSession';
 
 const CAMERA_ROUTES = ['/', '/teach', '/debug'];
 
@@ -47,6 +47,13 @@ export function SessionSync() {
       save();
     };
   }, [profileId]);
+
+  // While video is processing, freeze decorative background motion so the GPU/main thread stay free for detection.
+  const phase = useSession((s) => s.phase);
+  useEffect(() => {
+    const busy = phase === 'starting' || phase === 'running';
+    document.documentElement.toggleAttribute('data-vision', busy);
+  }, [phase]);
 
   // Stop the camera when the page is torn down.
   useEffect(() => () => session.stop(), []);

@@ -236,12 +236,12 @@ export default function Teach() {
             <div className="relative">
               <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonTeach: v })} gestures={[]} />
               {rec.phase === 'countdown' && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden rounded-[20px]">
+                <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden rounded-[28px]">
                   <Countdown n={rec.count} />
                 </div>
               )}
               {rec.phase === 'recording' && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden rounded-[20px]">
+                <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden rounded-[28px]">
                   <RecordRing progress={rec.progress} />
                 </div>
               )}
@@ -265,7 +265,7 @@ export default function Teach() {
               {t('teachRecordTitle')}
             </h2>
             <p className="text-ink-muted">{t('teachRecordHint')}</p>
-            {usedPreload && <p className="rounded-[12px] bg-primary-soft p-3 text-primary">{t('teachPreloaded')}</p>}
+            {usedPreload && <p className="rounded-[16px] bg-primary-soft p-3 text-primary">{t('teachPreloaded')}</p>}
             <p className="font-bold tabular" aria-live="polite" data-testid="take-count">
               {t('teachTarget', { n: takes.length, target: TARGET })}
             </p>
@@ -277,7 +277,7 @@ export default function Teach() {
             <p className="text-sm text-ink-muted">{t('teachMinNote', { min: MIN_EXAMPLES, target: TARGET })}</p>
 
             {notice && (
-              <p role="alert" className="rounded-[12px] bg-rising-bg p-3 font-bold text-rising-fg">
+              <p role="alert" className="rounded-[16px] bg-rising-bg p-3 font-bold text-rising-fg">
                 {t(notice)}
               </p>
             )}
@@ -304,12 +304,12 @@ export default function Teach() {
             {takes.length > 0 && (
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-3" aria-label={t('teachTarget', { n: takes.length, target: TARGET })}>
                 {takes.map((take, i) => (
-                  <li key={take.id} className="relative rounded-[12px] border border-border-soft bg-surface p-1">
+                  <li key={take.id} className="relative rounded-[16px] border border-border-soft bg-surface p-1">
                     <SignalGlyph data={take.clip} n={CLIP_N} playing={false} size="sm" label={t('teachTake', { n: i + 1 })} />
                     <button
                       type="button"
                       onClick={() => setTakes((ts) => ts.filter((x) => x.id !== take.id))}
-                      className="absolute right-0 top-0 grid size-12 place-items-center rounded-[12px] text-ink-muted hover:text-high-fg"
+                      className="absolute right-0 top-0 grid size-12 place-items-center rounded-[16px] text-ink-muted hover:text-high-fg"
                       aria-label={t('teachRemove', { n: i + 1 })}
                     >
                       <Trash aria-hidden className="size-4" />

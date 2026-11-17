@@ -181,7 +181,7 @@ export default function Settings() {
         </Section>
 
         <Section id="s-data" title={t('secData')}>
-          <Link href="/handover" className="inline-flex min-h-12 items-center gap-2 rounded-[12px] px-3 font-bold text-primary hover:bg-primary-soft">
+          <Link href="/handover" className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 font-bold text-primary hover:bg-primary-soft">
             <Share2 aria-hidden className="size-5" />
             {t('handoverLink')}
           </Link>
