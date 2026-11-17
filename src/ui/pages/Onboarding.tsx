@@ -1,4 +1,4 @@
-import { Camera, Check, Lock, PersonStanding, ShieldCheck } from 'lucide-react';
+import { Camera, Check, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useT, type MsgKey } from '../../i18n';
@@ -8,7 +8,7 @@ import { useSettings } from '../../store/useApp';
 import { useData } from '../../store/useData';
 import { session, useSession } from '../../store/useSession';
 import { Button } from '../components/Button';
-import { Card } from '../components/Card';
+import { TandaSymbol } from '../components/TandaSymbol';
 import { SegmentedControl, Select, TextField } from '../components/Controls';
 
 type Step = 'welcome' | 'consent' | 'profile' | 'ready';
@@ -62,35 +62,38 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
   };
 
   return (
-    <div className="pt-4">
-      {step !== 'ready' && (
+    <div className={step === 'welcome' ? undefined : 'pt-4'}>
+      {step !== 'ready' && step !== 'welcome' && (
         <p className="text-sm font-bold text-ink-muted tabular">{t('obStep', { n: stepIndex, total: 3 })}</p>
       )}
 
       {step === 'welcome' && (
-        <section aria-labelledby="ob-h" className="mt-2">
-          <h1 id="ob-h" ref={heading} tabIndex={-1} className="text-2xl outline-none sm:text-3xl">
-            {t('obWelcomeTitle')}
-          </h1>
-          <p className="mt-4 text-lg text-ink-muted">{t('obWelcomeBody')}</p>
-          <Card className="mt-8" aria-labelledby="ob-not">
-            <h2 id="ob-not" className="text-lg">
-              {t('obWhatNot')}
-            </h2>
-            <ul className="mt-3 space-y-3">
-              {(['disclaimer', 'obNotMind', 'noFaces', 'obNoUpload'] as const).map((k, i) => (
-                <li key={k} className="flex gap-3">
-                  {i === 0 ? <ShieldCheck aria-hidden className="mt-1 size-5 shrink-0 text-primary" /> : i === 1 ? <PersonStanding aria-hidden className="mt-1 size-5 shrink-0 text-primary" /> : <Lock aria-hidden className="mt-1 size-5 shrink-0 text-primary" />}
-                  <span>{t(k)}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-          <div className="mt-8">
-            <Button size="lg" onClick={() => setStep('consent')}>
+        <section aria-labelledby="ob-h" className="ob-welcome">
+          <div className="ob-welcome-inner">
+            <TandaSymbol className="ob-welcome-mark" />
+            <h1 id="ob-h" ref={heading} tabIndex={-1} className="ob-welcome-title outline-none">
+              {t('obWelcomeTitle')}
+            </h1>
+            <p className="ob-welcome-body">{t('obWelcomeBody')}</p>
+            <Button size="lg" className="ob-welcome-cta" onClick={() => setStep('consent')}>
               {t('obStart')}
             </Button>
+            <details className="ob-welcome-not">
+              <summary>
+                {t('obWhatNot')}
+                <ChevronDown aria-hidden className="size-4" />
+              </summary>
+              <ul>
+                {(['disclaimer', 'obNotMind', 'noFaces', 'obNoUpload'] as const).map((k) => (
+                  <li key={k}>{t(k)}</li>
+                ))}
+              </ul>
+            </details>
           </div>
+          <p className="ob-welcome-privacy">
+            <ShieldCheck aria-hidden className="size-4" strokeWidth={1.5} />
+            {t('splashPrivacy')}
+          </p>
         </section>
       )}
 

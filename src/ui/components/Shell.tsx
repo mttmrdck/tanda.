@@ -313,7 +313,7 @@ export function BareShell({ children }: { children: ReactNode }) {
       <a href="#main" className="sr-only z-50 rounded-full bg-primary-fill px-5 py-3 font-bold text-on-primary focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         {t('skipToContent')}
       </a>
-      <header className="mx-auto flex max-w-2xl items-center justify-between gap-3 px-4 pb-2 pt-[max(env(safe-area-inset-top),1rem)] sm:px-6">
+      <header className="bare-header mx-auto flex max-w-2xl items-center justify-between gap-3 px-4 pb-2 pt-[max(env(safe-area-inset-top),1rem)] sm:px-6">
         <Logo />
 
       </header>

@@ -615,3 +615,31 @@ li {
 @media (prefers-reduced-motion:reduce) {
   .app-shell, .rail-slot .nav-rail, .top-nav { transition:none !important; }
 }
+
+/* Onboarding welcome — one centred column, generous space, one action. The brand header is hidden here (the
+   mark is the page's own focal point) and the "what Tanda is not" list sits behind a quiet disclosure. */
+body:has(.ob-welcome) .bare-header { display:none; }
+.ob-welcome { position:relative; display:grid; place-items:center; min-height:calc(100svh - 32px); padding:48px 0 72px; text-align:center; }
+.ob-welcome-inner { display:flex; flex-direction:column; align-items:center; max-width:30rem; }
+.ob-welcome-mark { width:76px; height:64px; margin-bottom:40px; }
+.ob-welcome-mark .splash-stroke { stroke-width:24px; }
+.ob-welcome .ob-welcome-title { font-size:clamp(28px, 4.2vw, 40px) !important; line-height:1.12; font-weight:600; letter-spacing:-.035em; text-wrap:balance; }
+.ob-welcome-body { margin-top:16px; max-width:34ch; color:var(--ink-muted); font-size:17px; line-height:1.55; text-wrap:pretty; }
+.ob-welcome-cta { margin-top:40px; min-width:220px; }
+.ob-welcome-not { margin-top:20px; color:var(--ink-muted); font-size:15px; }
+.ob-welcome-not summary { display:inline-flex; align-items:center; gap:6px; min-height:48px; padding-inline:12px; border-radius:999px; cursor:pointer; list-style:none; font-weight:500; }
+.ob-welcome-not summary::-webkit-details-marker { display:none; }
+.ob-welcome-not summary:hover { color:var(--ink); }
+.ob-welcome-not summary svg { transition:transform var(--duration-base) var(--ease-out); }
+.ob-welcome-not[open] summary svg { transform:rotate(180deg); }
+.ob-welcome-not ul { margin-top:8px; display:grid; gap:10px; max-width:36ch; margin-inline:auto; line-height:1.5; }
+.ob-welcome-privacy { position:absolute; inset-inline:0; bottom:max(env(safe-area-inset-bottom),20px); display:flex; align-items:center; justify-content:center; gap:7px; color:var(--ink-muted); font-size:13px; letter-spacing:.01em; }
+@media (prefers-reduced-motion:no-preference) {
+  .ob-welcome-title, .ob-welcome-body, .ob-welcome-cta, .ob-welcome-not, .ob-welcome-privacy { animation:ob-rise .6s var(--ease-out) both; }
+  .ob-welcome-title { animation-delay:.55s; }
+  .ob-welcome-body { animation-delay:.68s; }
+  .ob-welcome-cta { animation-delay:.8s; }
+  .ob-welcome-not { animation-delay:.9s; }
+  .ob-welcome-privacy { animation-delay:1s; }
+}
+@keyframes ob-rise { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
