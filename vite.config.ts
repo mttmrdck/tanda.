@@ -1,6 +1,9 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { readFileSync } from 'node:fs';
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string };
 
 /** Production Content Security Policy. Injected only for `vite build` (dev HMR needs inline scripts). */
 export const CSP = [
@@ -32,6 +35,7 @@ function cspPlugin(): Plugin {
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), cspPlugin()],
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   // `e2e` mode is a production build that also exposes window.__isyaratDebug for Playwright.
   build: { outDir: mode === 'e2e' ? 'dist-e2e' : 'dist', chunkSizeWarningLimit: 900 },
   preview: { port: mode === 'e2e' ? 4319 : 4174, strictPort: true },

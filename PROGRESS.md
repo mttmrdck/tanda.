@@ -7,6 +7,6 @@
 - [x] Phase 4 — App shell, design system, onboarding, i18n
 - [x] Phase 5 — Teach and Signals
 - [x] Phase 6 — Live and Calm Watch
-- [ ] Phase 7 — Timeline, Handover, Settings, About
+- [x] Phase 7 — Timeline, Handover, Settings, About
 - [ ] Phase 8 — Polish and audits
 - [ ] Phase 9 — Docs, packaging, optional PWA

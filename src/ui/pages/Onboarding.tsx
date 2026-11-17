@@ -188,6 +188,11 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
               </Button>
             </div>
           </form>
+          <p className="mt-8 border-t border-border-soft pt-6">
+            <Link href="/import" className="inline-flex min-h-12 items-center font-bold text-primary underline underline-offset-4">
+              {t('obImportLink')}
+            </Link>
+          </p>
         </section>
       )}
 

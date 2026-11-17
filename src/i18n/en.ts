@@ -85,6 +85,8 @@ export const en = {
   obReadyBody: 'Try Isyarat with the demo performer first, or use your camera. The camera only turns on when you press its button.',
   tryDemo: 'Try the demo first',
   obUseCamera: 'Use camera',
+  obImportLink: 'Have a handover file from another carer? Import it',
+  importTitle: 'Import a handover file',
 
   // sources / camera
   sourceLabel: 'Video source',

@@ -16,6 +16,10 @@ const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
 const About = lazy(() => import('./ui/pages/About'));
 const Teach = lazy(() => import('./ui/pages/Teach'));
 const Signals = lazy(() => import('./ui/pages/Signals'));
+const Timeline = lazy(() => import('./ui/pages/Timeline'));
+const Handover = lazy(() => import('./ui/pages/Handover'));
+const Settings = lazy(() => import('./ui/pages/Settings'));
+const ImportPage = lazy(() => import('./ui/pages/ImportPage'));
 const DebugPage = import.meta.env.DEV || import.meta.env.MODE === 'e2e' ? lazy(() => import('./ui/pages/DebugPage')) : null;
 
 function PageSkeleton() {
@@ -87,6 +91,15 @@ function Routes() {
     );
   }
   if (!onboarded) {
+    if (loc === '/import' && consented) {
+      return (
+        <BareShell>
+          <Page>
+            <ImportPage />
+          </Page>
+        </BareShell>
+      );
+    }
     if (loc === '/about') {
       return (
         <BareShell>
@@ -114,6 +127,9 @@ function Routes() {
           <Route path="/teach" component={Teach} />
           <Route path="/teach/:signalId/add" component={Teach} />
           <Route path="/signals" component={Signals} />
+          <Route path="/timeline" component={Timeline} />
+          <Route path="/handover" component={Handover} />
+          <Route path="/settings" component={Settings} />
           <Route path="/about" component={About} />
           {DebugPage && <Route path="/debug" component={DebugPage} />}
           <Route>

@@ -87,6 +87,8 @@ export const ms: Record<MsgKey, string> = {
   obReadyBody: 'Cuba Isyarat dengan pelakon demo dahulu, atau gunakan kamera anda. Kamera hanya hidup apabila anda menekan butangnya.',
   tryDemo: 'Cuba demo dahulu',
   obUseCamera: 'Guna kamera',
+  obImportLink: 'Ada fail serah terima daripada penjaga lain? Import di sini',
+  importTitle: 'Import fail serah terima',
 
   sourceLabel: 'Sumber video',
   sourceCamera: 'Kamera',

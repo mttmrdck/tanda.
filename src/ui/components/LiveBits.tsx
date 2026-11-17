@@ -11,18 +11,18 @@ export function confidenceLevel(c: number): MsgKey {
 }
 
 /** Confidence as a bar plus a text label (no percentages). */
-export function ConfidenceBar({ confidence }: { confidence: number }) {
+export function ConfidenceBar({ confidence, compact = false }: { confidence: number; compact?: boolean }) {
   const t = useT();
   const level = t(confidenceLevel(confidence));
   const filled = confidence >= 0.8 ? 3 : confidence >= 0.65 ? 2 : 1;
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 whitespace-nowrap">
       <span aria-hidden className="flex gap-1">
         {[1, 2, 3].map((i) => (
           <span key={i} className={clsx('h-2.5 w-8 rounded-full', i <= filled ? 'bg-primary' : 'bg-surface-2 ring-1 ring-border-soft')} />
         ))}
       </span>
-      <span className="font-bold text-ink-muted">{t('confLabel', { level })}</span>
+      <span className="font-bold text-ink-muted">{compact ? level : t('confLabel', { level })}</span>
     </div>
   );
 }
