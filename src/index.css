@@ -28,6 +28,7 @@
   --high-bg: #fdecea;
   --focus: #0b6e6e;
   --shadow: 0 1px 2px rgb(27 36 48 / 0.06), 0 8px 24px -12px rgb(27 36 48 / 0.18);
+  --scrim: rgb(20 24 29 / 0.45);
 }
 [data-theme='dim'] {
   color-scheme: dark;
@@ -50,6 +51,7 @@
   --high-bg: #3a1d1a;
   --focus: #4db6b0;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --scrim: rgb(0 0 0 / 0.6);
 }
 
 @theme inline {
@@ -72,6 +74,7 @@
   --color-high-bg: var(--high-bg);
   --color-focus: var(--focus);
   --shadow-soft: var(--shadow);
+  --color-scrim: var(--scrim);
 }
 
 @theme {
@@ -93,6 +96,7 @@
   --duration-slow: 320ms;
 }
 
+@layer base {
 html {
   font-family: var(--font-sans);
   font-size: 100%;
@@ -128,8 +132,13 @@ h3 {
 ::selection {
   background: var(--primary-soft);
 }
+p,
+li {
+  text-wrap: pretty;
+}
 .tabular {
   font-variant-numeric: tabular-nums;
+}
 }
 
 @media (prefers-reduced-motion: reduce) {

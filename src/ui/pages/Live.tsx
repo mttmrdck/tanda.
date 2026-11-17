@@ -173,7 +173,7 @@ export default function Live() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonLive: v })} gestures={ALL_GESTURES} />
 
         <div className="space-y-6">
@@ -189,7 +189,7 @@ export default function Live() {
             />
           ) : (
             <Card aria-labelledby="saying-h" data-testid="saying-card">
-              <h2 id="saying-h" className="text-sm font-bold uppercase tracking-wide text-ink-muted" style={{ fontFamily: 'var(--font-sans)' }}>
+              <h2 id="saying-h" className="font-sans text-sm font-bold uppercase tracking-wide text-ink-muted">
                 {t('liveSaying')}
               </h2>
               {current && sig && SigIcon ? (
@@ -220,8 +220,8 @@ export default function Live() {
                       <FeedbackState fb={current.feedback} />
                     </div>
                   ) : (
-                    <div className="grid gap-2 sm:grid-cols-3">
-                      <Button size="lg" onClick={() => void onYes()}>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button size="lg" className="col-span-2" onClick={() => void onYes()}>
                         {t('yes')}
                       </Button>
                       <Button size="lg" variant="secondary" onClick={() => setSheet(true)}>

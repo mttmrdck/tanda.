@@ -147,7 +147,7 @@ export default function Timeline() {
       )}
 
       {!events && !error ? (
-        <div aria-hidden className="grid gap-6 lg:grid-cols-2">
+        <div aria-hidden className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="h-80 rounded-[20px] bg-surface-2" />
           <div className="h-80 rounded-[20px] bg-surface-2" />
         </div>
@@ -163,7 +163,7 @@ export default function Timeline() {
             </ul>
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <ChartFrame
               title={t('byHourTitle')}
               alt={total ? t('chartByHourAlt', { n: total, hour: hourLabel(busiest.hour, lang) }) : t('chartByHourAltEmpty')}
@@ -234,7 +234,7 @@ export default function Timeline() {
             </ChartFrame>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
             <Card aria-labelledby="top-h">
               <h2 id="top-h" className="text-lg">
                 {t('topSignals')}

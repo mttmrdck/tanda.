@@ -39,7 +39,7 @@ export default function About() {
         </ol>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card aria-labelledby="never">
           <h2 id="never" className="text-xl">
             {t('aboutNever')}

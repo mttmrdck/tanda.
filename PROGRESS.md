@@ -8,5 +8,5 @@
 - [x] Phase 5 — Teach and Signals
 - [x] Phase 6 — Live and Calm Watch
 - [x] Phase 7 — Timeline, Handover, Settings, About
-- [ ] Phase 8 — Polish and audits
+- [x] Phase 8 — Polish and audits
 - [ ] Phase 9 — Docs, packaging, optional PWA

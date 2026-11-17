@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 import { Pencil, Play, Plus, Search, Trash } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -175,7 +174,7 @@ export default function Signals() {
               {t('signalsNoMatch')}
             </p>
           ) : (
-            <ul className={clsx('grid gap-4 sm:grid-cols-2 xl:grid-cols-3')} data-testid="signal-grid">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" data-testid="signal-grid">
               {shown.map((s) => (
                 <SignalCard
                   key={s.id}

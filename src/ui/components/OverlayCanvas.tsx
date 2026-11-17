@@ -57,6 +57,16 @@ export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton:
     ro.observe(canvas);
     resize();
 
+    // Theme colours are read once and refreshed only when the theme attribute changes.
+    let colors = { ink: '', primary: '', paper: '', muted: '' };
+    const readColors = () => {
+      colors = { ink: cssVar('--ink'), primary: cssVar('--primary'), paper: cssVar('--surface-2'), muted: cssVar('--border') };
+      dirty = true;
+    };
+    readColors();
+    const mo = new MutationObserver(readColors);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     const draw = () => {
       raf = requestAnimationFrame(draw);
       if (!dirty) return;
@@ -64,10 +74,7 @@ export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton:
       const W = canvas.width;
       const H = canvas.height;
       ctx.clearRect(0, 0, W, H);
-      const ink = cssVar('--ink');
-      const primary = cssVar('--primary');
-      const paper = cssVar('--surface-2');
-      const muted = cssVar('--border');
+      const { ink, primary, paper, muted } = colors;
       if (figure) {
         ctx.fillStyle = paper;
         ctx.fillRect(0, 0, W, H);
@@ -139,6 +146,7 @@ export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton:
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      mo.disconnect();
       unsub();
     };
   }, [figure, skeleton]);

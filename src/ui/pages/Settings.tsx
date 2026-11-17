@@ -72,7 +72,7 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl sm:text-3xl">{t('settingsTitle')}</h1>
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Section id="s-general" title={t('secGeneral')}>
           <SegmentedControl
             label={t('language')}

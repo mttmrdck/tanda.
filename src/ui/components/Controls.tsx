@@ -171,7 +171,7 @@ export function SegmentedControl<T extends string>({
           <label
             key={o.value}
             className={clsx(
-              'relative inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-[10px] px-4 font-bold transition-colors duration-[120ms] has-[:focus-visible]:outline has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus',
+              'relative inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-[10px] px-4 font-bold transition-colors duration-[120ms] has-[:focus-visible]:outline has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus',
               value === o.value ? 'bg-surface text-ink shadow-soft' : 'text-ink-muted hover:text-ink',
             )}
           >
@@ -216,7 +216,7 @@ export function Tab({ value, children }: { value: string; children: ReactNode })
   return (
     <RTabs.Trigger
       value={value}
-      className="inline-flex min-h-11 items-center gap-2 rounded-[10px] px-5 font-bold text-ink-muted transition-colors hover:text-ink data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-soft"
+      className="inline-flex min-h-12 items-center gap-2 rounded-[10px] px-5 font-bold text-ink-muted transition-colors hover:text-ink data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-soft"
     >
       {children}
     </RTabs.Trigger>

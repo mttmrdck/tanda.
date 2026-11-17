@@ -22,7 +22,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
   return (
     <RD.Root open={open} onOpenChange={onOpenChange}>
       <RD.Portal>
-        <RD.Overlay className="dialog-overlay fixed inset-0 z-40 bg-[rgb(20_24_29/0.45)]" />
+        <RD.Overlay className="dialog-overlay fixed inset-0 z-40 bg-scrim" />
         <RD.Content
           className={clsx(
             'dialog-content fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden border border-border-soft bg-surface text-ink shadow-soft',

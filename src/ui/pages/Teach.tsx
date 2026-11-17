@@ -231,7 +231,7 @@ export default function Teach() {
       )}
 
       {stepKey === 'stepRecord' && (
-        <section aria-labelledby="step-h" className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <section aria-labelledby="step-h" className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div className="space-y-3">
             <div className="relative">
               <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonTeach: v })} gestures={[]} />

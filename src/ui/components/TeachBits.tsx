@@ -60,7 +60,7 @@ export function SignalForm({ draft, onChange, lang, error }: { draft: SignalDraf
   );
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {block(first, false)}
         {block(second, true)}
       </div>
@@ -106,7 +106,7 @@ export function SignalForm({ draft, onChange, lang, error }: { draft: SignalDraf
 export function Countdown({ n }: { n: number }) {
   const t = useT();
   return (
-    <div className="absolute inset-0 grid place-items-center bg-[rgb(20_24_29/0.35)]" aria-live="assertive">
+    <div className="absolute inset-0 grid place-items-center bg-scrim" aria-live="assertive">
       <div className="grid size-36 place-items-center rounded-full bg-surface text-center shadow-soft">
         <span className="sr-only">{t('teachGetReady')}: </span>
         <span key={n} className="countdown-num font-display text-6xl font-semibold text-primary tabular">

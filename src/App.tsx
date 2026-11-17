@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
@@ -37,7 +37,22 @@ function PageSkeleton() {
 /** Focus <main> and scroll to top on route change, so keyboard and screen-reader users land on the new page. */
 function RouteFocus() {
   const [loc] = useLocation();
+  const interacted = useRef(false);
   useEffect(() => {
+    const mark = () => {
+      interacted.current = true;
+    };
+    window.addEventListener('pointerdown', mark, { once: true });
+    window.addEventListener('keydown', mark, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', mark);
+      window.removeEventListener('keydown', mark);
+    };
+  }, []);
+  useEffect(() => {
+    // Automatic redirects on load leave focus at the document start, so "Skip to main content" is the first Tab
+    // stop. After a user-initiated navigation, focus moves to <main> so the new page is announced.
+    if (!interacted.current) return;
     window.scrollTo(0, 0);
     document.getElementById('main')?.focus({ preventScroll: true });
   }, [loc]);
