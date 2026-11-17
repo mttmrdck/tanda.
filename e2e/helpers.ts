@@ -48,3 +48,25 @@ export async function expectAccessible(page: Page, context: string) {
     'serious/critical axe violations',
   ).toEqual([]);
 }
+
+/** Teach one signal through the wizard using the demo performer (assumes we are on Live or anywhere in the app). */
+export async function teachWithDemo(page: Page, opts: { name: string; meaning: string; gesture: string; takes?: number }) {
+  await page.goto('/#/teach');
+  await expect(page.getByRole('heading', { level: 1, name: 'Teach a signal' })).toBeVisible();
+  await page.getByLabel('Signal name').first().fill(opts.name);
+  await page.getByLabel('What it means').first().fill(opts.meaning);
+  await page.getByRole('button', { name: 'Next' }).click();
+  // start the demo performer if needed
+  const demoBtn = page.getByRole('button', { name: 'Demo performer' });
+  if (await demoBtn.isVisible()) await demoBtn.click();
+  await expect(page.getByTestId('status-line')).toHaveText('Seeing the child');
+  await page.getByRole('button', { name: opts.gesture, exact: true }).click();
+  const takes = opts.takes ?? 5;
+  for (let i = 1; i <= takes; i++) {
+    await page.getByRole('button', { name: `Record take ${i}` }).click();
+    await page.getByRole('button', { name: 'Keep' }).click({ timeout: 15_000 });
+    await expect(page.getByTestId('take-count')).toHaveText(`${i} of 5 examples`);
+  }
+  await page.getByRole('button', { name: 'Next' }).click();
+  await expect(page.getByRole('heading', { name: 'Quality check' })).toBeVisible();
+}

@@ -14,6 +14,8 @@ import Live from './ui/pages/Live';
 
 const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
 const About = lazy(() => import('./ui/pages/About'));
+const Teach = lazy(() => import('./ui/pages/Teach'));
+const Signals = lazy(() => import('./ui/pages/Signals'));
 const DebugPage = import.meta.env.DEV || import.meta.env.MODE === 'e2e' ? lazy(() => import('./ui/pages/DebugPage')) : null;
 
 function PageSkeleton() {
@@ -109,6 +111,9 @@ function Routes() {
       <Page>
         <Switch>
           <Route path="/" component={Live} />
+          <Route path="/teach" component={Teach} />
+          <Route path="/teach/:signalId/add" component={Teach} />
+          <Route path="/signals" component={Signals} />
           <Route path="/about" component={About} />
           {DebugPage && <Route path="/debug" component={DebugPage} />}
           <Route>

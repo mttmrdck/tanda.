@@ -29,6 +29,34 @@ export function install(): void {
       session.setModels(gestures.map((g, i) => buildModel({ id: g, urgency: 'normal', category: 'need' }, simulatedExamples(g, k, 1000 * (i + 1)), CLIP_N, D)));
     },
     perform: (g: GestureName) => session.performDemo(g),
+    /** Seed the active profile with simulator-taught signals and a day of events (for screenshots / e2e). */
+    async seed(profileId: string, withEvents = true) {
+      const defs: { g: GestureName; en: string; ms: string; mEn: string; mMs: string; icon: string; urgency: 'low' | 'normal' | 'high' }[] = [
+        { g: 'tapTable', en: 'Water', ms: 'Air', mEn: 'I want water, please.', mMs: 'Saya mahu air.', icon: 'water', urgency: 'normal' },
+        { g: 'coverEars', en: 'Too loud', ms: 'Terlalu bising', mEn: 'It is too loud. I need a break.', mMs: 'Terlalu bising. Saya perlu rehat.', icon: 'quiet', urgency: 'high' },
+        { g: 'handToMouth', en: 'Hungry', ms: 'Lapar', mEn: 'I am hungry.', mMs: 'Saya lapar.', icon: 'food', urgency: 'normal' },
+      ];
+      const ids: string[] = [];
+      for (const [i, d] of defs.entries()) {
+        const sig = await repo.createSignal({ profileId, name: { en: d.en, ms: d.ms }, meaning: { en: d.mEn, ms: d.mMs }, category: 'need', urgency: d.urgency, icon: d.icon });
+        ids.push(sig.id);
+        for (const ex of simulatedExamples(d.g, 5, 7000 + i * 100)) await repo.addExample({ signalId: sig.id, n: CLIP_N, d: D, data: ex, source: 'teach' });
+      }
+      if (withEvents) {
+        // place the day's events in the past, ending ~10 minutes ago, keeping their relative spacing
+        const now = Date.now();
+        const at = (h: number, m: number) => new Date(now - 10 * 60_000 - ((15 * 60 + 2) - (h * 60 + m)) * 60_000).toISOString();
+        const plan: [number, number, number, 'yes' | 'no' | undefined][] = [
+          [9, 5, 0, 'yes'], [10, 12, 0, 'yes'], [10, 40, 0, 'yes'], [10, 55, 2, undefined], [11, 30, 1, 'no'], [13, 15, 2, 'yes'], [15, 2, 0, 'yes'],
+        ];
+        for (const [h, m, k, fb] of plan) {
+          await repo.addEvent({ profileId, ts: at(h, m), kind: 'signal', signalId: ids[k]!, confidence: 0.7 + (m % 20) / 100, ...(fb ? { feedback: fb } : {}) });
+        }
+        await repo.addEvent({ profileId, ts: at(11, 20), kind: 'calm-tier', tier: 'rising', score: 0.48 });
+        await repo.addEvent({ profileId, ts: at(11, 34), kind: 'calm-tier', tier: 'calm', score: 0.2 });
+      }
+      return ids;
+    },
     liveTracks: () => session.liveTracks(),
   };
   (window as unknown as { __isyaratDebug: typeof api }).__isyaratDebug = api;

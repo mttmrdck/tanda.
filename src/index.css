@@ -172,3 +172,13 @@ h3 {
     animation-name: overlay-in;
   }
 }
+
+@keyframes countdown-in {
+  from {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+.countdown-num {
+  animation: countdown-in var(--duration-slow) var(--ease-out);
+}

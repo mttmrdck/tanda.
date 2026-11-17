@@ -43,7 +43,7 @@ export const TAU_MAX = 4.0;
 export const MARGIN_MIN = 0.08;
 export const MAX_EXAMPLES_PER_SIGNAL = 20;
 /** Window motion energy (shoulder-widths / s, feature space) below which the child is considered still. */
-export const IDLE_ENERGY = 0.3;
+export const IDLE_ENERGY = 0.22;
 
 /** Recognizer. */
 export const EVAL_INTERVAL_MS = 400;
