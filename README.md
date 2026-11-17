@@ -24,6 +24,16 @@ npm run dev          # http://localhost:5173
 
 After `npm run setup` the app runs fully offline. `predev`, `prebuild`, `prepreview` and `pree2e` re-run setup with `--if-missing`, so it only downloads when files are absent.
 
+### Using the camera on a phone (same Wi-Fi)
+
+Browsers only allow the camera on `https` or `localhost`. Run:
+
+```bash
+npm run dev:https    # https://<this computer's LAN IP>:5173, self-signed certificate
+```
+
+Open the `Network:` address on the phone. It warns that the certificate is not trusted (it is generated locally for development): choose **Advanced → Proceed** (Chrome) or **Show Details → visit this website** (Safari). Then allow the camera. Dev only; the production build is unaffected.
+
 ### How to demo (no camera needed)
 
 1. Open the app, tick the three consent boxes, create a profile (nickname only).

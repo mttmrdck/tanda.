@@ -8,6 +8,7 @@ On-device communication aid: caregivers teach a camera a non-verbal child's pers
 ## Commands
 - `npm run setup` — copy MediaPipe WASM + download the 2 model files into `public/` (once, needs internet)
 - `npm run dev` / `npm run build` / `npm run preview`
+- `npm run dev:https` — LAN https dev server (self-signed) so phones can use the camera
 - `npm run typecheck`, `npm run lint`, `npm test`, `npm run e2e`, `npm run contrast`
 - `npm run check` = typecheck + lint + contrast + test + build
 

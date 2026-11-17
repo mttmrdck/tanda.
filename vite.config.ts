@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import { readFileSync } from 'node:fs';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string };
@@ -34,7 +35,9 @@ function cspPlugin(): Plugin {
 }
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), tailwindcss(), cspPlugin()],
+  // `https` mode (npm run dev:https): self-signed certificate so phones on the LAN get a secure context,
+  // which browsers require for camera access. Dev only; never used for builds.
+  plugins: [react(), tailwindcss(), cspPlugin(), ...(mode === 'https' ? [basicSsl({ name: 'isyarat-dev' })] : [])],
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   // `e2e` mode is a production build that also exposes window.__isyaratDebug for Playwright.
   build: { outDir: mode === 'e2e' ? 'dist-e2e' : 'dist', chunkSizeWarningLimit: 900 },

@@ -10,7 +10,9 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:https": "vite --mode https --host",
     "predev": "node scripts/setup-assets.mjs --if-missing",
+    "predev:https": "node scripts/setup-assets.mjs --if-missing",
     "build": "tsc -b && vite build",
     "prebuild": "node scripts/setup-assets.mjs --if-missing",
     "preview": "vite preview",
@@ -59,6 +61,7 @@
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.3.0",
     "eslint": "^10.15.0",
     "eslint-plugin-react-hooks": "^7.1.1",
