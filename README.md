@@ -8,7 +8,7 @@ Tanda helps caregivers review observable changes for children and older adults, 
 
 The hybrid foundation adds a metadata-only monitoring pipeline, experimental personal baseline, temporal event review, and a separate local gateway service. The repeatable browser demonstration uses clearly labelled simulated observations. The existing webcam/MediaPipe path can supply actual movement observations after separate monitoring consent. RTSP/ONVIF, audio classification, fall detection and remote notifications are not operational.
 
-The interface uses an architectural monochrome system with selective glass controls; see the [design report](docs/design/SIGNATURE-REPORT.md) and [desktop/mobile gallery](docs/screenshots/refinement/README.md).
+The interface uses an architectural monochrome system with a low floating glass dock, curved surfaces and purposeful transitions. See the [latest interaction refinement](docs/design/FLUID-REFINEMENT.md), the [design report](docs/design/SIGNATURE-REPORT.md) and [desktop/mobile gallery](docs/screenshots/refinement/README.md).
 
 Start at `/#/overview`. See [architecture](docs/architecture/HYBRID.md), [gateway setup](docs/deployment/EDGE-GATEWAY.md), and [implementation and validation report](docs/validation/HYBRID-REPORT.md). Existing communication bookmarks and encrypted `.isyarat` files remain supported.
 

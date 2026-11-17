@@ -41,6 +41,11 @@ export async function onboard(page: Page, name = 'Adam') {
 
 /** Axe: zero serious or critical violations. */
 export async function expectAccessible(page: Page, context: string) {
+  // Wait for route loading and finite material transitions before measuring the resting UI.
+  await expect(page.locator('.route-shell[aria-busy="true"]')).toHaveCount(0);
+  await page.evaluate(async () => {
+    await Promise.all(document.getAnimations().filter(a => a.effect?.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => undefined)));
+  });
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
   const bad = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(

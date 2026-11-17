@@ -1,5 +1,6 @@
 /** English UI strings. `{name}` placeholders are filled by `t(key, vars)`. Keep the voice warm, plain and short. */
 export const en = {
+  vdAboutEvents: 'About these observations',
   vdWorkspace: "Care workspace",
   vdAllDestinations: "Explore Tanda",
   vdIndividualEnvironment: "Individual & environment",

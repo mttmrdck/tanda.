@@ -127,7 +127,7 @@ export function Select<T extends string>({
           </RSelect.Icon>
         </RSelect.Trigger>
         <RSelect.Portal>
-          <RSelect.Content position="popper" sideOffset={6} className="glass z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[28px] text-ink">
+          <RSelect.Content position="popper" sideOffset={6} className="select-menu glass z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[28px] text-ink">
             <RSelect.Viewport className="p-1">
               {options.map((o) => (
                 <RSelect.Item

@@ -21,7 +21,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useT, type MsgKey } from '../../i18n';
 import { useSettings } from '../../store/useApp';
@@ -383,12 +383,27 @@ export function CommunicationNav() {
 function TabBar() {
   const t = useT();
   const [loc] = useLocation();
+  const activeIndex = TABS.findIndex((it) => isActive(loc, it));
+  const [keyboard, setKeyboard] = useState(false);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const sync = () => setKeyboard(viewport.scale === 1 && window.innerHeight - viewport.height > 160);
+    sync();
+    viewport.addEventListener('resize', sync);
+    return () => viewport.removeEventListener('resize', sync);
+  }, []);
   return (
     <nav
       aria-label={t('navMain')}
+      data-keyboard={keyboard}
       className="tab-bar fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] lg:hidden"
     >
-      <PillNavigation className="glass mx-auto flex max-w-md gap-1 rounded-[28px] p-1.5">
+      <PillNavigation
+        className="glass"
+        data-active={activeIndex >= 0}
+        style={{ '--dock-index': Math.max(0, activeIndex) } as CSSProperties}
+      >
         {TABS.map((it) => {
           const active = isActive(loc, it);
           return (

@@ -5,6 +5,7 @@ import type { MsgKey } from './en';
  * All strings are listed in docs/BM_REVIEW.md for native-speaker review.
  */
 export const ms: Record<MsgKey, string> = {
+  vdAboutEvents: 'Tentang pemerhatian ini',
   vdWorkspace: "Ruang penjagaan",
   vdAllDestinations: "Terokai Tanda",
   vdIndividualEnvironment: "Individu & persekitaran",

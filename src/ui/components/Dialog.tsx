@@ -29,7 +29,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
         <RD.Overlay className="dialog-overlay fixed inset-0 z-40 bg-scrim" />
         <RD.Content asChild
           className={clsx(
-            'glass fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden text-ink',
+            'dialog-content glass fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden text-ink',
             sheet
               ? 'inset-x-0 bottom-0 rounded-t-[32px] pb-[env(safe-area-inset-bottom)] sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(560px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px]'
               : 'left-1/2 top-1/2 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[32px]',

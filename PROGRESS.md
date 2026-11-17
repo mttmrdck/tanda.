@@ -95,3 +95,12 @@
 - [x] Corrected full browser suite: 63 passed/1 opt-in skip; separate performance probe passed; final focused UI/reflow/gallery suite: 6 passed.
 - [x] Detector: zero primary findings; one intentional advisory for the previously requested export spring.
 - [x] Performance, limitations and resources recorded in docs/design/SIGNATURE-REPORT.md. No production CCTV/audio/remote-alert claim added.
+
+## Fluid glass follow-up — 17 November 2026
+
+- [x] Removed stacked bottom positioning/padding; dock is 62px high and 8px above the usable safe-area edge.
+- [x] Real translucent backdrop blur, full capsule curvature, specular border, moving selection lens and keyboard/zoom-aware visibility.
+- [x] Curved panels/actions, floating desktop chrome, route reveal, select/sheet/press/review feedback, actual-data chart motion and reduced-motion alternatives.
+- [x] Reduced repeated counts/prose; supporting capability/event explanations remain in accessible disclosures.
+- [x] 148 unit tests; 48 contrast pairs; gateway integration; typecheck/lint/build; 65 browser passes and one opt-in skip; separate performance probe passed.
+- [x] Viewport docking tests in both themes and at three heights; refreshed 52 screenshot artifacts. See docs/design/FLUID-REFINEMENT.md.

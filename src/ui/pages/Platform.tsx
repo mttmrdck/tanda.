@@ -82,7 +82,7 @@ export function PlatformOverview() {
   const recent = [...(s?.events ?? [])].reverse().slice(0, 3);
   return (
     <div className="platform-page overview-page">
-      <PageHeader title={t('monOverview')} description={t('monTagline')} />
+      <PageHeader title={t('monOverview')} description={s?.care.environment.name ?? t('monNotConfigured')} />
       <section className="individual-hero" aria-label={t('vdCareContext')}>
         <div className="individual-identity">
           <Avatar name={profile?.nickname ?? ''} size="lg" />
@@ -166,10 +166,6 @@ export function PlatformOverview() {
               <ArrowUpRight size={16} aria-hidden />
             </Link>
           </div>
-          <div className="review-summary">
-            <span className="review-number">{pending}</span>
-            <p>{t(pending ? 'monNeedsReview' : 'vdNoReview')}</p>
-          </div>
           {recent.length ? (
             <ul className="overview-events">
               {recent.map((e) => (
@@ -218,8 +214,11 @@ export function PlatformOverview() {
               <ArrowUpRight size={17} aria-hidden />
             </Link>
           </section>
-          <section className="platform-capabilities" aria-label={t('monEngines')}>
-            <h2>{t('vdEngines')}</h2>
+          <details className="platform-capabilities" aria-label={t('monEngines')}>
+            <summary>
+              {t('vdEngines')}
+              <ChevronDown aria-hidden size={16} />
+            </summary>
             {[
               { name: 'monEnvironmentEngine', status: 'monBrowserAndDemo', Icon: Camera },
               { name: 'monBehaviourEngine', status: 'monExperimental', Icon: Activity },
@@ -234,7 +233,7 @@ export function PlatformOverview() {
                 </div>
               </div>
             ))}
-          </section>
+          </details>
         </aside>
       </div>
       <div className="privacy-footnote">
@@ -504,7 +503,13 @@ export function EventsPage() {
           </span>
         }
       />
-      <p className="event-intro">{t('monEventIntro')}</p>
+      <details className="event-context">
+        <summary>
+          {t('vdAboutEvents')}
+          <ChevronDown aria-hidden size={15} />
+        </summary>
+        <p className="event-intro">{t('monEventIntro')}</p>
+      </details>
       <div className="event-toolbar">
         <label>
           {t('monFilter')}

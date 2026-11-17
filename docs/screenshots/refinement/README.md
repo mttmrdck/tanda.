@@ -27,3 +27,5 @@ Unconfigured profiles:
 Mobile navigation: [light](navigation-light-390.png), [dim](navigation-dim-390.png).
 
 The fixed dock appears at the viewport bottom within full-page captures. Caregiver notes, histories and source distinctions were also exercised by workflow tests. See the [design report](../../design/SIGNATURE-REPORT.md) for results and verification limits.
+
+Latest fluid-glass viewport checks: [light](dock-viewport-light-390.png) and [dim](dock-viewport-dim-390.png). These show the actual 8px viewport-edge placement, unlike the fixed dock's position inside a long full-page capture. The gallery now contains 52 PNGs. [Fluid refinement report](../../design/FLUID-REFINEMENT.md).

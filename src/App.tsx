@@ -95,7 +95,7 @@ function Page({ children }: { children: ReactNode }) {
     <ErrorBoundary>
       <div className="route-shell" aria-busy={transitioning}>
         {transitioning && <div className="route-skeleton-cover"><PageSkeleton /></div>}
-        <div style={{ visibility: transitioning ? 'hidden' : 'visible' }}>
+        <div className="route-content" data-ready={!transitioning} inert={transitioning} style={{ visibility: transitioning ? 'hidden' : 'visible' }}>
           <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
         </div>
       </div>
