@@ -13,8 +13,8 @@ test('desktop: hide the side menu → main tabs move into the top bar, remembere
   await expect(rail).toHaveAttribute('inert', '');
   await expect.poll(() => page.locator('.rail-slot').evaluate((el) => el.getBoundingClientRect().width)).toBeLessThanOrEqual(1);
   const topNav = page.locator('.top-nav');
-  await topNav.getByRole('link', { name: 'Movement Insights' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Movement Insights' })).toBeVisible();
+  await topNav.getByRole('link', { name: 'Insights' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Insights' })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Show menu' })).toBeVisible();
   await page.getByRole('button', { name: 'Show menu' }).click();

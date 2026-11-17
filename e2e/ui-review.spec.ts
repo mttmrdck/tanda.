@@ -115,7 +115,9 @@ test('Tanda keeps preferences in Settings and uses skeleton page transitions', a
   await expect(page.getByRole('heading',{level:1,name:'Communication'})).toBeVisible();
   await expect(page.locator('.route-skeleton-cover')).toHaveCount(0);
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.getByRole('navigation').last().getByRole('link',{name:'Insights',exact:true}).click();
+  // Insights lives behind the dock's "More" sheet on phones
+  await page.getByRole('button',{name:'Show menu',exact:true}).click();
+  await page.getByRole('dialog',{name:'Explore Tanda'}).getByRole('link',{name:'Insights',exact:true}).click();
   await expect(page.locator('.route-skeleton-cover')).toBeVisible();
   expect(await page.locator('.route-skeleton-cover .ld-shimmer i').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   await expect(page.getByRole('heading',{level:1,name:'Insights'})).toBeVisible();

@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { useMonitoring } from '../../store/useMonitoring';
 import { useT, type MsgKey } from '../../i18n';
 import { useData } from '../../store/useData';
+import { useSettings } from '../../store/useApp';
 import { session, useSession } from '../../store/useSession';
 import { useMonitoringProfile } from '../hooks/useMonitoringProfile';
 import { Button } from '../components/Button';
@@ -80,39 +81,57 @@ export function PlatformOverview() {
     s = m.snapshot;
   const pending = s?.events.filter((e) => e.priority !== 'information' && e.status === 'new').length ?? 0;
   const recent = [...(s?.events ?? [])].reverse().slice(0, 3);
+  const hour = new Date().getHours();
+  const greeting = t(hour < 12 ? 'ovMorning' : hour < 18 ? 'ovAfternoon' : 'ovEvening');
+  const lang = useSettings((x) => x.lang);
+  const today = new Intl.DateTimeFormat(lang === 'ms' ? 'ms-MY' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+  const monitorState = s?.health.gateway.state ?? 'stopped';
+  const sourceLabel = s?.health.camera.simulated ? t('vdDemoSource') : s?.health.camera.state === 'connected' ? t('vdVideoSource') : t('ovNoSource');
   return (
     <div className="platform-page overview-page">
-      <PageHeader title={t('monOverview')} description={s?.care.environment.name ?? t('monNotConfigured')} />
-      <section className="individual-hero" aria-label={t('vdCareContext')}>
-        <div className="individual-identity">
+      <header className="page-heading overview-heading">
+        <div className="page-heading-copy">
+          <p className="page-eyebrow">{today}</p>
+          <h1>{t('monOverview')}</h1>
+          <p className="overview-greeting">{t('ovCareFor', { greeting, name: profile?.nickname ?? '' })}</p>
+        </div>
+      </header>
+      <section className="care-focus" aria-label={t('vdCareContext')}>
+        <div className="care-focus-person">
           <Avatar name={profile?.nickname ?? ''} size="lg" />
-          <div>
-            <h2>{profile?.nickname}</h2>
+          <div className="min-w-0">
+            <h2 className="care-focus-name">{profile?.nickname}</h2>
             <p className="identity-context">
               {s?.care.environment.name ?? t('monNotConfigured')}
               <span aria-hidden> · </span>
-              {t(
-                s?.care.category === 'child'
-                  ? 'monChild'
-                  : s?.care.category === 'older-adult'
-                    ? 'monOlder'
-                    : 'monUnspecified',
-              )}
+              {t(s?.care.category === 'child' ? 'monChild' : s?.care.category === 'older-adult' ? 'monOlder' : 'monUnspecified')}
             </p>
+            <StatusBadge tone="neutral" dot={false}>
+              <ShieldCheck size={14} aria-hidden />
+              {t('monLocalOnly')}
+            </StatusBadge>
           </div>
         </div>
-        <div className="individual-hero-actions">
-          <StatusBadge tone="neutral" dot={false}>
-            <ShieldCheck size={14} aria-hidden />
-            {t('monLocalOnly')}
-          </StatusBadge>
-          <StatusBadge tone={s?.health.camera.simulated ? 'review' : 'neutral'}>
-            {t(s?.health.camera.simulated ? 'vdDemoSource' : 'vdVideoSource')}
-          </StatusBadge>
-          <Link href="/monitoring" className="platform-primary">
-            {t('monOpenMonitoring')}
-            <ArrowUpRight size={17} aria-hidden />
-          </Link>
+        <div className="care-focus-state">
+          <p className="focus-kicker">{t('ovMonitoringNow')}</p>
+          <p className="focus-value" data-testid="overview-monitoring-state">
+            <span className={`status-dot tone-${statusTone(monitorState)}`} aria-hidden />
+            {t(statusKeys[monitorState] ?? 'monStopped')}
+          </p>
+          <p className="focus-meta">
+            {t('ovSource')}: <strong>{sourceLabel}</strong>
+            {s?.health.camera.simulated && <span className="sim-tag">{t('tagSimulated')}</span>}
+          </p>
+          <div className="care-focus-actions">
+            <Link href="/monitoring" className="platform-primary">
+              {t('monOpenMonitoring')}
+              <ArrowUpRight size={17} aria-hidden />
+            </Link>
+            <Link href="/events" className={pending ? 'attention-link has-attention' : 'attention-link'}>
+              <Bell size={16} aria-hidden />
+              {pending ? t('ovAttention', { n: pending }) : t('ovAttentionNone')}
+            </Link>
+          </div>
         </div>
       </section>
       {m.error && <p role="alert">{t('storageError')}</p>}
@@ -286,29 +305,43 @@ export function MonitoringPage() {
         <p>{t('monDemoDisclosure')}</p>
       </details>
       <div className="monitoring-workbench">
-        <section className="platform-monitor-stage" aria-label={t('monSimulationDiagram')}>
-          <p className="section-kicker">{t('monSimulatedCamera')}</p>
-          <div className="platform-topology">
-            {[
-              { Icon: Camera, label: 'monCamera' as const },
-              { Icon: Cpu, label: 'monLocalProcessing' as const },
-              { Icon: Bell, label: 'monEvents' as const },
-            ].map(({ Icon, label }) => (
-              <div className="topology-node" key={label}>
-                <span>
-                  <Icon aria-hidden />
-                </span>
-                <p>{t(label)}</p>
-              </div>
-            ))}
-          </div>
-          <h2 className="mt-6 text-xl">{s?.care.environment.name ?? t('monNotConfigured')}</h2>
-          <p className="mt-2 text-sm">{t('monNoFakeVideo')}</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <StatusBadge tone={statusTone(s?.health.camera.simulated ? s.health.camera.state : 'not-configured')}>
+        <section className="platform-monitor-stage monitor-stage" aria-label={t('monSimulationDiagram')} data-running={running}>
+          <div className="stage-top">
+            <span className="stage-pill">
+              <Radio aria-hidden size={15} />
+              {s?.health.camera.simulated ? t('monSimulatedCamera') : t('monNotConfigured')}
+            </span>
+            <span className="stage-pill">
+              <span className={`status-dot tone-${statusTone(s?.health.camera.simulated ? s.health.camera.state : 'not-configured')}`} aria-hidden />
               {t(statusKeys[s?.health.camera.simulated ? s.health.camera.state : 'not-configured'])}
-            </StatusBadge>
+            </span>
+          </div>
+          <div className="stage-center">
+            <div className="platform-topology">
+              {[
+                { Icon: Camera, label: 'monCamera' as const },
+                { Icon: Cpu, label: 'monLocalProcessing' as const },
+                { Icon: Bell, label: 'monEvents' as const },
+              ].map(({ Icon, label }) => (
+                <div className="topology-node" key={label}>
+                  <span>
+                    <Icon aria-hidden />
+                  </span>
+                  <p>{t(label)}</p>
+                </div>
+              ))}
+            </div>
+            <h2 className="stage-room">{s?.care.environment.name ?? t('monNotConfigured')}</h2>
+            <p className="stage-note">{t('monNoFakeVideo')}</p>
+          </div>
+          <div className="stage-bottom">
             <span className="platform-mode">{t('monBrowserDemoGateway')}</span>
+            {profile && (
+              <span className="stage-pill">
+                <Avatar name={profile.nickname} />
+                {profile.nickname}
+              </span>
+            )}
           </div>
         </section>
         <Card className="monitor-controls space-y-4">
@@ -552,6 +585,8 @@ export function EventsPage() {
             data-priority={e.priority}
             data-review-state={e.status}
           >
+            <span className={`event-node node-${e.priority} state-${e.status}`} aria-hidden />
+            <div className="event-body">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className={`monitor-priority priority-${e.priority}`}>
                 <Bell aria-hidden size={15} />
@@ -641,6 +676,7 @@ export function EventsPage() {
                 ))}
               </ul>
             </details>
+            </div>
           </Card>
         ))}
       </ul>

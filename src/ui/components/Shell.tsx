@@ -21,7 +21,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useT, type MsgKey } from '../../i18n';
 import { useSettings } from '../../store/useApp';
@@ -30,6 +30,7 @@ import { useSession } from '../../store/useSession';
 import { useTranslateCam } from '../../store/translateSession';
 import { Button } from './Button';
 import { Select } from './Controls';
+import { BrandMark } from './TandaSymbol';
 import { Dialog } from './Dialog';
 
 interface NavItem {
@@ -75,24 +76,20 @@ const UTIL: NavItem[] = [
   { href: '/settings', label: 'navProfile', Icon: Settings },
   { href: '/about', label: 'navAbout', Icon: Info },
 ];
-/** Phone tab bar: the core actions stay one tap away. */
-const TABS: NavItem[] = [
-  { href: '/overview', label: 'monOverview', Icon: LayoutGrid },
-  { href: '/monitoring', label: 'monLiveMonitoring', Icon: Camera },
-  { href: '/events', label: 'monEvents', Icon: Bell },
-  { href: '/home', label: 'navCommunication', Icon: Hand, match: ['/teach', '/signals', '/'] },
-  { href: '/timeline', label: 'navInsights', Icon: ChartColumn },
+const COMMUNICATION: NavItem = { href: '/home', label: 'navCommunication', Icon: Hand, match: ['/teach', '/signals', '/'] };
+
+/** Desktop rail: destinations grouped by what a caregiver is doing, most frequent first. */
+const GROUPS: { label: MsgKey; items: NavItem[] }[] = [
+  { label: 'navGroupCare', items: [PLATFORM[0]!, PLATFORM[1]!, PLATFORM[2]!] },
+  { label: 'navGroupPeople', items: [AREAS[1]!, COMMUNICATION] },
+  { label: 'navGroupRecords', items: [AREAS[2]!] },
+  { label: 'navGroupSystem', items: [PLATFORM[3]!, UTIL[0]!] },
 ];
-const PRIMARY: NavItem[] = [
-  PLATFORM[0]!,
-  PLATFORM[1]!,
-  AREAS[1]!,
-  PLATFORM[2]!,
-  { href: '/home', label: 'navCommunication', Icon: Hand, match: ['/teach', '/signals', '/'] },
-  AREAS[2]!,
-  PLATFORM[3]!,
-  UTIL[0]!,
-];
+/** Quieter tier: experimental and research areas, and About. */
+const LAB: NavItem[] = [AREAS[0]!, RESEARCH, UTIL[1]!];
+/** Phone dock: four destinations one tap away; everything else behind "More". Order is a tested contract. */
+const TABS: NavItem[] = [PLATFORM[0]!, PLATFORM[1]!, PLATFORM[2]!, COMMUNICATION];
+const PRIMARY: NavItem[] = GROUPS.flatMap((g) => g.items);
 const ALL: NavItem[] = [...PLATFORM, ...COMM, ...AREAS, RESEARCH, ...UTIL];
 
 const STROKE = 1.75;
@@ -104,25 +101,11 @@ function isActive(loc: string, it: NavItem | string) {
 }
 export const isCommunicationRoute = (loc: string) => COMM.some((it) => onPath(loc, it.href));
 
-/** The supplied Tanda icon is used directly, without redrawing the mark. */
-function Mark({ className }: { className?: string }) {
-  return (
-    <img
-      aria-hidden
-      alt=""
-      width={40}
-      height={40}
-      className={clsx('brand-mark', className)}
-      src={`${import.meta.env.BASE_URL}brand/tanda-icon.png`}
-    />
-  );
-}
-
 function Logo() {
   return (
-    <span className="flex items-center gap-2.5">
-      <Mark className="size-9" />
-      <span className="text-xl font-extrabold tracking-tight">tanda.</span>
+    <span className="brand-lockup">
+      <BrandMark className="size-8 text-ink" />
+      <span className="brand-word">tanda</span>
     </span>
   );
 }
@@ -263,17 +246,9 @@ function NavRail({ hidden }: { hidden: boolean }) {
     const active = isActive(loc, it);
     return (
       <li key={it.href}>
-        <Link
-          href={it.href}
-          aria-current={active ? 'page' : undefined}
-          className={clsx(
-            'nav-link press flex min-h-12 items-center gap-3 rounded-[14px] px-3 font-semibold transition-colors duration-200',
-            nested && 'pl-4',
-            active ? 'is-active' : 'text-ink-muted hover:bg-surface-2 hover:text-ink',
-          )}
-        >
-          <it.Icon aria-hidden strokeWidth={STROKE} className="size-5 shrink-0" />
-          <span className="min-w-0 flex-1 break-words text-sm leading-snug">{t(it.label)}</span>
+        <Link href={it.href} aria-current={active ? 'page' : undefined} className={clsx('nav-link press', nested && 'is-nested', active && 'is-active')}>
+          <it.Icon aria-hidden strokeWidth={STROKE} className="nav-icon" />
+          <span className="nav-label">{t(it.label)}</span>
           {it.tag && <span className="nav-tag">{t(it.tag)}</span>}
         </Link>
       </li>
@@ -281,73 +256,65 @@ function NavRail({ hidden }: { hidden: boolean }) {
   };
   const commActive = isCommunicationRoute(loc);
   return (
-    <nav
-      id="nav-rail"
-      aria-label={t('navMain')}
-      inert={hidden}
-      className="nav-rail sticky top-0 hidden h-dvh flex-col gap-5 overflow-y-auto px-3 py-6 lg:flex"
-    >
-      <Link href="/home" className="rounded-full px-3">
+    <nav id="nav-rail" aria-label={t('navMain')} inert={hidden} className="nav-rail sticky top-0 hidden h-dvh flex-col lg:flex">
+      <Link href="/overview" className="rail-brand">
         <Logo />
       </Link>
-      <p className="rail-caption">{t('vdWorkspace')}</p>
-      <ul className="rail-primary">{PRIMARY.map((it) => link(it))}</ul>
-      {commActive && (
-        <div className="rail-communication">
-          <p className="nav-group-title">{t('navCommSections')}</p>
-          <ul>{COMM.map((it) => link(it, true))}</ul>
-        </div>
-      )}
-      <div className="rail-secondary">
-        <ul>
-          {link(AREAS[0]!)}
-          {link(RESEARCH)}
-          {link(UTIL[1]!)}
-        </ul>
+      <div className="rail-groups">
+        {GROUPS.map((g) => (
+          <div key={g.label} className="rail-group">
+            <p className="rail-group-title" id={`rail-${g.label}`}>
+              {t(g.label)}
+            </p>
+            <ul aria-labelledby={`rail-${g.label}`}>
+              {g.items.map((it) => (
+                <Fragment key={it.href}>
+                  {link(it)}
+                  {it === COMMUNICATION && commActive && (
+                    <li className="rail-sub">
+                      <ul aria-label={t('navCommSections')}>{COMM.map((c) => link(c, true))}</ul>
+                    </li>
+                  )}
+                </Fragment>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <ul className="rail-lab">{LAB.map((it) => link(it))}</ul>
       </div>
-      <div className="mt-auto rounded-[20px] bg-surface p-4">
+      <div className="rail-footer">
         <ProfileSwitcher />
       </div>
     </nav>
   );
 }
 
-/** Second-level navigation for the four Communication sections (all screen sizes). */
-function MobileMenu() {
+/** Every destination, in one sheet (phones and tablets). Opened from the dock's "More". */
+function MobileMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const t = useT();
-  const [open, setOpen] = useState(false);
   const [loc] = useLocation();
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={t('navShowMenu')}
-        aria-expanded={open}
-        className="mobile-menu-button lg:hidden"
-      >
-        <Menu aria-hidden size={21} />
-      </button>
-      <Dialog open={open} onOpenChange={setOpen} title={t('vdAllDestinations')} sheet>
-        <nav aria-label={t('vdAllDestinations')} className="mobile-menu-list">
-          <ul>
-            {[...PRIMARY, AREAS[0]!, RESEARCH, UTIL[1]!].map((it) => (
-              <li key={it.href}>
-                <Link
-                  href={it.href}
-                  onClick={() => setOpen(false)}
-                  aria-current={isActive(loc, it) ? 'page' : undefined}
-                >
-                  <it.Icon aria-hidden size={20} />
-                  <span>{t(it.label)}</span>
-                  <ChevronRight aria-hidden size={16} />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </Dialog>
-    </>
+    <Dialog open={open} onOpenChange={onOpenChange} title={t('vdAllDestinations')} sheet>
+      <nav aria-label={t('vdAllDestinations')} className="mobile-menu-list">
+        {[...GROUPS, { label: 'navMore' as MsgKey, items: LAB }].map((g) => (
+          <div key={g.label} className="menu-group">
+            <p className="rail-group-title">{t(g.label)}</p>
+            <ul>
+              {g.items.map((it) => (
+                <li key={it.href}>
+                  <Link href={it.href} onClick={() => onOpenChange(false)} aria-current={isActive(loc, it) ? 'page' : undefined}>
+                    <it.Icon aria-hidden size={20} strokeWidth={STROKE} />
+                    <span>{t(it.label)}</span>
+                    {it.tag && <span className="nav-tag">{t(it.tag)}</span>}
+                    <ChevronRight aria-hidden size={16} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </Dialog>
   );
 }
 
@@ -383,7 +350,9 @@ export function CommunicationNav() {
 function TabBar() {
   const t = useT();
   const [loc] = useLocation();
+  const [menu, setMenu] = useState(false);
   const activeIndex = TABS.findIndex((it) => isActive(loc, it));
+  const onMore = activeIndex < 0;
   const [keyboard, setKeyboard] = useState(false);
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -394,36 +363,26 @@ function TabBar() {
     return () => viewport.removeEventListener('resize', sync);
   }, []);
   return (
-    <nav
-      aria-label={t('navMain')}
-      data-keyboard={keyboard}
-      className="tab-bar fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] lg:hidden"
-    >
-      <PillNavigation
-        className="glass"
-        data-active={activeIndex >= 0}
-        style={{ '--dock-index': Math.max(0, activeIndex) } as CSSProperties}
-      >
+    <nav aria-label={t('navMain')} data-keyboard={keyboard} className="tab-bar fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] lg:hidden">
+      <PillNavigation className="glass" data-active="true" style={{ '--dock-index': onMore ? 4 : activeIndex } as CSSProperties}>
         {TABS.map((it) => {
           const active = isActive(loc, it);
           return (
             <li key={it.href} className="flex flex-1">
-              <Link
-                href={it.href}
-                title={t(it.label)}
-                aria-current={active ? 'page' : undefined}
-                className={clsx(
-                  'press flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-[22px] text-xs font-bold transition-colors duration-200',
-                  active ? 'bg-primary-fill text-on-primary' : 'text-ink-muted hover:text-ink',
-                )}
-              >
+              <Link href={it.href} title={t(it.label)} aria-current={active ? 'page' : undefined} className="press">
                 <it.Icon aria-hidden strokeWidth={STROKE} className="size-6" />
                 <span className="tab-label sr-only">{t(it.label)}</span>
               </Link>
             </li>
           );
         })}
+        <li className="flex flex-1">
+          <button type="button" onClick={() => setMenu(true)} aria-label={t('navShowMenu')} aria-expanded={menu} aria-current={onMore ? 'page' : undefined} className="press dock-more">
+            <Menu aria-hidden strokeWidth={STROKE} className="size-6" />
+          </button>
+        </li>
       </PillNavigation>
+      <MobileMenu open={menu} onOpenChange={setMenu} />
     </nav>
   );
 }
@@ -432,12 +391,13 @@ function TopBar() {
   const t = useT();
   const [loc] = useLocation();
   const item = ALL.find((it) => isActive(loc, it));
+  const group = GROUPS.find((g) => g.items.some((it) => isActive(loc, it)));
   const navHidden = useSettings((s) => s.navHidden);
   const setSettings = useSettings((s) => s.set);
   return (
-    <header className="top-bar sticky top-0 z-20 px-3 pt-[max(env(safe-area-inset-top),0.5rem)] sm:px-6 lg:px-10">
-      <div className="glass mx-auto flex max-w-[1160px] items-center justify-between gap-2 rounded-[28px] py-1.5 pl-4 pr-1.5">
-        <Link href="/home" className="rounded-full lg:hidden">
+    <header className="top-bar sticky top-0 z-20 px-4 pt-[env(safe-area-inset-top)] sm:px-6 lg:px-10">
+      <div className="top-bar-inner mx-auto flex max-w-[1240px] items-center gap-3">
+        <Link href="/overview" className="rounded-full lg:hidden">
           <Logo />
         </Link>
         <button
@@ -447,34 +407,22 @@ function TopBar() {
           aria-controls="nav-rail"
           aria-label={t(navHidden ? 'navShowMenu' : 'navHideMenu')}
           title={t(navHidden ? 'navShowMenu' : 'navHideMenu')}
-          className="nav-toggle press hidden size-11 shrink-0 place-items-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink lg:grid"
+          className="nav-toggle press hidden size-10 shrink-0 place-items-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink lg:grid"
         >
-          {navHidden ? (
-            <PanelLeftOpen aria-hidden strokeWidth={STROKE} className="size-5" />
-          ) : (
-            <PanelLeftClose aria-hidden strokeWidth={STROKE} className="size-5" />
-          )}
+          {navHidden ? <PanelLeftOpen aria-hidden strokeWidth={STROKE} className="size-5" /> : <PanelLeftClose aria-hidden strokeWidth={STROKE} className="size-5" />}
         </button>
-        {/* With the side menu hidden, the logo and the main tabs move into the bar. */}
+        {/* With the side menu hidden, the main destinations move into the bar. */}
         <div className="top-nav hidden items-center gap-4 lg:flex" inert={!navHidden} aria-hidden={!navHidden}>
-          <Link href="/home" className="rounded-full">
+          <Link href="/overview" className="rounded-full">
             <Logo />
           </Link>
           <nav aria-label={t('navMain')}>
             <ul className="flex items-center gap-1">
-              {[...PLATFORM, ...TABS.slice(0, 1), ...AREAS].map((it) => {
+              {PRIMARY.map((it) => {
                 const active = isActive(loc, it);
                 return (
                   <li key={it.href}>
-                    <Link
-                      href={it.href}
-                      aria-current={active ? 'page' : undefined}
-                      className={clsx(
-                        'press flex min-h-11 items-center gap-2 rounded-full px-4 text-[15px] font-semibold transition-colors duration-200',
-                        active ? 'bg-primary-soft text-primary' : 'text-ink-muted hover:bg-surface-2 hover:text-ink',
-                      )}
-                    >
-                      <it.Icon aria-hidden strokeWidth={STROKE} className="size-[18px]" />
+                    <Link href={it.href} aria-current={active ? 'page' : undefined} className={clsx('top-nav-link press', active && 'is-active')}>
                       {t(it.label)}
                     </Link>
                   </li>
@@ -483,14 +431,13 @@ function TopBar() {
             </ul>
           </nav>
         </div>
-        <div className="workspace-context hidden lg:flex">
-          <span>{t('vdWorkspace')}</span>
+        <p className="workspace-context hidden lg:flex">
+          <span>{group ? t(group.label) : t('vdWorkspace')}</span>
           <ChevronRight aria-hidden size={14} />
           <span>{item ? t(item.label) : 'Tanda'}</span>
-        </div>
+        </p>
         <div className="ml-auto flex items-center gap-2">
           <ModeChip />
-          <MobileMenu />
           <ProfileButton />
         </div>
       </div>

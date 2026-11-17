@@ -2,6 +2,8 @@
 @import '@fontsource/inter/latin-400.css';
 @import '@fontsource/inter/latin-600.css';
 @import '@fontsource/inter/latin-700.css';
+@import '@fontsource/instrument-serif/latin-400.css';
+@import '@fontsource/instrument-serif/latin-400-italic.css';
 
 @custom-variant dark (&:where([data-theme='dim'], [data-theme='dim'] *));
 @custom-variant dim (&:where([data-theme='dim'], [data-theme='dim'] *));
@@ -10,35 +12,40 @@
    Dark-first: the `dim` theme is the default; `light` is the alternative. */
 :root {
   color-scheme:light;
-  --bg:#f5f5f5; --surface:#fafafa; --surface-2:#ededed;
-  --border:#858585; --border-soft:#dedede;
-  --ink:#171717; --ink-muted:#666666;
-  --primary:#171717; --primary-fill:#171717; --primary-hover:#333333;
-  --on-primary:#fafafa; --primary-soft:#e8e8e8;
-  --calm-fg:#24654f; --calm-bg:#e8f2eb;
-  --rising-fg:#855700; --rising-bg:#fbf0d8;
-  --high-fg:#b02a1f; --high-bg:#fce7e6;
-  --focus:#4d4d4d; --green:#4d8b70; --green-2:#4d8b70; --amber:#b27b22; --coral:#b84d47;
+  /* Quiet Intelligence — warm-white editorial light theme. Monochrome by design: status is carried by
+     wording, icon and shape, never by hue. */
+  --bg:#f8f8f6; --surface:#ffffff; --surface-2:#f1f1ef;
+  --border:#85878c; --border-soft:#e6e6e3;
+  --ink:#101114; --ink-muted:#5f6268;
+  --primary:#101114; --primary-fill:#101114; --primary-hover:#2b2d31;
+  --on-primary:#ffffff; --primary-soft:#ededea;
+  --calm-fg:#101114; --calm-bg:#ededea;
+  --rising-fg:#101114; --rising-bg:#e7e5df;
+  --high-fg:#101114; --high-bg:#e2e0da;
+  --focus:#101114; --green:#101114; --green-2:#101114; --amber:#6b6e74; --coral:#a9abaf;
   --hairline:inset 0 1px 0 rgb(255 255 255 / .95),inset 0 0 0 1px rgb(255 255 255 / .45);
-  --shadow:0 2px 4px rgb(0 0 0 / .035),0 16px 40px -24px rgb(0 0 0 / .25);
-  --glass-tint:rgb(250 250 250 / .94); --glass-border:rgb(255 255 255 / .8); --glass-solid:#fafafa;
-  --scrim:rgb(0 0 0 / .4); --blob-a:transparent; --blob-b:transparent;
+  --shadow:0 1px 2px rgb(16 17 20 / .04),0 18px 40px -26px rgb(16 17 20 / .28);
+  --glass-tint:rgb(255 255 255 / .78); --glass-border:rgb(16 17 20 / .08); --glass-solid:#ffffff;
+  --scrim:rgb(8 9 11 / .42); --blob-a:transparent; --blob-b:transparent;
+  --stage:#111214; --stage-ink:#f2f2f0; --stage-muted:#a2a5ab; --stage-line:rgb(255 255 255 / .12);
 }
 [data-theme='dim'] {
   color-scheme:dark;
-  --bg:#0a0a0a; --surface:#171717; --surface-2:#262626;
-  --border:#777777; --border-soft:#333333;
-  --ink:#f5f5f5; --ink-muted:#a3a3a3;
-  --primary:#f5f5f5; --primary-fill:#ededed; --primary-hover:#d4d4d4;
-  --on-primary:#171717; --primary-soft:#292929;
-  --calm-fg:#93d5b9; --calm-bg:#18352c;
-  --rising-fg:#eac085; --rising-bg:#352b1c;
-  --high-fg:#ff8a8a; --high-bg:#33171c;
-  --focus:#d4d4d4; --green:#93bda9; --green-2:#93bda9; --amber:#d3ad78; --coral:#e09b98;
-  --hairline:inset 0 1px 0 rgb(255 255 255 / .12),inset 0 0 0 1px rgb(255 255 255 / .025);
-  --shadow:0 2px 4px rgb(0 0 0 / .12),0 16px 40px -20px rgb(0 0 0 / .6);
-  --glass-tint:rgb(38 38 38 / .84); --glass-border:rgb(255 255 255 / .13); --glass-solid:#262626;
-  --scrim:rgb(0 0 0 / .65); --blob-a:transparent; --blob-b:transparent;
+  /* Deep charcoal layers, not flat black: bg → surface → surface-2 step up in lightness. */
+  --bg:#08090b; --surface:#111214; --surface-2:#18191c;
+  --border:#73767c; --border-soft:#25272b;
+  --ink:#f2f2f0; --ink-muted:#a2a5ab;
+  --primary:#f2f2f0; --primary-fill:#f2f2f0; --primary-hover:#d9d9d6;
+  --on-primary:#0b0c0e; --primary-soft:#222327;
+  --calm-fg:#f2f2f0; --calm-bg:#1c1d20;
+  --rising-fg:#f2f2f0; --rising-bg:#26241f;
+  --high-fg:#f2f2f0; --high-bg:#2c2825;
+  --focus:#f2f2f0; --green:#f2f2f0; --green-2:#f2f2f0; --amber:#a2a5ab; --coral:#5e6166;
+  --hairline:inset 0 1px 0 rgb(255 255 255 / .08),inset 0 0 0 1px rgb(255 255 255 / .02);
+  --shadow:0 1px 2px rgb(0 0 0 / .3),0 18px 40px -22px rgb(0 0 0 / .7);
+  --glass-tint:rgb(21 22 24 / .8); --glass-border:rgb(255 255 255 / .1); --glass-solid:#151618;
+  --scrim:rgb(0 0 0 / .66); --blob-a:transparent; --blob-b:transparent;
+  --stage:#0d0e10; --stage-ink:#f2f2f0; --stage-muted:#a2a5ab; --stage-line:rgb(255 255 255 / .1);
 }
 
 @theme inline {
@@ -70,7 +77,9 @@
 
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Inter', sans-serif;
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Inter', sans-serif;
+  /* Editorial display face for titles and hero numbers; Inter for everything people read and operate. */
+  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --text-xs: 0.75rem; /* caption */
   --text-sm: 0.875rem; /* footnote (14px: small metadata stays readable) */
   --text-base: 1rem; /* 17 */
@@ -79,8 +88,8 @@
   --text-2xl: 1.75rem; /* title 1 */
   --text-3xl: 2.125rem; /* large title */
   --text-4xl: 3rem; /* hero numerals */
-  --radius-control: 18px;
-  --radius-card: 28px;
+  --radius-control: 12px;
+  --radius-card: 20px;
   --radius-sheet: 28px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
@@ -299,7 +308,6 @@ li {
   button, a, input, select { touch-action: manipulation; }
   button:not(:disabled), a { cursor: pointer; }
   svg.lucide { stroke-width: 1.75; }
-  h1 { font-size:32px !important; line-height:1.18; font-weight:600; letter-spacing:-.035em; }
   .font-bold, .font-extrabold { font-weight: 600; }
   .card-2 { background: var(--surface-2); border-radius: 20px; }
   .camera-stage { border: 1px solid var(--border-soft); background: var(--surface); }
@@ -731,7 +739,7 @@ body:has(.ob-welcome) .bare-header { display:none; }
 input,textarea { caret-color:var(--ink); }
 html { scroll-padding-block:96px 120px; }
 :focus-visible { scroll-margin-block:96px 120px; }
-@media(max-width:767px) { h1 { font-size:28px !important; }.individual-identity h2 { font-size:32px; } }
+@media(max-width:767px) { .individual-identity h2 { font-size:32px; } }
 @media(prefers-reduced-transparency:reduce) { .top-bar,.tab-bar ul { background:var(--glass-solid); backdrop-filter:none; -webkit-backdrop-filter:none; } }
 
 .nav-link { transition:background-color 160ms ease,color 160ms ease; }
