@@ -135,75 +135,82 @@ export function PlatformOverview() {
         </div>
       </section>
       {m.error && <p role="alert">{t('storageError')}</p>}
-      <section className="operating-band" aria-label={t('vdSystemStatus')}>
+      <section className="ov-status" aria-label={t('vdSystemStatus')}>
         {[
           {
             Icon: Camera,
             label: 'monCamera' as const,
             state: s?.health.camera.state ?? 'not-configured',
             value: t(statusKeys[s?.health.camera.state ?? 'not-configured']),
+            caption: sourceLabel,
           },
           {
             Icon: Cpu,
             label: 'monLocalProcessing' as const,
             state: s?.health.gateway.state ?? 'stopped',
             value: t(statusKeys[s?.health.gateway.state ?? 'stopped']),
+            caption: t('monBrowserDemoGateway'),
           },
           {
             Icon: Activity,
             label: 'monBaseline' as const,
             state: s?.baseline.state ?? 'not-configured',
             value: t(baselineKeys[s?.baseline.state ?? 'not-configured']),
+            caption: t('monBaselineSamples', { n: s?.baseline.count ?? 0, seconds: Math.round((s?.baseline.coverageMs ?? 0) / 1000) }),
           },
           {
             Icon: Bell,
             label: 'monNeedsReview' as const,
             state: pending ? 'requires-review' : 'good',
             value: String(pending),
+            caption: t('monEvents'),
           },
-        ].map(({ Icon, label, state, value }) => (
-          <div key={label} className="operating-item">
-            <div className="operating-label">
-              <Icon size={17} aria-hidden />
+        ].map(({ Icon, label, state, value, caption }) => (
+          <div key={label} className="ov-tile">
+            <p className="ov-tile-label">
+              <Icon size={16} aria-hidden />
               {t(label)}
-            </div>
-            <div className="operating-value">
+            </p>
+            <p className="ov-tile-value">
               <span className={`status-dot tone-${statusTone(state)}`} aria-hidden />
-              {value}
-            </div>
+              <span>{value}</span>
+            </p>
+            <p className="ov-tile-caption">{caption}</p>
           </div>
         ))}
       </section>
-      <div className="overview-columns">
-        <section className="review-panel">
-          <div className="section-heading">
-            <div>
-              <h2>{t('monEventQueue')}</h2>
-            </div>
+
+      <div className="ov-grid">
+        <section className="ov-panel ov-review" aria-labelledby="ov-review-h">
+          <header className="ov-panel-head">
+            <h2 id="ov-review-h">{t('monEventQueue')}</h2>
             <Link href="/events" className="platform-link">
               {t('homeSeeAll')}
               <ArrowUpRight size={16} aria-hidden />
             </Link>
-          </div>
+          </header>
           {recent.length ? (
-            <ul className="overview-events">
+            <ul className="ov-events">
               {recent.map((e) => (
                 <li key={e.id}>
                   <span className={`event-marker tone-${e.priority === 'review' ? 'review' : 'neutral'}`} aria-hidden />
-                  <div>
-                    <Link href="/events">{t(eventKeys[e.type])}</Link>
-                    <p>
-                      {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')} ·{' '}
-                      {new Date(e.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <div className="min-w-0 flex-1">
+                    <Link href="/events" className="ov-event-title">
+                      {t(eventKeys[e.type])}
+                    </Link>
+                    <p className="ov-event-meta">
+                      {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')} · {new Date(e.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <ArrowUpRight aria-hidden size={16} />
+                  <ArrowUpRight aria-hidden size={16} className="shrink-0 text-ink-muted" />
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="intentional-empty">
-              <Bell aria-hidden size={24} />
+            <div className="ov-empty">
+              <span className="ov-empty-icon" aria-hidden>
+                <Bell size={20} />
+              </span>
               <p>{t('monNoEvents')}</p>
               <Link href="/monitoring" className="platform-link">
                 {t('monOpenMonitoring')}
@@ -211,57 +218,58 @@ export function PlatformOverview() {
               </Link>
             </div>
           )}
-          <div className="observation-footnote">
-            <span>{t('monLatest')}</span>
-            <strong>
-              {s?.health.lastSuccessfulObservation
-                ? new Date(s.health.lastSuccessfulObservation).toLocaleTimeString()
-                : t('monNoObservations')}
-            </strong>
-            <span>{s?.health.camera.simulated ? t('monSimulatedClock') : t('monBrowserInput')}</span>
-          </div>
+          <dl className="ov-panel-foot">
+            <dt>{t('monLatest')}</dt>
+            <dd>
+              <strong>{s?.health.lastSuccessfulObservation ? new Date(s.health.lastSuccessfulObservation).toLocaleTimeString() : t('monNoObservations')}</strong>
+              <span>{s?.health.camera.simulated ? t('monSimulatedClock') : t('monBrowserInput')}</span>
+            </dd>
+          </dl>
         </section>
-        <aside className="overview-aside">
-          <section className="communication-entry">
-            <span className="section-icon">
-              <Hand size={23} aria-hidden />
-            </span>
-            <h2>{t('navCommunication')}</h2>
-            <p>{t('monCommunicationBody')}</p>
-            <Link href="/home" className="platform-link">
+
+        <div className="ov-side">
+          <section className="ov-panel ov-comm" aria-labelledby="ov-comm-h">
+            <header className="ov-panel-head">
+              <h2 id="ov-comm-h">{t('navCommunication')}</h2>
+              <span className="ov-panel-icon" aria-hidden>
+                <Hand size={18} />
+              </span>
+            </header>
+            <p className="ov-panel-text">{t('monCommunicationBody')}</p>
+            <Link href="/home" className="platform-primary ov-comm-cta">
               {t('monOpenCommunication')}
               <ArrowUpRight size={17} aria-hidden />
             </Link>
           </section>
-          <details className="platform-capabilities" aria-label={t('monEngines')}>
-            <summary>
-              {t('vdEngines')}
-              <ChevronDown aria-hidden size={16} />
-            </summary>
-            {[
-              { name: 'monEnvironmentEngine', status: 'monBrowserAndDemo', Icon: Camera },
-              { name: 'monBehaviourEngine', status: 'monExperimental', Icon: Activity },
-              { name: 'monCommunicationEngine', status: 'monOperational', Icon: Hand },
-              { name: 'monAudioEngine', status: 'monAudioUnavailable', Icon: Lock },
-            ].map((item) => (
-              <div key={item.name}>
-                <item.Icon aria-hidden size={17} />
-                <div>
-                  <span>{t(item.name as MsgKey)}</span>
-                  <p>{t(item.status as MsgKey)}</p>
-                </div>
-              </div>
-            ))}
-          </details>
-        </aside>
+          <section className="ov-panel" aria-labelledby="ov-cap-h">
+            <header className="ov-panel-head">
+              <h2 id="ov-cap-h">{t('vdEngines')}</h2>
+            </header>
+            <ul className="ov-capabilities" aria-label={t('monEngines')}>
+              {[
+                { name: 'monEnvironmentEngine', status: 'monBrowserAndDemo', Icon: Camera },
+                { name: 'monBehaviourEngine', status: 'monExperimental', Icon: Activity },
+                { name: 'monCommunicationEngine', status: 'monOperational', Icon: Hand },
+                { name: 'monAudioEngine', status: 'monAudioUnavailable', Icon: Lock },
+              ].map((item) => (
+                <li key={item.name}>
+                  <item.Icon aria-hidden size={16} />
+                  <span className="ov-cap-name">{t(item.name as MsgKey)}</span>
+                  <span className="ov-cap-status">{t(item.status as MsgKey)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
       </div>
-      <div className="privacy-footnote">
-        <ShieldCheck aria-hidden size={17} />
+
+      <footer className="ov-footnote">
+        <ShieldCheck aria-hidden size={16} />
         <div>
           <p>{t('monPhilosophy')}</p>
           <p>{t('monRemoteUnavailable')}</p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
