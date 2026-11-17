@@ -17,6 +17,8 @@ export const settingsSchema = z.object({
   vibration: z.boolean(),
   cameraDeviceId: z.string(),
   cameraFacing: z.enum(['user', 'environment']),
+  /** desktop: side menu hidden (main tabs move into the top bar) */
+  navHidden: z.boolean(),
   consented: z.boolean(),
   activeProfileId: z.string(),
 });
@@ -36,6 +38,7 @@ export function defaultSettings(navLang?: string): Settings {
     vibration: false,
     cameraDeviceId: '',
     cameraFacing: 'user',
+    navHidden: false,
     consented: false,
     activeProfileId: '',
   };

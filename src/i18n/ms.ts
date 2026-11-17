@@ -141,6 +141,8 @@ export const ms: Record<MsgKey, string> = {
   sourceDemo: 'Pelakon demo',
   camStart: 'Hidupkan kamera',
   camFlip: 'Tukar kamera',
+  navHideMenu: 'Sembunyikan menu',
+  navShowMenu: 'Tunjukkan menu',
   camStop: 'Henti',
   camStarting: 'Menghidupkan kamera…',
   camPreparing: 'Menyediakan pengecaman pada peranti…',

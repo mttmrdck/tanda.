@@ -140,6 +140,8 @@ export const en = {
   sourceDemo: 'Demo performer',
   camStart: 'Start camera',
   camFlip: 'Flip camera',
+  navHideMenu: 'Hide menu',
+  navShowMenu: 'Show menu',
   camStop: 'Stop',
   camStarting: 'Starting the camera…',
   camPreparing: 'Getting on-device recognition ready…',

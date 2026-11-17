@@ -1,9 +1,10 @@
 import { PillNavigation } from '../vendor/pill-navigation';
 import { clsx } from 'clsx';
-import { Hand, BookOpen, ChartColumn, House, Info, Lock, Radio, Settings, Share2, type LucideIcon } from 'lucide-react';
+import { Hand, BookOpen, ChartColumn, House, Info, Lock, PanelLeftClose, PanelLeftOpen, Radio, Settings, Share2, type LucideIcon } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useT, type MsgKey } from '../../i18n';
+import { useSettings } from '../../store/useApp';
 import { useData } from '../../store/useData';
 import { Button } from './Button';
 import { Select } from './Controls';
@@ -139,7 +140,7 @@ function ProfileSwitcher() {
   );
 }
 
-function NavRail() {
+function NavRail({ hidden }: { hidden: boolean }) {
   const t = useT();
   const [loc] = useLocation();
   const link = (it: NavItem) => {
@@ -161,7 +162,7 @@ function NavRail() {
     );
   };
   return (
-    <nav aria-label={t('navMain')} className="nav-rail sticky top-0 hidden h-dvh flex-col gap-6 px-4 py-6 lg:flex">
+    <nav id="nav-rail" aria-label={t('navMain')} inert={hidden} className="nav-rail sticky top-0 hidden h-dvh flex-col gap-6 px-4 py-6 lg:flex">
       <Link href="/home" className="rounded-full px-2">
         <Logo />
       </Link>
@@ -215,13 +216,54 @@ function TopBar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   const item = [...TABS, ...MORE].find(it => isActive(loc, it.href));
+  const navHidden = useSettings((s) => s.navHidden);
+  const setSettings = useSettings((s) => s.set);
   return (
     <header className="top-bar sticky top-0 z-20 px-3 pt-[max(env(safe-area-inset-top),0.5rem)] sm:px-6 lg:px-10">
-      <div className="glass mx-auto flex max-w-[1160px] items-center justify-between gap-2 rounded-[28px] py-1.5 pl-4 pr-1.5 lg:bg-transparent lg:shadow-none">
+      <div className="glass mx-auto flex max-w-[1160px] items-center justify-between gap-2 rounded-[28px] py-1.5 pl-4 pr-1.5">
         <Link href="/home" className="rounded-full lg:hidden">
           <Logo />
         </Link>
-        <span aria-hidden className="inline-title hidden font-semibold lg:block" style={{ visibility: collapsed ? 'visible' : 'hidden' }}>{item ? t(item.label) : 'Tanda'}</span>
+        <button
+          type="button"
+          onClick={() => setSettings({ navHidden: !navHidden })}
+          aria-expanded={!navHidden}
+          aria-controls="nav-rail"
+          aria-label={t(navHidden ? 'navShowMenu' : 'navHideMenu')}
+          title={t(navHidden ? 'navShowMenu' : 'navHideMenu')}
+          className="nav-toggle press hidden size-11 shrink-0 place-items-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink lg:grid"
+        >
+          {navHidden ? <PanelLeftOpen aria-hidden strokeWidth={STROKE} className="size-5" /> : <PanelLeftClose aria-hidden strokeWidth={STROKE} className="size-5" />}
+        </button>
+        {/* With the side menu hidden, the logo and the main tabs move into the bar. */}
+        <div className="top-nav hidden items-center gap-4 lg:flex" inert={!navHidden} aria-hidden={!navHidden}>
+          <Link href="/home" className="rounded-full">
+            <Logo />
+          </Link>
+          <nav aria-label={t('navMain')}>
+            <ul className="flex items-center gap-1">
+              {TABS.map((it) => {
+                const active = isActive(loc, it.href);
+                return (
+                  <li key={it.href}>
+                    <Link
+                      href={it.href}
+                      aria-current={active ? 'page' : undefined}
+                      className={clsx(
+                        'press flex min-h-11 items-center gap-2 rounded-full px-4 text-[15px] font-semibold transition-colors duration-200',
+                        active ? 'bg-primary-soft text-primary' : 'text-ink-muted hover:bg-surface-2 hover:text-ink',
+                      )}
+                    >
+                      <it.Icon aria-hidden strokeWidth={STROKE} className="size-[18px]" />
+                      {t(it.label)}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
+        <span aria-hidden className="inline-title hidden font-semibold lg:block" style={{ visibility: collapsed && !navHidden ? 'visible' : 'hidden' }}>{item ? t(item.label) : 'Tanda'}</span>
         <div className="ml-auto flex items-center gap-1.5">
           <ProfileButton />
         </div>
@@ -237,13 +279,16 @@ export function Backdrop() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const t = useT();
+  const navHidden = useSettings((s) => s.navHidden);
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[232px_minmax(0,1fr)]">
+    <div className="app-shell min-h-dvh" data-nav={navHidden ? 'hidden' : 'shown'}>
       <Backdrop />
       <a href="#main" className="sr-only z-50 rounded-full bg-primary-fill px-5 py-3 font-bold text-on-primary focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         {t('skipToContent')}
       </a>
-      <NavRail />
+      <div className="rail-slot hidden lg:block">
+        <NavRail hidden={navHidden} />
+      </div>
       <div className="min-w-0">
         <TopBar />
         <main
