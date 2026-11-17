@@ -1,5 +1,6 @@
 import {
   Activity,
+  ArrowRight,
   ArrowUpRight,
   Bell,
   Camera,
@@ -10,12 +11,16 @@ import {
   Hand,
   ChevronDown,
   ShieldCheck,
+  CheckCircle2,
+  Info,
+  Plus,
+  X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { toast } from 'sonner';
 import { useMonitoring } from '../../store/useMonitoring';
-import { useT, type MsgKey } from '../../i18n';
+import { pickText, useT, type MsgKey } from '../../i18n';
 import { useData } from '../../store/useData';
 import { useSettings } from '../../store/useApp';
 import { session, useSession } from '../../store/useSession';
@@ -37,6 +42,13 @@ const baselineKeys: Record<string, MsgKey> = {
   insufficient: 'monInsufficient',
   available: 'monAvailable',
   'requires-review': 'monRequiresReview',
+};
+const baselineShort: Record<string, MsgKey> = {
+  'not-configured': 'ovBlNone',
+  collecting: 'ovBlCollecting',
+  insufficient: 'ovBlInsufficient',
+  available: 'ovBlReady',
+  'requires-review': 'ovBlReview',
 };
 const eventKeys: Record<MonitoringEvent['type'], MsgKey> = {
   'monitoring-started': 'monStarted',
@@ -78,189 +90,144 @@ export function PlatformOverview() {
   const t = useT(),
     m = useMonitoringProfile(),
     profile = useData((s) => s.profile),
+    signals = useData((s) => s.signals),
     s = m.snapshot;
-  const pending = s?.events.filter((e) => e.priority !== 'information' && e.status === 'new').length ?? 0;
-  const recent = [...(s?.events ?? [])].reverse().slice(0, 3);
-  const hour = new Date().getHours();
-  const greeting = t(hour < 12 ? 'ovMorning' : hour < 18 ? 'ovAfternoon' : 'ovEvening');
   const lang = useSettings((x) => x.lang);
   const today = new Intl.DateTimeFormat(lang === 'ms' ? 'ms-MY' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
-  const monitorState = s?.health.gateway.state ?? 'stopped';
-  const sourceLabel = s?.health.camera.simulated ? t('vdDemoSource') : s?.health.camera.state === 'connected' ? t('vdVideoSource') : t('ovNoSource');
+  const name = profile?.nickname ?? '';
+  const live = s?.health.gateway.state === 'running';
+  const simulated = s?.health.camera.simulated ?? false;
+  const open = (s?.events ?? []).filter((e) => e.priority !== 'information' && e.status === 'new');
+  const moment = open[open.length - 1];
+  const samples = s?.baseline.count ?? 0;
+  const filled = Math.round((Math.min(samples, BASELINE_SAMPLE_MIN) / BASELINE_SAMPLE_MIN) * 7);
+  const tags = signals.slice(0, 2).map((x) => pickText(x.meaning, lang));
+  const clock = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   return (
     <div className="platform-page overview-page">
-      <header className="page-heading overview-heading">
-        <div className="page-heading-copy">
-          <p className="page-eyebrow">{today}</p>
-          <h1>{t('monOverview')}</h1>
-          <p className="overview-greeting">{t('ovCareFor', { greeting, name: profile?.nickname ?? '' })}</p>
-        </div>
+      <header className="ov-head">
+        <p className="page-eyebrow">{today}</p>
+        <h1>{t('monOverview')}</h1>
+        <p className="ov-privacy">
+          <ShieldCheck size={15} aria-hidden />
+          {t('ovPrivacy')}
+        </p>
       </header>
-      <section className="care-focus" aria-label={t('vdCareContext')}>
-        <div className="care-focus-person">
-          <Avatar name={profile?.nickname ?? ''} size="lg" />
-          <div className="min-w-0">
-            <h2 className="care-focus-name">{profile?.nickname}</h2>
-            <p className="identity-context">
-              {s?.care.environment.name ?? t('monNotConfigured')}
-              <span aria-hidden> · </span>
-              {t(s?.care.category === 'child' ? 'monChild' : s?.care.category === 'older-adult' ? 'monOlder' : 'monUnspecified')}
-            </p>
-            <StatusBadge tone="neutral" dot={false}>
-              <ShieldCheck size={14} aria-hidden />
-              {t('monLocalOnly')}
-            </StatusBadge>
-          </div>
-        </div>
-        <div className="care-focus-state">
-          <p className="focus-kicker">{t('ovMonitoringNow')}</p>
-          <p className="focus-value" data-testid="overview-monitoring-state">
-            <span className={`status-dot tone-${statusTone(monitorState)}`} aria-hidden />
-            {t(statusKeys[monitorState] ?? 'monStopped')}
-          </p>
-          <p className="focus-meta">
-            {t('ovSource')}: <strong>{sourceLabel}</strong>
-            {s?.health.camera.simulated && <span className="sim-tag">{t('tagSimulated')}</span>}
-          </p>
-          <div className="care-focus-actions">
-            <Link href="/monitoring" className="platform-primary">
-              {t('monOpenMonitoring')}
-              <ArrowUpRight size={17} aria-hidden />
-            </Link>
-            <Link href="/events" className={pending ? 'attention-link has-attention' : 'attention-link'}>
-              <Bell size={16} aria-hidden />
-              {pending ? t('ovAttention', { n: pending }) : t('ovAttentionNone')}
-            </Link>
-          </div>
-        </div>
-      </section>
       {m.error && <p role="alert">{t('storageError')}</p>}
-      <section className="ov-status" aria-label={t('vdSystemStatus')}>
-        {[
-          {
-            Icon: Camera,
-            label: 'monCamera' as const,
-            state: s?.health.camera.state ?? 'not-configured',
-            value: t(statusKeys[s?.health.camera.state ?? 'not-configured']),
-            caption: sourceLabel,
-          },
-          {
-            Icon: Cpu,
-            label: 'monLocalProcessing' as const,
-            state: s?.health.gateway.state ?? 'stopped',
-            value: t(statusKeys[s?.health.gateway.state ?? 'stopped']),
-            caption: t('monBrowserDemoGateway'),
-          },
-          {
-            Icon: Activity,
-            label: 'monBaseline' as const,
-            state: s?.baseline.state ?? 'not-configured',
-            value: t(baselineKeys[s?.baseline.state ?? 'not-configured']),
-            caption: t('monBaselineSamples', { n: s?.baseline.count ?? 0, seconds: Math.round((s?.baseline.coverageMs ?? 0) / 1000) }),
-          },
-          {
-            Icon: Bell,
-            label: 'monNeedsReview' as const,
-            state: pending ? 'requires-review' : 'good',
-            value: String(pending),
-            caption: t('monEvents'),
-          },
-        ].map(({ Icon, label, state, value, caption }) => (
-          <div key={label} className="ov-tile">
-            <p className="ov-tile-label">
-              <Icon size={16} aria-hidden />
-              {t(label)}
-            </p>
-            <p className="ov-tile-value">
-              <span className={`status-dot tone-${statusTone(state)}`} aria-hidden />
-              <span>{value}</span>
-            </p>
-            <p className="ov-tile-caption">{caption}</p>
-          </div>
-        ))}
-      </section>
 
-      <div className="ov-grid">
-        <section className="ov-panel ov-review" aria-labelledby="ov-review-h">
-          <header className="ov-panel-head">
-            <h2 id="ov-review-h">{t('monEventQueue')}</h2>
-            <Link href="/events" className="platform-link">
-              {t('homeSeeAll')}
+      <div className="ov-layout">
+        <section className="ov-card ov-hero" aria-labelledby="ov-hero-h" data-live={live || undefined}>
+          <div className="ov-hero-top">
+            <p className="ov-kicker" data-testid="overview-monitoring-state">
+              <span className={live ? 'ov-pulse is-live' : 'ov-pulse'} aria-hidden />
+              {t(live ? 'ovLive' : 'ovStandby')}
+            </p>
+            {(live || simulated) && <span className={live && !simulated ? 'ov-source is-live' : 'ov-source'}>{t(simulated ? 'tagSimulated' : 'ovLiveTag')}</span>}
+          </div>
+          <h2 id="ov-hero-h" className="ov-hero-title">
+            {live ? t('ovObserving', { name }) : t('ovReady')}
+          </h2>
+          <p className="ov-hero-body">{t(live ? 'ovLiveBody' : 'ovStandbyBody')}</p>
+          <div className="ov-hero-actions">
+            <Link href="/monitoring" className="ov-btn ov-btn-primary">
+              {t(live ? 'monOpenMonitoring' : 'ovStart')}
               <ArrowUpRight size={16} aria-hidden />
             </Link>
-          </header>
-          {recent.length ? (
-            <ul className="ov-events">
-              {recent.map((e) => (
-                <li key={e.id}>
-                  <span className={`event-marker tone-${e.priority === 'review' ? 'review' : 'neutral'}`} aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <Link href="/events" className="ov-event-title">
-                      {t(eventKeys[e.type])}
-                    </Link>
-                    <p className="ov-event-meta">
-                      {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')} · {new Date(e.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                  <ArrowUpRight aria-hidden size={16} className="shrink-0 text-ink-muted" />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="ov-empty">
-              <span className="ov-empty-icon" aria-hidden>
-                <Bell size={20} />
-              </span>
-              <p>{t('monNoEvents')}</p>
-              <Link href="/monitoring" className="platform-link">
-                {t('monOpenMonitoring')}
-                <ArrowUpRight size={16} aria-hidden />
-              </Link>
-            </div>
-          )}
-          <dl className="ov-panel-foot">
-            <dt>{t('monLatest')}</dt>
-            <dd>
-              <strong>{s?.health.lastSuccessfulObservation ? new Date(s.health.lastSuccessfulObservation).toLocaleTimeString() : t('monNoObservations')}</strong>
-              <span>{s?.health.camera.simulated ? t('monSimulatedClock') : t('monBrowserInput')}</span>
-            </dd>
-          </dl>
+            <Link href="/teach" className="ov-btn ov-btn-ghost">
+              <Plus size={16} aria-hidden />
+              {t('ovTeach')}
+            </Link>
+          </div>
+          <p className="ov-hero-foot">
+            <span>{t('monLatest')}</span>
+            <strong>{s?.health.lastSuccessfulObservation ? clock(s.health.lastSuccessfulObservation) : t('monNoObservations')}</strong>
+          </p>
         </section>
 
-        <div className="ov-side">
-          <section className="ov-panel ov-comm" aria-labelledby="ov-comm-h">
-            <header className="ov-panel-head">
-              <h2 id="ov-comm-h">{t('navCommunication')}</h2>
-              <span className="ov-panel-icon" aria-hidden>
-                <Hand size={18} />
+        <div className="ov-bento">
+          <Link href="/home" className="ov-card ov-tile-card">
+            <span className="ov-label">
+              <Hand size={14} aria-hidden />
+              {t('ovSignals')}
+            </span>
+            <span className="ov-metric">
+              <span className="ov-metric-num">{signals.length}</span>
+              <span className="ov-metric-unit">{t('ovTaught')}</span>
+            </span>
+            <span className="ov-tags">
+              {tags.length ? (
+                <>
+                  {tags.map((x, i) => (
+                    <span key={i} className="ov-tag">
+                      {x}
+                    </span>
+                  ))}
+                  {signals.length > 2 && <span className="ov-tag">+{signals.length - 2}</span>}
+                </>
+              ) : (
+                <span className="ov-tag">{t('ovFirstSignal')}</span>
+              )}
+            </span>
+            <span className="ov-tile-foot">
+              {t('ovLibrary')}
+              <ArrowRight size={14} aria-hidden />
+            </span>
+          </Link>
+          <Link href="/movement" className="ov-card ov-tile-card">
+            <span className="ov-label">
+              <Activity size={14} aria-hidden />
+              {t('monBaseline')}
+            </span>
+            <span className="ov-metric ov-metric-split">
+              <span className="ov-metric-word">{t(baselineShort[s?.baseline.state ?? 'not-configured'] ?? 'ovBlNone')}</span>
+              <span className="ov-bars" aria-hidden>
+                {[42, 58, 48, 64, 52, 60, 46].map((h, i) => (
+                  <span key={i} style={{ height: `${h}%` }} className={i < filled ? 'is-on' : undefined} />
+                ))}
               </span>
-            </header>
-            <p className="ov-panel-text">{t('monCommunicationBody')}</p>
-            <Link href="/home" className="platform-primary ov-comm-cta">
-              {t('monOpenCommunication')}
-              <ArrowUpRight size={17} aria-hidden />
-            </Link>
-          </section>
-          <section className="ov-panel" aria-labelledby="ov-cap-h">
-            <header className="ov-panel-head">
-              <h2 id="ov-cap-h">{t('vdEngines')}</h2>
-            </header>
-            <ul className="ov-capabilities" aria-label={t('monEngines')}>
-              {[
-                { name: 'monEnvironmentEngine', status: 'monBrowserAndDemo', Icon: Camera },
-                { name: 'monBehaviourEngine', status: 'monExperimental', Icon: Activity },
-                { name: 'monCommunicationEngine', status: 'monOperational', Icon: Hand },
-                { name: 'monAudioEngine', status: 'monAudioUnavailable', Icon: Lock },
-              ].map((item) => (
-                <li key={item.name}>
-                  <item.Icon aria-hidden size={16} />
-                  <span className="ov-cap-name">{t(item.name as MsgKey)}</span>
-                  <span className="ov-cap-status">{t(item.status as MsgKey)}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+            </span>
+            <span className="ov-tags">
+              <span className="ov-tag">{t('ovSamples', { n: samples, min: BASELINE_SAMPLE_MIN })}</span>
+            </span>
+            <span className="ov-tile-foot is-quiet">{t('ovNonDiagnostic')}</span>
+          </Link>
         </div>
+
+        <section className="ov-review-slot" aria-label={t('monEventQueue')}>
+          {moment ? (
+            <div className="ov-card ov-moment">
+              <p className="ov-kicker is-strong">
+                <span className="ov-pulse is-live" aria-hidden />
+                {t('ovNeedsConfirm', { time: clock(moment.at) })}
+              </p>
+              <p className="ov-moment-title">{t(eventKeys[moment.type])}</p>
+              <p className="ov-moment-meta">
+                {t(moment.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')} · {t(explanationKeys[moment.explanation])}
+              </p>
+              <div className="ov-moment-actions">
+                <button type="button" className="ov-btn ov-btn-primary" onClick={() => void m.review(moment.id, 'acknowledge', moment.note)}>
+                  <Check size={16} aria-hidden />
+                  {t('monAcknowledge')}
+                </button>
+                <button type="button" className="ov-btn ov-btn-ghost" onClick={() => void m.review(moment.id, 'dismiss', moment.note)}>
+                  <X size={16} aria-hidden />
+                  {t('monDismiss')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link href="/events" className="ov-card ov-clear">
+              <span className="ov-clear-main">
+                <CheckCircle2 size={17} aria-hidden />
+                {t('ovAttentionNone')}
+              </span>
+              <span className="ov-clear-side">
+                {t('ovHistory', { n: open.length })}
+                <ArrowRight size={14} aria-hidden />
+              </span>
+            </Link>
+          )}
+        </section>
       </div>
 
       <footer className="ov-footnote">
@@ -518,176 +485,193 @@ export function EventsPage() {
   const t = useT(),
     m = useMonitoringProfile(),
     profile = useData((s) => s.profile);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<'pending' | 'all' | 'history'>('all');
+  const [why, setWhy] = useState(false);
   const [editing, setEditing] = useState<string | null>(null),
     [note, setNote] = useState('');
-  const events = [...(m.snapshot?.events ?? [])]
-    .sort(
-      (a, b) =>
-        Number(b.status === 'new' && b.priority !== 'information') -
-          Number(a.status === 'new' && a.priority !== 'information') || Date.parse(b.at) - Date.parse(a.at),
-    )
-    .filter(
-      (e) =>
-        filter === 'all' ||
-        (filter === 'pending' ? e.status === 'new' && e.priority !== 'information' : e.status !== 'new'),
+  const all = [...(m.snapshot?.events ?? [])].sort(
+    (a, b) =>
+      Number(b.status === 'new' && b.priority !== 'information') -
+        Number(a.status === 'new' && a.priority !== 'information') || Date.parse(b.at) - Date.parse(a.at),
+  );
+  const isPending = (e: MonitoringEvent) => e.status === 'new' && e.priority !== 'information';
+  const pending = all.filter(isPending);
+  const reviewed = all.filter((e) => e.status !== 'new');
+  const events = filter === 'pending' ? pending : filter === 'history' ? reviewed : all;
+  const clock = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const contextButton = (e: MonitoringEvent) => (
+    <button
+      type="button"
+      className="ov-btn ea-quiet"
+      onClick={() => {
+        setEditing(e.id);
+        setNote(e.note);
+      }}
+    >
+      {t('monAddContext')}
+    </button>
+  );
+  const historyBlock = (e: MonitoringEvent) =>
+    e.history.length > 0 && (
+      <details className="ea-history">
+        <summary>
+          {t('monReviewHistory')} ({e.history.length})
+          <ChevronDown aria-hidden size={14} />
+        </summary>
+        <ul>
+          {e.history.map((h, i) => (
+            <li key={i}>
+              {new Date(h.at).toLocaleString()} ·{' '}
+              {t(h.action === 'acknowledge' ? 'monAcknowledged' : h.action === 'dismiss' ? 'monDismissed' : 'monContextAdded')}
+              {h.note && ` · ${h.note}`}
+            </li>
+          ))}
+        </ul>
+      </details>
     );
   return (
-    <div className="platform-page space-y-6">
-      <PageHeader
-        title={t('monEvents')}
-        description={t('vdReviewSubtitle')}
-        actions={
-          <span className="individual-context-chip">
-            <Avatar name={profile?.nickname ?? ''} />
-            {t('vdEventsFor', { name: profile?.nickname ?? '' })}
-          </span>
-        }
-      />
-      <details className="event-context">
-        <summary>
-          {t('vdAboutEvents')}
-          <ChevronDown aria-hidden size={15} />
-        </summary>
-        <p className="event-intro">{t('monEventIntro')}</p>
-      </details>
-      <div className="event-toolbar">
-        <label>
-          {t('monFilter')}
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="ml-3 min-h-11 rounded-xl bg-surface px-4"
-          >
-            <option value="all">{t('monAll')}</option>
-            <option value="pending">{t('monNeedsReview')}</option>
-            <option value="history">{t('monHistory')}</option>
-          </select>
-        </label>
-        <StatusBadge
-          tone={
-            m.snapshot?.events.some((e) => e.status === 'new' && e.priority !== 'information') ? 'review' : 'neutral'
-          }
-        >
-          {m.snapshot?.events.filter((e) => e.status === 'new' && e.priority !== 'information').length ?? 0} ·{' '}
-          {t('monNeedsReview')}
-        </StatusBadge>
+    <div className="platform-page ea-page">
+      <header className="ea-head">
+        <p className="page-eyebrow">{t('eaEyebrow')}</p>
+        <div className="ea-title-row">
+          <h1>{t('monEvents')}</h1>
+          <button type="button" className={why ? 'ea-why is-open' : 'ea-why'} aria-expanded={why} aria-controls="ea-principle" onClick={() => setWhy((v) => !v)}>
+            <Info size={14} aria-hidden />
+            {t('eaPhilosophy')}
+          </button>
+        </div>
+        {why && (
+          <div id="ea-principle" className="ea-principle">
+            <div className="ea-principle-top">
+              <span className="ov-label">{t('eaPrinciple')}</span>
+              <button type="button" className="ea-close" aria-label={t('eaClose')} onClick={() => setWhy(false)}>
+                <X size={16} aria-hidden />
+              </button>
+            </div>
+            <p>{t('monPhilosophy')}</p>
+            <p className="ea-principle-sub">{t('monEventIntro')}</p>
+          </div>
+        )}
+      </header>
+
+      <div className="ea-segments" role="group" aria-label={t('eaFilterLabel')}>
+        {(
+          [
+            ['pending', 'monNeedsReview', pending.length],
+            ['all', 'eaTabAll', all.length],
+            ['history', 'eaReviewed', reviewed.length],
+          ] as const
+        ).map(([id, label, n]) => (
+          <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(id)}>
+            <span>{t(label)}</span>
+            <span className="ea-count">({n})</span>
+          </button>
+        ))}
       </div>
       {m.error && <p role="alert">{t('monActionError')}</p>}
-      {!events.length && (
-        <Card className="intentional-empty">
-          <Bell aria-hidden size={28} />
-          <p>{t('monNoEvents')}</p>
-          <Link href="/monitoring" className="platform-link mt-3">
+
+      {!events.length ? (
+        <section className="ov-card ea-empty" aria-labelledby="ea-empty-h">
+          <span className="ea-rings" aria-hidden>
+            <span />
+            <span />
+            <Check size={16} strokeWidth={2.4} />
+          </span>
+          <h2 id="ea-empty-h">{all.length ? t('ovAttentionNone') : t('monNoEvents')}</h2>
+          <p>{t('eaAllClearBody', { name: profile?.nickname ?? '' })}</p>
+          <Link href="/monitoring" className="ov-btn ov-btn-primary">
             {t('monOpenMonitoring')}
+            <ArrowUpRight size={16} aria-hidden />
           </Link>
-        </Card>
-      )}
-      <ul className="event-timeline">
-        {events.map((e) => (
-          <Card
-            as="li"
-            key={e.id}
-            className="monitor-event"
-            data-testid="monitor-event"
-            data-priority={e.priority}
-            data-review-state={e.status}
-          >
-            <span className={`event-node node-${e.priority} state-${e.status}`} aria-hidden />
-            <div className="event-body">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className={`monitor-priority priority-${e.priority}`}>
-                <Bell aria-hidden size={15} />
-                {t(
-                  e.priority === 'information'
-                    ? 'monInformation'
-                    : e.priority === 'review'
-                      ? 'monReview'
-                      : 'monHighPriority',
-                )}
+        </section>
+      ) : (
+        <ul className="ea-list">
+          {events.map((e) => {
+            const state = (
+              <span className={`ea-state state-${e.status}`} role="status" data-testid="review-state">
+                {t(e.status === 'new' ? 'monNew' : e.status === 'acknowledged' ? 'monAcknowledged' : 'monDismissed')}
               </span>
-              <span className="text-sm text-ink-muted">
-                {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}
-              </span>
-            </div>
-            <h2 className="mt-3 text-xl">{t(eventKeys[e.type])}</h2>
-            <p className="event-explanation">{t(explanationKeys[e.explanation])}</p>
-            <dl className="monitor-event-meta">
-              <div>
-                <dt>{t('monEnvironment')}</dt>
-                <dd>
-                  {m.snapshot?.care.environment.name} · {e.roomId}
-                </dd>
-              </div>
-              <div>
-                <dt>{t('monCamera')}</dt>
-                <dd>{e.sourceId}</dd>
-              </div>
-              <div>
-                <dt>{t('monObservationQuality')}</dt>
-                <dd>{t(statusKeys[e.quality])}</dd>
-              </div>
-              <div>
-                <dt>{t('colTime')}</dt>
-                <dd>
-                  <time dateTime={e.at}>{new Date(e.at).toLocaleString()}</time>
-                </dd>
-              </div>
-            </dl>
-            <p className="event-review-state" role="status" data-testid="review-state">
-              {t(e.status === 'new' ? 'monNew' : e.status === 'acknowledged' ? 'monAcknowledged' : 'monDismissed')}
-            </p>
-            {e.note && <p className="caregiver-note">{e.note}</p>}
-            <div className="monitor-event-actions">
-              <Button
-                variant={e.priority !== 'information' && e.status === 'new' ? 'primary' : 'secondary'}
-                disabled={e.status === 'acknowledged'}
-                icon={<Check aria-hidden size={16} />}
-                onClick={() => void m.review(e.id, 'acknowledge', e.note)}
-              >
-                {t('monAcknowledge')}
-              </Button>
-              <Button
-                variant="secondary"
-                disabled={e.status === 'dismissed'}
-                onClick={() => void m.review(e.id, 'dismiss', e.note)}
-              >
-                {t('monDismiss')}
-              </Button>
-              <Button
-                variant="quiet"
-                onClick={() => {
-                  setEditing(e.id);
-                  setNote(e.note);
-                }}
-              >
-                {t('monAddContext')}
-              </Button>
-            </div>
-            <details className="event-history">
-              <summary className="min-h-11 cursor-pointer py-3 text-sm text-primary">
-                {t('monReviewHistory')} ({e.history.length})
-              </summary>
-              <ul className="space-y-2 text-sm">
-                {e.history.map((h, i) => (
-                  <li key={i}>
-                    {new Date(h.at).toLocaleString()} ·{' '}
-                    {t(
-                      h.action === 'acknowledge'
-                        ? 'monAcknowledged'
-                        : h.action === 'dismiss'
-                          ? 'monDismissed'
-                          : 'monContextAdded',
+            );
+            if (!isPending(e))
+              return (
+                <li key={e.id} className="ov-card ea-done" data-testid="monitor-event" data-priority={e.priority} data-review-state={e.status}>
+                  <div className="ea-done-row">
+                    {e.status === 'new' ? <Info size={17} aria-hidden className="ea-done-icon" /> : <CheckCircle2 size={17} aria-hidden className="ea-done-icon" />}
+                    <div className="min-w-0 flex-1">
+                      <p className="ea-done-time">
+                        <time dateTime={e.at}>{clock(e.at)}</time> · {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}
+                      </p>
+                      <h2 className="ea-done-title">{t(eventKeys[e.type])}</h2>
+                      {e.note && <p className="ea-note">{e.note}</p>}
+                    </div>
+                    {state}
+                  </div>
+                  <div className="ea-done-actions">
+                    {e.status === 'acknowledged' ? (
+                      <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'dismiss', e.note)}>
+                        <X size={15} aria-hidden />
+                        {t('monDismiss')}
+                      </button>
+                    ) : (
+                      <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
+                        <Check size={15} aria-hidden />
+                        {t('monAcknowledge')}
+                      </button>
                     )}
-                    {h.note && ` · ${h.note}`}
-                  </li>
-                ))}
-              </ul>
-            </details>
-            </div>
-          </Card>
-        ))}
-      </ul>
+                    {contextButton(e)}
+                  </div>
+                  {historyBlock(e)}
+                </li>
+              );
+            return (
+              <li key={e.id} className="ov-card ea-card" data-testid="monitor-event" data-priority={e.priority} data-review-state={e.status}>
+                <div className="ea-card-top">
+                  <p className="ov-kicker is-strong">
+                    <span className={`ea-dot node-${e.priority}`} aria-hidden />
+                    {t(e.priority === 'information' ? 'monInformation' : e.priority === 'review' ? 'monReview' : 'monHighPriority')}
+                    <span className="ea-time">
+                      · <time dateTime={e.at}>{clock(e.at)}</time>
+                    </span>
+                  </p>
+                  <span className={e.simulated ? 'ov-source' : 'ov-source is-live'}>{t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}</span>
+                </div>
+                <h2 className="ea-title">{t(eventKeys[e.type])}</h2>
+                <p className="ea-detail">{t(explanationKeys[e.explanation])}</p>
+                <dl className="ea-telemetry">
+                  <div>
+                    <dt>{t('eaQuality')}</dt>
+                    <dd>{t(statusKeys[e.quality])}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('monCamera')}</dt>
+                    <dd>{e.sourceId}</dd>
+                  </div>
+                  <div>
+                    <dt>{t('eaRoom')}</dt>
+                    <dd>{m.snapshot?.care.environment.name || e.roomId}</dd>
+                  </div>
+                </dl>
+                {e.note && <p className="ea-note">{e.note}</p>}
+                <div className="ea-actions">
+                  <button type="button" className="ov-btn ov-btn-primary" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
+                    <Check size={16} aria-hidden />
+                    {t('monAcknowledge')}
+                  </button>
+                  <button type="button" className="ov-btn ov-btn-ghost" onClick={() => void m.review(e.id, 'dismiss', e.note)}>
+                    <X size={16} aria-hidden />
+                    {t('monDismiss')}
+                  </button>
+                </div>
+                <div className="ea-foot">
+                  {state}
+                  {contextButton(e)}
+                </div>
+                {historyBlock(e)}
+              </li>
+            );
+          })}
+        </ul>
+      )}
       <Dialog
         open={!!editing}
         onOpenChange={(open) => {

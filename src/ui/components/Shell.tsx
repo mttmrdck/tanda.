@@ -20,6 +20,7 @@ import {
   Settings,
   Users,
   type LucideIcon,
+  ChevronDown,
 } from 'lucide-react';
 import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
@@ -111,14 +112,14 @@ function Logo() {
 }
 
 /** Neutral avatar: the individual's initial — never a photo or a face. */
-export function Avatar({ name, size = 'md' }: { name: string; size?: 'md' | 'lg' }) {
+export function Avatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
   const initial = (name.trim()[0] ?? '?').toUpperCase();
   return (
     <span
       aria-hidden
       className={clsx(
         'individual-avatar grid shrink-0 place-items-center rounded-full bg-primary-soft text-primary font-semibold',
-        size === 'lg' ? 'size-14 text-2xl' : 'size-11 text-lg',
+        size === 'lg' ? 'size-14 text-2xl' : size === 'sm' ? 'size-8 text-sm' : 'size-11 text-lg',
       )}
     >
       {initial}
@@ -174,13 +175,14 @@ function ProfileButton() {
   return (
     <Link
       href="/individuals"
-      className="press flex min-h-12 items-center gap-2 rounded-full pl-1 pr-1 sm:pl-3"
+      className="profile-pill press"
       data-testid="current-individual"
     >
+      <Avatar name={profile.nickname} size="sm" />
       {/* the accessible name contains the visible name: "Individual: Adam" */}
       <span className="sr-only">{t('profileLabel')}: </span>
-      <span className="max-w-[12rem] truncate text-sm font-semibold max-sm:sr-only">{profile.nickname}</span>
-      <Avatar name={profile.nickname} />
+      <span className="profile-pill-name">{profile.nickname}</span>
+      <ChevronDown size={15} aria-hidden className="profile-pill-chevron" />
     </Link>
   );
 }
