@@ -25,8 +25,9 @@ export function Switch({ label, hint, checked, onChange, id }: { label: string; 
         checked={checked}
         onCheckedChange={onChange}
         aria-describedby={hint ? `${sid}-hint` : undefined}
-        className="relative h-8 w-14 shrink-0 rounded-full border border-border bg-surface-2 transition-colors duration-[200ms] data-[state=checked]:border-primary-fill data-[state=checked]:bg-primary-fill"
+        className="switch-control relative h-8 w-14 shrink-0 rounded-full border border-border bg-surface-2 transition-colors duration-[200ms] data-[state=checked]:border-primary-fill data-[state=checked]:bg-primary-fill"
       >
+        <span aria-hidden className="switch-state-mark"><Check className="size-3" /></span>
         <RSwitch.Thumb className="block size-6 translate-x-0.5 rounded-full bg-ink-muted shadow transition-transform duration-[200ms] ease-[var(--ease-out)] data-[state=checked]:translate-x-[26px] data-[state=checked]:bg-on-primary" />
       </RSwitch.Root>
     </div>
@@ -76,7 +77,7 @@ export function Slider({
         aria-labelledby={id}
       >
         <RSlider.Track className="relative h-2 grow rounded-full bg-surface-2 ring-1 ring-border">
-          <RSlider.Range className="absolute h-full rounded-full bg-[linear-gradient(90deg,var(--primary-fill),var(--green))]" />
+          <RSlider.Range className="absolute h-full rounded-full bg-primary-fill" />
         </RSlider.Track>
         <RSlider.Thumb aria-labelledby={id} aria-valuetext={valueText} className="block size-7 rounded-full border-2 border-primary-fill bg-white shadow-soft" />
       </RSlider.Root>
@@ -166,7 +167,7 @@ export function SegmentedControl<T extends string>({
   return (
     <fieldset>
       <legend className={clsx('font-bold', hideLabel && 'sr-only')}>{label}</legend>
-      <div className={clsx('inline-flex flex-wrap gap-1 rounded-[24px] bg-surface-2 p-1 shadow-[var(--hairline),inset_0_0_0_1px_var(--border-soft)]', !hideLabel && 'mt-2')}>
+      <div className={clsx('segmented-control inline-flex flex-wrap gap-1 rounded-[24px] bg-surface-2 p-1 shadow-[var(--hairline),inset_0_0_0_1px_var(--border-soft)]', !hideLabel && 'mt-2')}>
         {options.map((o) => (
           <label
             key={o.value}

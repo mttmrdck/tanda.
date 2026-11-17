@@ -24,8 +24,8 @@ for (const lang of ['en', 'ms'] as const) {
         await expectAccessible(page, `${r} ${lang} ${theme}`);
       }
       // dialogs and the More sheet
-      await page.goto('/#/');
-      await page.locator('header button').filter({ hasText: lang === 'en' ? 'On this device only' : 'Pada peranti ini sahaja' }).first().click();
+      await page.goto('/#/settings');
+      await page.getByRole('button', { name: lang === 'en' ? 'On this device only' : 'Pada peranti ini sahaja', exact:true }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
       await page.getByRole('dialog').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
       await expectAccessible(page, `privacy dialog ${lang} ${theme}`);
@@ -56,8 +56,9 @@ test('full click-through: live recognition, teach, every page — no external re
     await page.goto(`/#${r}`);
     await expect(page.locator('main h1').first()).toBeVisible();
   }
-  await page.getByRole('button', { name: /Theme:/ }).click();
-  await page.getByRole('button', { name: /Switch language/ }).click();
+  await page.goto('/#/settings');
+  await page.getByRole('radio', { name:'Light', exact:true }).check();
+  await page.getByRole('radio', { name:'Bahasa Malaysia', exact:true }).press('Space');
   for (const r of ROUTES) {
     await page.goto(`/#${r}`);
     await expect(page.locator('main h1').first()).toBeVisible();

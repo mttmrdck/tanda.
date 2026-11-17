@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
-import { Toaster } from 'sonner';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { FeedbackToasts } from './ui/components/FeedbackToasts';
 import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
 import { useT } from './i18n';
 import { useSettings } from './store/useApp';
@@ -12,6 +12,9 @@ import { SessionSync } from './ui/SessionSync';
 import { useTransitionHashLocation } from './ui/navigation';
 import Live from './ui/pages/Live';
 
+const Splash = lazy(() => import('./ui/pages/Splash'));
+const Home = lazy(() => import('./ui/pages/Home'));
+const Styleguide = lazy(() => import('./ui/pages/Styleguide'));
 const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
 const About = lazy(() => import('./ui/pages/About'));
 const Teach = lazy(() => import('./ui/pages/Teach'));
@@ -23,12 +26,16 @@ const ImportPage = lazy(() => import('./ui/pages/ImportPage'));
 const DebugPage = import.meta.env.DEV || import.meta.env.MODE === 'e2e' ? lazy(() => import('./ui/pages/DebugPage')) : null;
 
 function PageSkeleton() {
+  const t = useT();
   return (
-    <div aria-hidden className="space-y-6">
-      <div className="h-10 w-48 rounded-[12px] bg-surface-2" />
-      <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-        <div className="aspect-[4/3] rounded-[20px] bg-surface-2" />
-        <div className="h-64 rounded-[20px] bg-surface-2" />
+    <div className="page-skeleton" role="status" aria-label={t('homeLoading')}>
+      <span className="sr-only">{t('homeLoading')}</span>
+      <div aria-hidden className="skeleton-title ld-shimmer"><i /><i /><i /></div>
+      <div aria-hidden className="skeleton-layout">
+        <div className="skeleton-surface skeleton-hero"><div className="ld-shimmer"><i /><i /><i /></div></div>
+        <div className="skeleton-detail">
+          {[0, 1, 2].map(n => <div key={n} className="skeleton-surface"><div className="ld-shimmer"><i /><i /><i /></div></div>)}
+        </div>
       </div>
     </div>
   );
@@ -60,9 +67,22 @@ function RouteFocus() {
 }
 
 function Page({ children }: { children: ReactNode }) {
+  const [loc] = useLocation();
+  const [settled, setSettled] = useState(loc);
+  const transitioning = loc !== settled;
+  useEffect(() => {
+    if (!transitioning) return;
+    const timer = window.setTimeout(() => setSettled(loc), 260);
+    return () => window.clearTimeout(timer);
+  }, [loc, transitioning]);
   return (
     <ErrorBoundary>
-      <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+      <div className="route-shell" aria-busy={transitioning}>
+        {transitioning && <div className="route-skeleton-cover"><PageSkeleton /></div>}
+        <div style={{ visibility: transitioning ? 'hidden' : 'visible' }}>
+          <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+        </div>
+      </div>
     </ErrorBoundary>
   );
 }
@@ -73,6 +93,8 @@ function Routes() {
   const profiles = useData((s) => s.profiles);
   const consented = useSettings((s) => s.consented);
   const [loc] = useLocation();
+
+  if (loc === '/splash') return <Suspense fallback={<div className="splash-loading" />}><Splash /></Suspense>;
 
   if (status === 'loading') {
     return (
@@ -94,6 +116,8 @@ function Routes() {
       </BareShell>
     );
   }
+
+  if (loc === '/styleguide') return <BareShell><Page><Styleguide /></Page></BareShell>;
 
   const onboarded = consented && profiles.length > 0;
   if (loc.startsWith('/onboarding')) {
@@ -139,6 +163,7 @@ function Routes() {
       <Page>
         <Switch>
           <Route path="/" component={Live} />
+          <Route path="/home" component={Home} />
           <Route path="/teach" component={Teach} />
           <Route path="/teach/:signalId/add" component={Teach} />
           <Route path="/signals" component={Signals} />
@@ -168,25 +193,7 @@ export function App() {
       <SessionSync />
       <Announcer />
       <Routes />
-      <Toaster
-        position="top-center"
-        theme={toastTheme}
-        closeButton
-        offset={{ top: 'calc(env(safe-area-inset-top) + 12px)' }}
-        toastOptions={{
-          style: {
-            background: 'var(--glass-tint)',
-            backdropFilter: 'blur(24px) saturate(140%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-            border: '1px solid var(--glass-border)',
-            boxShadow: 'var(--shadow)',
-            color: 'var(--ink)',
-            fontSize: '1rem',
-            borderRadius: '24px',
-            fontFamily: 'var(--font-sans)',
-          },
-        }}
-      />
+      <FeedbackToasts theme={toastTheme} />
     </Router>
   );
 }

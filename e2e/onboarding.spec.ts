@@ -38,27 +38,29 @@ test('onboarding: consent gate, profile, demo start — no camera before a butto
   await expect(page.getByRole('heading', { level: 1, name: 'Live' })).toBeVisible();
 });
 
-test('language switch changes copy and <html lang>, and persists', async ({ page, guard }) => {
+test('language preference lives in Settings and persists', async ({ page, guard }) => {
   void guard;
-  await page.goto('/');
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await page.getByRole('button', { name: 'Switch language to Bahasa Malaysia' }).click();
-  await expect(page.locator('html')).toHaveAttribute('lang', 'ms');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mari belajar isyarat yang sudah digunakan anak anda.');
+  await onboard(page);
+  await page.getByRole('button', { name:'Use camera' }).click();
+  await page.goto('/#/settings');
+  await page.getByRole('radio', { name:'Bahasa Malaysia', exact:true }).press('Space');
+  await expect(page.locator('html')).toHaveAttribute('lang','ms');
   await page.reload();
-  await expect(page.locator('html')).toHaveAttribute('lang', 'ms');
-  await expect(page.getByRole('button', { name: 'Mula' })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang','ms');
+  await expect(page.getByRole('radio', { name:'Bahasa Malaysia', exact:true })).toBeChecked();
 });
 
-test('theme is dark by default, and a switch persists', async ({ page, guard }) => {
+test('theme preference lives in Settings and persists', async ({ page, guard }) => {
   void guard;
-  await page.emulateMedia({ colorScheme: 'light' });
-  await page.goto('/');
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dim');
-  await page.getByRole('button', { name: 'Theme: Dark' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.emulateMedia({ colorScheme:'light' });
+  await onboard(page);
+  await page.getByRole('button', { name:'Use camera' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme','dim');
+  await page.goto('/#/settings');
+  await page.getByRole('radio', { name:'Light', exact:true }).check();
+  await expect(page.locator('html')).toHaveAttribute('data-theme','light');
   await page.reload();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-theme','light');
 });
 
 for (const lang of ['en', 'ms'] as const) {

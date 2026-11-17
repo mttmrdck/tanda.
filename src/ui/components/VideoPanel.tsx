@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, PersonStanding } from 'lucide-react';
+import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, ScanLine } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useT, type MsgKey } from '../../i18n';
 import type { GestureName } from '../../engine/simulator';
@@ -72,10 +72,10 @@ export function VideoPanel({
             : { Icon: LoaderCircle, text: t('statusWaiting'), tone: 'text-ink-muted' };
 
   return (
-    <div className="space-y-3">
+    <div className="video-panel space-y-3">
       <CameraStage skeleton={skeleton} label={label}>
         {(s.phase === 'idle' || s.phase === 'error') && (
-          <div className="absolute inset-0 grid place-items-center p-4 sm:p-6">
+          <div className="stage-idle absolute inset-0 grid place-items-center p-4 sm:p-6">
             <div className="max-w-sm text-center">
               {s.phase === 'error' && s.error ? (
                 <p role="alert" className="flex items-start gap-2 rounded-[16px] bg-high-bg p-3 text-left font-bold text-high-fg">
@@ -84,7 +84,7 @@ export function VideoPanel({
                 </p>
               ) : (
                 <>
-                  <PersonStanding aria-hidden className="mx-auto size-10 text-ink-muted" />
+                  <ScanLine aria-hidden className="mx-auto size-12 text-ink-muted" />
                   <p className="mt-2 font-display text-lg font-semibold">{t('stageOffTitle')}</p>
                   <p className="mt-1 hidden text-ink-muted sm:block">{t('stageOffBody')}</p>
                 </>

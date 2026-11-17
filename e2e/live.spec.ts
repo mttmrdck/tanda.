@@ -58,6 +58,10 @@ test('rocking performer → Calm Watch reaches Rising within 20 s with a transla
   await expect(page.getByTestId('recent-events').getByText(/Calm Watch: (Rising|High)/).first()).toBeVisible();
   await expect(page.getByText('Movement pattern only — not a diagnosis.')).toBeVisible();
   // BM translation of the reason
-  await page.getByRole('button', { name: /Switch language to Bahasa Malaysia/ }).click();
-  await expect(page.getByTestId('calm-reasons')).toContainText('Irama berulang');
+  await page.goto('/#/settings');
+  await page.getByRole('radio', { name:'Bahasa Malaysia', exact:true }).press('Space');
+  await page.goto('/#/');
+  await page.getByRole('button', { name:'Pelakon demo', exact:true }).click();
+  await page.getByRole('button', { name:'Bergoyang', exact:true }).click();
+  await expect(page.getByTestId('calm-reasons')).toContainText('Irama berulang', {timeout:20_000});
 });

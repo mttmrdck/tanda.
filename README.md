@@ -1,12 +1,12 @@
-# Isyarat
+# Tanda
 
 **Teach the camera what your child already says.**
 
-Isyarat (Malay: "signal") is a communication aid for caregivers, special-education teachers (PPKI) and therapists of children who are non-verbal or minimally verbal. A caregiver shows the camera a gesture the child already uses ("tapping the table twice means *I want water*"), a few times, and writes what it means. From then on Isyarat watches for that signal and shows the caregiver the meaning, with **Yes / Not quite / New meaning** buttons so the caregiver always has the final say.
+Tanda (Malay: "signal") is a communication aid for caregivers, special-education teachers (PPKI) and therapists of children who are non-verbal or minimally verbal. A caregiver shows the camera a gesture the child already uses ("tapping the table twice means *I want water*"), a few times, and writes what it means. From then on Tanda watches for that signal and shows the caregiver the meaning, with **Yes / Not quite / New meaning** buttons so the caregiver always has the final say.
 
 It also offers **Calm Watch**, a movement-pattern indicator (energy, rhythm, suddenness) with the caregiver's own comfort steps, and **Handover**, an encrypted file that passes a child's whole signal vocabulary to a new teacher or relief carer.
 
-> Isyarat is a communication aid. It does not diagnose, treat, screen for any condition, or replace therapists, doctors or caregivers. It does not read minds or detect emotions, and it only works for the child it was taught. **We deliberately do not read faces.**
+> Tanda is a communication aid. It does not diagnose, treat, screen for any condition, or replace therapists, doctors or caregivers. It does not read minds or detect emotions, and it only works for the child it was taught. **We deliberately do not read faces.**
 
 ## Privacy, in one paragraph
 
@@ -105,7 +105,7 @@ Full detail with equations and constants: [docs/ARCHITECTURE.md](docs/ARCHITECTU
 | "On-device recognition could not run" | Use Chrome/Edge; check `public/models/*.task` exist; try Demo mode. |
 | "Running in low-power mode" | The device is slow; frames per second drop automatically. Turn on Battery saver or close other tabs. |
 | No speech | Only on-device voices are used. Install a Malay or English voice in the OS; the meaning is always shown on screen. |
-| Console shows `W… gl_context.cc` / "GL Driver Message" warnings on the camera path | Emitted by MediaPipe's WASM graph / the GPU driver, not by Isyarat. Harmless. |
+| Console shows `W… gl_context.cc` / "GL Driver Message" warnings on the camera path | Emitted by MediaPipe's WASM graph / the GPU driver, not by Tanda. Harmless. |
 | e2e: port 4319 in use | Stop the other process; the e2e preview never reuses a foreign server. |
 
 ## Limitations
@@ -118,7 +118,16 @@ Full detail with equations and constants: [docs/ARCHITECTURE.md](docs/ARCHITECTU
 ## Licences of third-party assets
 
 - MediaPipe Tasks Vision (`@mediapipe/tasks-vision`) and the Pose Landmarker (lite) and Hand Landmarker models — Google, Apache License 2.0.
-- Atkinson Hyperlegible and Fraunces fonts — SIL Open Font License 1.1.
+- Inter font — SIL Open Font License 1.1.
 - Lucide icons — ISC. React, Vite, Tailwind CSS, Radix UI, Motion, Sonner, Recharts, Zustand, wouter, idb, zod — MIT.
 
-Isyarat source: MIT.
+EasyUI component adaptations — MIT; upstream notice is retained in `src/ui/vendor/LICENSE.easyui`. Colorion libraries informed the custom CSS interactions.
+
+Tanda source: MIT.
+
+
+## UI review
+
+Run `npm run dev` and open the printed local URL. The app includes Home, Teach, Live, and Insights, with a floating glass tab bar on phones. Language and appearance controls are in Settings. Insights has Day/7-day/31-day gesture views; its date-aligned Export control opens CSV, JSON, and Print actions. Daily history and exports retain their selected-day scope.
+
+The unlisted `/#/styleguide` route previews the shared components. See [DESIGN.md](DESIGN.md), the [makeover report](docs/UI-MAKEOVER-REPORT.md), [audit](docs/UI-AUDIT.md), and [screenshot comparison gallery](docs/screenshots/README.md). Source adaptations from EasyUI live in `src/ui/vendor` behind product wrappers.

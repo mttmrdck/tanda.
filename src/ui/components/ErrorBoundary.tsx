@@ -17,7 +17,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Isyarat UI error', error, info.componentStack);
+    console.error('Tanda UI error', error, info.componentStack);
   }
 
   render() {

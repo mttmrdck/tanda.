@@ -95,13 +95,13 @@ export function OverlayCanvas({ figure, skeleton }: { figure: boolean; skeleton:
       const oy = (H - h) / 2;
       const P = (p: Pt) => [ox + p.x * w, oy + p.y * h] as const;
       const vis = (p: Pt | undefined): p is Pt => !!p && (p.v ?? 1) >= 0.3;
-      const unit = Math.max(2, w / 160);
+      const unit = Math.max(1.5, w / 260);
 
       const pose = cur.f.pose;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.strokeStyle = figure ? ink : primary;
-      ctx.lineWidth = figure ? unit * 2.2 : unit * 1.2;
+      ctx.lineWidth = figure ? unit * 1.2 : unit * 0.8;
       for (const [a, b] of BONES) {
         const pa = pose[a];
         const pb = pose[b];

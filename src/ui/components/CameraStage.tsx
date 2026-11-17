@@ -23,7 +23,7 @@ export function CameraStage({ skeleton, label, children }: { skeleton: boolean; 
   }, [kind, phase]);
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden card-2">
+    <div data-phase={phase} className="camera-stage relative aspect-[4/3] w-full overflow-hidden card-2">
       <div role="img" aria-label={label} className="absolute inset-0 -scale-x-100" data-testid="stage-mirror">
         <div ref={holder} className="absolute inset-0" />
         {kind && <OverlayCanvas figure={kind === 'demo'} skeleton={skeleton} />}

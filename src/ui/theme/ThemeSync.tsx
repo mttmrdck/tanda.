@@ -15,7 +15,7 @@ export function ThemeSync() {
     const apply = () => {
       const resolved = theme === 'system' ? (mq.matches ? 'dim' : 'light') : theme;
       document.documentElement.dataset.theme = resolved;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolved === 'dim' ? '#0B0B0D' : '#EEF0F4');
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolved === 'dim' ? '#000000' : '#F2F2F7');
     };
     apply();
     mq.addEventListener('change', apply);

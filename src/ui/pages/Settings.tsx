@@ -1,7 +1,7 @@
 import { Share2, Trash } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import type { AgeBand, ComfortSteps } from '../../engine/types';
 import { useT, type MsgKey } from '../../i18n';
 import { deleteAllData, deleteProfile, updateProfile } from '../../store/repo';
@@ -10,6 +10,8 @@ import { useData } from '../../store/useData';
 import { session } from '../../store/useSession';
 import { listCameras } from '../../vision/camera';
 import { disposeLandmarkers } from '../../vision/loader';
+import { AppearanceControl } from '../components/AppearanceControl';
+import { PrivacyChip } from '../components/Shell';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { SegmentedControl, Select, Slider, Switch, TextField } from '../components/Controls';
@@ -17,11 +19,11 @@ import { ConfirmDelete } from '../components/Dialog';
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <Card aria-labelledby={id} className="space-y-5">
+    <Card aria-labelledby={id} className="settings-group">
       <h2 id={id} className="text-xl">
         {title}
       </h2>
-      {children}
+      <div className="settings-content">{children}</div>
     </Card>
   );
 }
@@ -70,10 +72,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="profile-page space-y-5">
       <h1 className="text-2xl sm:text-3xl">{t('settingsTitle')}</h1>
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="settings-layout">
         <Section id="s-general" title={t('secGeneral')}>
+          <PrivacyChip />
           <SegmentedControl
             label={t('language')}
             value={s.lang}
@@ -83,21 +86,12 @@ export default function Settings() {
               { value: 'ms', label: 'Bahasa Malaysia' },
             ]}
           />
-          <SegmentedControl
-            label={t('themeLabel')}
-            value={s.theme}
-            onChange={(theme) => s.set({ theme })}
-            options={[
-              { value: 'light', label: t('themeLight') },
-              { value: 'dim', label: t('themeDim') },
-              { value: 'system', label: t('themeSystem') },
-            ]}
-          />
+          <AppearanceControl value={s.theme} onChange={theme => s.set({ theme })} />
         </Section>
 
         <Section id="s-profile" title={t('secProfile')}>
           <form
-            className="space-y-5"
+            className="settings-form"
             onSubmit={(e) => {
               e.preventDefault();
               if (!nick.trim()) return;
@@ -167,7 +161,7 @@ export default function Settings() {
         <Section id="s-comfort" title={t('secComfort')}>
           <p className="text-ink-muted">{t('comfortHint')}</p>
           <form
-            className="space-y-4"
+            className="settings-form"
             onSubmit={(e) => {
               e.preventDefault();
               void saveProfile({ comfortSteps: { calm: comfort.calm.trim(), rising: comfort.rising.trim(), high: comfort.high.trim() } });
@@ -181,13 +175,12 @@ export default function Settings() {
         </Section>
 
         <Section id="s-data" title={t('secData')}>
-          <Link href="/handover" className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 font-bold text-primary hover:bg-primary-soft">
-            <Share2 aria-hidden className="size-5" />
+          <Button variant="secondary" className="handover-button w-full" icon={<Share2 aria-hidden className="size-5 shrink-0" />} onClick={() => navigate('/handover')}>
             {t('handoverLink')}
-          </Link>
-          <div className="rounded-[16px] border border-high-fg/40 bg-high-bg p-4">
+          </Button>
+          <div className="settings-danger rounded-[12px] bg-surface-2 p-4">
             <p className="font-bold text-high-fg">{t('deleteAll')}</p>
-            <p className="mt-1 text-high-fg">{t('deleteAllBody')}</p>
+            <p className="mt-1 text-sm text-ink-muted">{t('deleteAllBody')}</p>
             <Button variant="destructive" className="mt-3" icon={<Trash aria-hidden className="size-5" />} onClick={() => setDelAll(true)}>
               {t('deleteAll')}
             </Button>

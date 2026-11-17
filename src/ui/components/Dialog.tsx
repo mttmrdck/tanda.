@@ -1,6 +1,8 @@
 import * as RD from '@radix-ui/react-dialog';
 import { clsx } from 'clsx';
 import { X } from 'lucide-react';
+import { SheetSurface } from '../vendor/sheet';
+import { useDragControls } from 'motion/react';
 import { useState, type ReactNode } from 'react';
 import { useT } from '../../i18n';
 import { Button, IconButton } from './Button';
@@ -19,19 +21,23 @@ interface DialogProps {
 /** Accessible modal dialog (Radix): focus is moved in, trapped, and returned on close; Escape closes. */
 export function Dialog({ open, onOpenChange, title, description, children, footer, sheet = false }: DialogProps) {
   const t = useT();
+  const drag = useDragControls();
+  const [expanded, setExpanded] = useState(false);
   return (
     <RD.Root open={open} onOpenChange={onOpenChange}>
       <RD.Portal>
         <RD.Overlay className="dialog-overlay fixed inset-0 z-40 bg-scrim" />
-        <RD.Content
+        <RD.Content asChild
           className={clsx(
-            'dialog-content glass fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden text-ink',
+            'glass fixed z-50 flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden text-ink',
             sheet
               ? 'inset-x-0 bottom-0 rounded-t-[32px] pb-[env(safe-area-inset-bottom)] sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(560px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px]'
               : 'left-1/2 top-1/2 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[32px]',
           )}
           {...(description ? {} : { 'aria-describedby': undefined })}
         >
+          <SheetSurface sheet={sheet} expanded={expanded} controls={drag} onDismiss={() => onOpenChange(false)}>
+          {sheet && <button type="button" className="sheet-grabber min-h-11 shrink-0" aria-label={t(expanded ? 'collapseSheet' : 'expandSheet')} aria-expanded={expanded} onClick={() => setExpanded(v => !v)} onPointerDown={e => drag.start(e)} />}
           <div className="flex items-start justify-between gap-4 px-6 pt-6">
             <RD.Title className="pt-2 text-xl">{title}</RD.Title>
             <RD.Close asChild>
@@ -45,6 +51,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
             {children}
           </div>
           {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-[var(--glass-border)] px-6 py-4">{footer}</div>}
+          </SheetSurface>
         </RD.Content>
       </RD.Portal>
     </RD.Root>

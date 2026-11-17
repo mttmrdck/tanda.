@@ -11,9 +11,10 @@ test('export → delete all → wrong passphrase error → import → signals re
 
   // CSV export from Timeline
   await page.goto('/#/timeline');
-  await expect(page.getByRole('heading', { level: 1, name: 'Timeline' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Insights' })).toBeVisible();
   await expect(page.getByTestId('events-table')).toBeVisible();
   await expectAccessible(page, 'timeline');
+  await page.getByRole('checkbox', { name: 'Export options' }).press('Space');
   const [csvDl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
   expect(csvDl.suggestedFilename()).toMatch(/^adam-timeline-\d{8}\.csv$/);
   const csv = readFileSync((await csvDl.path())!, 'utf8');
@@ -85,10 +86,10 @@ test('a non-isyarat file and a corrupted file give specific errors', async ({ pa
   await page.locator('#import-file').setInputFiles({ name: 'notes.isyarat', mimeType: 'application/json', buffer: Buffer.from('{"hello":1}') });
   await page.getByLabel('Passphrase', { exact: true }).fill('anything123');
   await page.getByRole('button', { name: 'Unlock' }).click();
-  await expect(page.getByTestId('import-error')).toHaveText('This is not an Isyarat file.');
+  await expect(page.getByTestId('import-error')).toHaveText('This is not a Tanda file.');
   const v2 = JSON.stringify({ format: 'isyarat-profile', v: 2 });
   await page.locator('#import-file').setInputFiles({ name: 'new.isyarat', mimeType: 'application/json', buffer: Buffer.from(v2) });
   await page.getByLabel('Passphrase', { exact: true }).fill('anything123');
   await page.getByRole('button', { name: 'Unlock' }).click();
-  await expect(page.getByTestId('import-error')).toHaveText('This file was made by a newer version of Isyarat. Update the app and try again.');
+  await expect(page.getByTestId('import-error')).toHaveText('This file was made by a newer version of Tanda. Update the app and try again.');
 });

@@ -1,107 +1,62 @@
----
-version: alpha
-name: Isyarat
-description: Calm clinic-meets-craft. A quiet, warm, spacious interface for stressed caregivers.
-colors:
-  bg: "#FAF7F2"
-  surface: "#FFFFFF"
-  surface-2: "#F3EEE6"
-  border: "#8C8172"
-  border-soft: "#E3DCCF"
-  ink: "#1B2430"
-  ink-muted: "#4A5565"
-  primary: "#0B6E6E"
-  primary-hover: "#095858"
-  on-primary: "#FFFFFF"
-  primary-soft: "#E1F0EF"
-  calm-fg: "#1E6B4A"
-  calm-bg: "#E7F4EC"
-  rising-fg: "#8A5A00"
-  rising-bg: "#FFF4DB"
-  high-fg: "#A4261A"
-  high-bg: "#FDECEA"
-  focus: "#0B6E6E"
-  dim-bg: "#14181D"
-  dim-surface: "#1C2229"
-  dim-surface-2: "#242C35"
-  dim-border: "#6B7A89"
-  dim-border-soft: "#34404C"
-  dim-ink: "#EEF2F6"
-  dim-ink-muted: "#B6C0CC"
-  dim-primary: "#4DB6B0"
-  dim-primary-hover: "#6CCBC5"
-  dim-on-primary: "#0B1114"
-  dim-primary-soft: "#1D3534"
-  dim-calm-fg: "#8FD9B0"
-  dim-calm-bg: "#16302A"
-  dim-rising-fg: "#F2C46B"
-  dim-rising-bg: "#33280F"
-  dim-high-fg: "#F6A59B"
-  dim-high-bg: "#3A1D1A"
-typography:
-  display:
-    fontFamily: Fraunces Variable
-    fontWeight: 600
-    lineHeight: 1.2
-  body:
-    fontFamily: Atkinson Hyperlegible
-    fontSize: 18px
-    fontWeight: 400
-    lineHeight: 1.6
-  scale: [14px, 16px, 18px, 22px, 28px, 36px, 48px]
-rounded:
-  control: 12px
-  card: 20px
-  sheet: 28px
-spacing:
-  base: 4px
-  touch-target: 48px
-  min-gap: 8px
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.control}"
-    height: 48px
-  card:
-    backgroundColor: "{colors.surface}"
-    rounded: "{rounded.card}"
-  privacy-chip:
-    backgroundColor: "{colors.calm-bg}"
-    textColor: "{colors.calm-fg}"
----
+# Tanda interface system
 
-# Isyarat design system
-
-## Overview
-"Calm clinic-meets-craft." The people using Isyarat are stressed caregivers, often with a child who is already overwhelmed. The interface is quiet, warm and spacious: paper-tone background, one confident teal accent, large type, large targets, no debug-looking panels. Nothing flashes. Nothing makes a sound unless the caregiver turns speech on.
-
-## Colors
-Tokens above (light) with `dim-*` for the Dim theme; the runtime source of truth is `src/index.css` and `src/ui/theme/tokens.json`. `npm run contrast` fails the check if any text pairing is below 4.5:1 or any UI boundary below 3:1. Body text is ≥ 13:1.
-- `border` (≥ 3:1) outlines controls; `border-soft` is for decorative dividers only.
-- Status (Calm / Rising / High, urgency, coach advice) always uses **icon + word + colour**, never colour alone.
+Updated 17 November 2026. This is a local, on-device communication aid for caregivers. The interface should feel familiar, calm, and direct. The pose view and the caregiver’s interpretation take priority over metrics.
 
 ## Typography
-Fraunces (600) for headings; Atkinson Hyperlegible for everything else, chosen for legibility. Base 18 px / 1.6. Scale 14 · 16 · 18 · 22 · 28 · 36 · 48. Nothing below 14 px. Numbers use tabular figures.
 
-## Layout
-Desktop ≥ 1024 px: 264 px left rail (logo, nav, profile switcher), content max 1200 px. Tablet/phone: top bar + 5-item bottom tab bar (Live, Teach, Signals, Timeline, More). Grids are explicit `minmax(0,1fr)` columns so nothing overflows at 320 px. 4-pt spacing grid.
+Use `-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, Inter, sans-serif`. Inter 400/600/700 is bundled with Fontsource; no font CDN or SF download. Body is 17px, headline 17px semibold, title 22px, large title 34/41px bold, footnote 13px, caption 12px. Tab labels alone are 11px. Use tabular figures and the `NumberRoll` component for changing summary values. Keep explanatory prose left aligned.
 
-## Elevation & depth
-One soft shadow (`--shadow`). Cards: surface + 1 px `border-soft` + shadow. No other elevation levels.
+## Palette and surfaces
 
-## Shapes
-Radius 12 (controls), 20 (cards), 28 (sheets / dialogs).
+Runtime truth: `src/index.css`; checked contrast pairs: `src/ui/theme/tokens.json`.
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Grouped background | #F2F2F7 | #000000 |
+| Surface | #FFFFFF | #1C1C1E |
+| Secondary surface | #F2F2F7 | #2C2C2E |
+| Primary label | #1C1C1E | #FFFFFF |
+| Secondary label | #636366 | #AEAEB2 |
+| Action label | #0062CC | #69B4FF |
+| Filled action | #0069DD | #0069DD |
+
+Blue is reserved for actions and selection. Small blue text and white-on-blue controls use contrast-adjusted shades of system blue to meet AA. Calm/rising/high use green/orange/red with an icon and a word; light-theme status text uses darker shades. Gesture categories use blue and neutral grays, not diagnostic status colors.
+
+Cards are flat opaque surfaces. No gradients, colored shadows, drifting backgrounds, or pulsing chart markers. Apply translucent material only to navigation bars, dialogs/sheets, popovers, and feedback. The light material is 94% white to preserve contrast over a scrim. Blur is 24px with saturation; reduced transparency and unsupported backdrop filters use opaque fallback surfaces.
+
+## Structure
+
+Desktop has a 232px rail, a quiet top bar, and a maximum 1160px content area. Phone/tablet has four tabs: Home, Teach, Live, Insights. Profile remains accessible from the avatar; the Home library links to Signals. Keep 16px mobile margins and 48px primary actions. Bottom navigation includes safe-area padding and 49px tab targets. Preserve every existing route and workflow.
+
+Large titles remain 34px; the desktop bar shows a 17px title after the large title scrolls away. Home combines one primary Live entry with compact summaries and grouped library/recent-event lists. Live uses an asymmetric pose/interpretation layout; cards never animate the camera geometry. Settings uses inset groups and separators; History becomes a compact grouped list on phones while retaining table semantics. Insights adds independently selected Day/7-day/31-day charts while retaining the existing daily timeline and export scope.
 
 ## Components
-Button (primary / secondary / quiet / destructive; loading; disabled), IconButton (48×48, labelled), Card, Dialog / Sheet (Radix: focus trapped and returned, Escape closes), Stepper, Tabs, Switch, Slider, Select, Chip, SegmentedControl, Toast (Sonner, token-styled), CameraStage + OverlayCanvas, Countdown, RecordRing, ConfidenceBar (bars + words, never percentages), CalmMeter, SignalCard, SignalGlyph, EventList, CoachCard, EmptyState, ConfirmDelete, PassphraseField.
 
-## Motion
-`--ease-out: cubic-bezier(0.22, 1, 0.36, 1)`; 120 / 200 / 320 ms. Only opacity, translate ≤ 8 px and scale ≥ 0.97. Press = scale 0.98 for 120 ms. `prefers-reduced-motion`: transforms off, instant fades, glyphs static, record ring static. The camera stage never animates its layout.
+Product-facing wrappers live in `src/ui/components`. Installed and adapted EasyUI source lives in `src/ui/vendor`; screens never import it directly. `SummaryStat`, `MotionTrace`, `InsightsVisuals`, `HistoryLog`, `Button`, `Dialog`, `FeedbackToasts`, and `Shell` own the product contract.
 
-## Do's and Don'ts
-- Do say what the app is not (no diagnosis, no faces, no uploads) wherever it matters.
-- Do keep the caregiver in control: Yes / Not quite / New meaning on every recognition.
-- Don't use parallax, marquee, neon, 3D, dramatic scroll effects, infinite animations or flashing.
-- Don't show accuracy percentages for real children.
-- Don't use the word "fail" in coaching.
+Radii: cards 20px, groups 16px, controls 14px or capsules, sheets 28–32px. Use continuous corners where supported. Switches and segmented controls retain native/Radix semantics. Sheets compose EasyUI-style drag springs with Radix focus trapping, Escape dismissal, explicit close buttons, and a keyboard-operable expand/collapse grabber. Delete confirmations retain their typed confirmation safeguard.
+
+## Motion and accessibility
+
+Press feedback is scale .97 and subtle dimming. Sheet and digit transitions use stiffness 360 and damping 32–34. Page changes show a 260ms content-shaped skeleton shimmer; lazy loading uses the same skeleton. The route updates immediately and the new screen mounts behind the loading presentation, preserving effects and camera teardown. There are no page slides. Reduced motion removes translations and digit rolling, retaining fades. No decorative infinite animation is added.
+
+The movement trace subscribes read-only to the existing Calm Watch output. It draws when a new reading or inspection arrives instead of continuously repainting alongside inference. It stores no history outside the mounted UI. Camera data, consent, capture, recognition, haptics, speech, crypto, storage schemas, and handover behavior remain owned by their existing modules.
+
+Run `npm run typecheck`, `npm test`, `npm run contrast`, `npm run build`, and `npm run e2e` for release checks. The unlisted `/#/styleguide` route provides visual inspection of typography, semantic states, controls, sheets, and number cards. Screenshots and the audit are under `docs/`.
+
+## Colorion refinement
+
+The bottom navigation now floats in a blurred glass capsule and uses icons only, with accessible names retained. Teach uses Lucide Hand. The Timeline header has one date control; an export entry aligned beside the date fans out CSV, JSON, and Print. Actions open below the header. Its hidden checkbox owns open state, with CSS-only staggered fan motion and plus-to-close rotation. The requested spring curve (`.34, 1.56, .64, 1`) is deliberately limited to this occasional interaction. Reduced motion removes the fan movement. The existing Radix switches gain a small checkmark and restrained thumb compression; loading buttons use three signal strokes. These are local CSS adaptations inspired by the user’s Colorion references, not external scripts or runtime requests.
+
+
+## Tanda identity and header
+
+Use the supplied `public/brand/tanda-icon.png` directly. The visual wordmark is `tanda.`; document titles and app copy use Tanda. The app header contains identity and profile access. Language, appearance, and privacy controls live in Settings. Appearance uses a sun/moon/device selector inspired by Colorion, preserving the existing Match device preference. Persisted database keys and `.isyarat` handover compatibility remain unchanged. The supplied splash-screen document is reference context, not a new automatic launch screen.
+
+## Profile density
+
+Settings/Profile groups use 16px insets, 16px content gaps, 17px section headings, and 44px control targets. Related fields live in one content wrapper so section separators cannot accidentally restyle a button. Desktop groups flow in two independent columns rather than stretching into equal-height rows. The handover action is a full-width, clearly filled button. Destructive copy is compact and secondary, with the destructive action still visibly red.
+
+## Splash preview
+
+The standalone `/#/splash` preview follows the supplied Tanda splash brief: midnight navy, four separated blue vector strokes, `tanda.` at 44px, a short tagline, and a quiet privacy note. Its one-time staggered entrance settles completely; reduced motion shows the final composition immediately. It has no app chrome or automatic redirect. The navigation icon continues to use the supplied PNG directly.

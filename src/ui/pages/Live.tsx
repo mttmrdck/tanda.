@@ -19,6 +19,7 @@ import { Dialog } from '../components/Dialog';
 import { EmptyState } from '../components/EmptyState';
 import { CalmMeter, calmReasons, ConfidenceBar, EventList, FeedbackState, tierLabel } from '../components/LiveBits';
 import { iconFor } from '../components/signalIcons';
+import { MotionTrace } from '../components/MotionTrace';
 import { VideoPanel } from '../components/VideoPanel';
 import { speak, speechAvailable } from '../hooks/speech';
 
@@ -174,10 +175,10 @@ export default function Live() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="live-layout grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(300px,1fr)]">
         <VideoPanel skeleton={skeleton} onSkeleton={(v) => setSettings({ skeletonLive: v })} gestures={ALL_GESTURES} />
 
-        <div className="space-y-6">
+        <div className="live-aside">
           {signals.length === 0 ? (
             <EmptyState
               title={t('emptyNoSignalsTitle')}
@@ -269,6 +270,7 @@ export default function Live() {
             ) : (
               <p className="mt-4 text-ink-muted">{t('calmWaiting')}</p>
             )}
+            <MotionTrace />
             <p className="mt-4 flex items-center gap-2 text-sm text-ink-muted">
               <Info aria-hidden className="size-4 shrink-0" />
               {t('calmNotDiagnosis')}
