@@ -1,6 +1,6 @@
-# Isyarat — project conventions
+# Tanda — project conventions
 
-On-device communication aid: caregivers teach a camera a non-verbal child's personal gestures; app recognises them live. No backend.
+Privacy-first hybrid assistive monitoring foundation for children and older adults; personalised communication remains operational. Optional simulated edge gateway: see docs/architecture/HYBRID.md and docs/deployment/EDGE-GATEWAY.md.
 
 ## Re-read first after context compaction
 `CLAUDE.md`, `PROGRESS.md`, `DECISIONS.md`, and `.claude/skills/mediapipe-tasks-vision/SKILL.md`.
@@ -21,7 +21,8 @@ On-device communication aid: caregivers teach a camera a non-verbal child's pers
 
 ## Rules
 - TypeScript strict, no `any`; `unknown` + zod at boundaries. No unused code. No TODO / lorem in shipped UI.
-- Privacy is a hard requirement: zero runtime network requests besides own static assets. No faces, no audio, no frame storage, no analytics, no CDNs.
+- Privacy: own static assets and explicitly requested authenticated local gateway health only. No cloud relay, faces, audio capture, frame storage, analytics or CDNs. Keep simulated and actual observations separate.
+- src/platform contains pure shared validated contracts, baseline and event rules; apps/edge-gateway hosts the optional loopback simulation service. Run npm run gateway:test for its HTTP/persistence checks.
 - Caregiver supplies all meanings. Never show accuracy % for real children; synthetic numbers labelled "synthetic benchmark".
 - WCAG 2.2 AA: 48px targets, focus rings, icon + text + colour for status, reduced motion respected.
 - Design tokens live in `DESIGN.md` and `src/index.css` `@theme`; keep them in sync (contrast script checks `src/ui/theme/tokens.json`).

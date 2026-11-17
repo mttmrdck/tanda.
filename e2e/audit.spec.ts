@@ -74,7 +74,7 @@ test('camera tracks stop when leaving camera pages', async ({ page, guard }) => 
   const tracks = () => page.evaluate(() => (window as unknown as { __isyaratDebug: { liveTracks: () => number } }).__isyaratDebug.liveTracks());
   // MediaPipe's WASM compile competes with other parallel workers for CPU; allow time to reach 'running'.
   await expect.poll(tracks, { timeout: 100_000 }).toBeGreaterThan(0);
-  await page.getByRole('link', { name: 'Signals' }).first().click();
+  await page.getByRole('link', { name: 'Library' }).first().click();
   await expect.poll(tracks).toBe(0);
   const state = await page.evaluate(() => (window as unknown as { __isyaratDebug: { state: () => { phase: string } } }).__isyaratDebug.state().phase);
   expect(state).toBe('idle');
@@ -131,7 +131,7 @@ test('keyboard only: complete onboarding without a pointer', async ({ page, guar
   await expect(page.getByRole('button', { name: 'Continue' })).toBeFocused();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  await expect(page.getByLabel('Child’s nickname')).toBeFocused();
+  await expect(page.getByLabel('Individual’s nickname')).toBeFocused();
   await page.keyboard.type('Mei');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'All set for Mei' })).toBeVisible();

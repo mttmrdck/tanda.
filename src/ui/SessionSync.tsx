@@ -5,7 +5,7 @@ import { useSettings } from '../store/useApp';
 import { useData } from '../store/useData';
 import { session, useSession, type SourceKind } from '../store/useSession';
 
-const CAMERA_ROUTES = ['/', '/teach', '/debug', '/signs'];
+const CAMERA_ROUTES = ['/monitoring', '/', '/teach', '/debug', '/signs'];
 
 /** Keeps the imperative session in step with routes, settings and the active profile. */
 export function SessionSync() {

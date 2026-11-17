@@ -6,7 +6,7 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 export type ButtonVariant = 'primary' | 'secondary' | 'quiet' | 'destructive';
 
 const base =
-  'crafted-button press inline-flex select-none items-center justify-center gap-2 rounded-full font-semibold transition-[transform,opacity] duration-[160ms] ease-[var(--ease-out)] disabled:cursor-not-allowed disabled:opacity-55';
+  'crafted-button press inline-flex select-none items-center justify-center gap-2 rounded-[12px] font-semibold transition-[transform,opacity] duration-[160ms] ease-[var(--ease-out)] disabled:cursor-not-allowed disabled:opacity-55';
 
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-primary-fill text-on-primary hover:bg-primary-hover',

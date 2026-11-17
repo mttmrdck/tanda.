@@ -42,6 +42,7 @@ export const payloadSchema = z.object({
         d: z.number().int().positive().max(1024),
         data: z.string(),
         source: z.enum(['teach', 'feedback']),
+        capture: z.enum(['camera', 'demo']).optional(),
         createdAt: z.string(),
       }),
     )
@@ -59,6 +60,8 @@ export const payloadSchema = z.object({
         feedback: z.enum(['yes', 'no', 'new']).optional(),
         tier: z.enum(['calm', 'rising', 'high']).optional(),
         score: z.number().optional(),
+        source: z.enum(['camera', 'demo']).optional(),
+        note: z.string().max(500).optional(),
       }),
     )
     .optional(),
@@ -99,7 +102,7 @@ export function toPayload(b: ProfileBundle, exportedAt: string): HandoverPayload
     nickname: b.nickname,
     ...(b.ageBand ? { ageBand: b.ageBand } : {}),
     signals: b.signals.map((s) => ({ id: s.id, name: s.name, meaning: s.meaning, category: s.category, urgency: s.urgency, icon: s.icon, createdAt: s.createdAt })),
-    examples: b.examples.map((e) => ({ id: e.id, signalId: e.signalId, n: e.n, d: e.d, data: float32ToB64(e.data), source: e.source, createdAt: e.createdAt })),
+    examples: b.examples.map((e) => ({ id: e.id, signalId: e.signalId, n: e.n, d: e.d, data: float32ToB64(e.data), source: e.source, ...(e.capture ? { capture: e.capture } : {}), createdAt: e.createdAt })),
     settings: b.settings,
     comfortSteps: b.comfortSteps,
     ...(b.events ? { events: b.events } : {}),

@@ -7,8 +7,10 @@ async function openTranslate(page: Page) {
   await page.getByRole('button', { name: 'Use camera' }).click();
   await page.goto('/#/settings');
   await page.getByRole('switch', { name: 'Sign packs' }).click();
-  await page.getByRole('link', { name: 'Translate' }).first().click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Translate' })).toBeVisible();
+  // Translate now lives under Sign language research
+  await page.goto('/#/research');
+  await page.getByRole('link', { name: 'Open the word ↔ sign prototype' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Word ↔ sign prototype' })).toBeVisible();
 }
 const tab = (page: Page, name: string) => page.getByRole('tab', { name });
 const banner = (page: Page) => page.getByTestId('demo-banner');
@@ -17,7 +19,7 @@ test('Translate is behind the Labs flag', async ({ page, guard }) => {
   void guard;
   await onboard(page);
   await page.getByRole('button', { name: 'Use camera' }).click();
-  await expect(page.getByRole('link', { name: 'Translate' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Open the word ↔ sign prototype' })).toHaveCount(0);
   await page.goto('/#/translate');
   await expect(page).toHaveURL(/#\/settings$/);
 });

@@ -7,7 +7,7 @@ test('demo performer waves → meaning shown → Yes → event persists after re
   await onboard(page);
   await page.getByRole('button', { name: 'Use camera' }).click();
   await seedSignals(page, ['wave', 'tapTable', 'armsUp']);
-  await expect(page.getByRole('heading', { level: 1, name: 'Live' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Live recognition' })).toBeVisible();
   await startDemo(page);
   await page.waitForTimeout(2500);
   await page.getByRole('button', { name: 'Wave', exact: true }).click();
@@ -43,7 +43,7 @@ test('Not quite → relabel to another signal', async ({ page, guard }) => {
   await expect(page.getByTestId('recent-events').getByText('Water')).toBeVisible();
 });
 
-test('rocking performer → Calm Watch reaches Rising within 20 s with a translated reason', async ({ page, guard }) => {
+test('rocking performer → Movement Insights shows “Above usual” within 20 s with a neutral, translated reason', async ({ page, guard }) => {
   void guard;
   test.setTimeout(120_000);
   await onboard(page);
@@ -55,8 +55,9 @@ test('rocking performer → Calm Watch reaches Rising within 20 s with a transla
   await page.getByRole('button', { name: 'Rock', exact: true }).click();
   await expect(page.getByTestId('calm-meter')).toHaveAttribute('data-tier', /rising|high/, { timeout: 20_000 });
   await expect(page.getByTestId('calm-reasons')).toContainText('A repeating rhythm');
-  await expect(page.getByTestId('recent-events').getByText(/Calm Watch: (Rising|High)/).first()).toBeVisible();
-  await expect(page.getByText('Movement pattern only — not a diagnosis.')).toBeVisible();
+  await expect(page.getByTestId('recent-events').getByText(/Movement: (Above usual|Well above usual)/).first()).toBeVisible();
+  await expect(page.getByText('Observed movement only. Not a diagnosis, and not a measure of feelings.').first()).toBeVisible();
+  await expect(page.getByTestId('calm-card').getByText('Experimental')).toBeVisible();
   // BM translation of the reason
   await page.goto('/#/settings');
   await page.getByRole('radio', { name:'Bahasa Malaysia', exact:true }).press('Space');

@@ -11,3 +11,6 @@ blob-report
 e2e/__screens__
 .env*
 dist-e2e
+
+.gateway-build
+.tanda-gateway

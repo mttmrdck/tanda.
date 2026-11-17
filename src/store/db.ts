@@ -1,9 +1,10 @@
+import type { MonitoringSnapshot } from '../platform/contracts';
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import type { SignPack } from '../engine/sign/pack';
 import type { EventRecord, Profile, Signal } from '../engine/types';
 
 export const DB_NAME = 'isyarat';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 /** Example as stored: Float32Array kept as an ArrayBuffer. */
 export interface StoredExample {
@@ -13,6 +14,7 @@ export interface StoredExample {
   d: number;
   data: ArrayBuffer;
   source: 'teach' | 'feedback';
+  capture?: 'camera' | 'demo';
   createdAt: string;
 }
 
@@ -31,6 +33,7 @@ export interface SignProgress {
 }
 
 export interface IsyaratDB extends DBSchema {
+  monitoring: { key:string; value:MonitoringSnapshot };
   profiles: { key: string; value: Profile };
   signals: { key: string; value: Signal; indexes: { profileId: string } };
   examples: { key: string; value: StoredExample; indexes: { signalId: string } };
@@ -54,6 +57,7 @@ export function getDB(): Promise<IDBPDatabase<IsyaratDB>> {
           ev.createIndex('profileId', 'profileId');
           ev.createIndex('ts', 'ts');
         }
+        if (oldVersion < 3) db.createObjectStore('monitoring', { keyPath:'individualId' });
         if (oldVersion < 2) {
           db.createObjectStore('signPacks', { keyPath: 'id' });
           db.createObjectStore('signProgress', { keyPath: 'key' }).createIndex('packId', 'packId');

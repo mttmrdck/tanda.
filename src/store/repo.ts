@@ -18,6 +18,7 @@ const toStored = (e: Example): StoredExample => ({
   d: e.d,
   data: e.data.buffer.slice(e.data.byteOffset, e.data.byteOffset + e.data.byteLength) as ArrayBuffer,
   source: e.source,
+  ...(e.capture ? { capture: e.capture } : {}),
   createdAt: e.createdAt,
 });
 const fromStored = (s: StoredExample): Example => ({ ...s, data: new Float32Array(s.data) });
@@ -31,6 +32,7 @@ export function createProfile(input: { nickname: string; ageBand?: AgeBand; comf
       ...(input.ageBand ? { ageBand: input.ageBand } : {}),
       comfortSteps: input.comfortSteps ?? EMPTY_COMFORT,
       createdAt: nowIso(),
+      updatedAt: nowIso(),
     };
     await (await getDB()).put('profiles', p);
     return p;
@@ -45,7 +47,7 @@ export function updateProfile(id: string, patch: Partial<Omit<Profile, 'id' | 'c
     const db = await getDB();
     const p = await db.get('profiles', id);
     if (!p) throw new RepoError('unknown');
-    const next = { ...p, ...patch };
+    const next = { ...p, ...patch, updatedAt:nowIso() };
     await db.put('profiles', next);
     return next;
   });
@@ -55,13 +57,14 @@ export function updateProfile(id: string, patch: Partial<Omit<Profile, 'id' | 'c
 export function deleteProfile(id: string): Promise<void> {
   return guard(async () => {
     const db = await getDB();
-    const tx = db.transaction(['profiles', 'signals', 'examples', 'events'], 'readwrite');
+    const tx = db.transaction(['profiles', 'signals', 'examples', 'events', 'monitoring'], 'readwrite');
     const sigIds = await tx.objectStore('signals').index('profileId').getAllKeys(id);
     for (const sid of sigIds) {
       for (const ek of await tx.objectStore('examples').index('signalId').getAllKeys(sid)) await tx.objectStore('examples').delete(ek);
       await tx.objectStore('signals').delete(sid);
     }
     for (const evk of await tx.objectStore('events').index('profileId').getAllKeys(id)) await tx.objectStore('events').delete(evk);
+    await tx.objectStore('monitoring').delete(id);
     await tx.objectStore('profiles').delete(id);
     await tx.done;
   });
@@ -201,7 +204,7 @@ export function importBundle(bundle: ProfileBundle, nickname = bundle.nickname):
       createdAt: nowIso(),
     };
     const idMap = new Map<string, string>();
-    const tx = db.transaction(['profiles', 'signals', 'examples', 'events'], 'readwrite');
+    const tx = db.transaction(['profiles', 'signals', 'examples', 'events', 'monitoring'], 'readwrite');
     await tx.objectStore('profiles').put(profile);
     for (const s of bundle.signals) {
       const id = uid();
@@ -226,7 +229,7 @@ export function importBundle(bundle: ProfileBundle, nickname = bundle.nickname):
   });
 }
 
-/** Remove every piece of Isyarat data from this device (IndexedDB + settings). */
+/** Remove every piece of Tanda data from this device (IndexedDB + settings). */
 export async function deleteAllData(): Promise<void> {
   await guard(() => deleteDatabase());
   try {

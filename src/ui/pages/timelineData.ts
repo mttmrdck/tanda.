@@ -1,6 +1,7 @@
 import type { CalmTier, EventRecord, Signal } from '../../engine/types';
 
-export const CSV_HEADER = ['time_utc', 'local_time', 'kind', 'signal', 'meaning', 'confidence', 'feedback', 'calm_tier', 'calm_score'] as const;
+/** New columns are appended so earlier spreadsheets keep their column positions. `source`: camera | demo | unrecorded. */
+export const CSV_HEADER = ['time_utc', 'local_time', 'kind', 'signal', 'meaning', 'confidence', 'feedback', 'calm_tier', 'calm_score', 'source', 'caregiver_note'] as const;
 
 const csvCell = (v: string | number | undefined) => {
   if (v === undefined) return '';
@@ -14,7 +15,7 @@ export function toCsv(events: EventRecord[], signals: Signal[], pick: (s: Signal
   const rows = events.map((e) => {
     const s = e.signalId ? signals.find((x) => x.id === e.signalId) : undefined;
     const p = s ? pick(s) : undefined;
-    return [e.ts, localTime(e.ts), e.kind, p?.name, p?.meaning, e.confidence?.toFixed(2), e.feedback, e.tier, e.score?.toFixed(2)].map(csvCell).join(',');
+    return [e.ts, localTime(e.ts), e.kind, p?.name, p?.meaning, e.confidence?.toFixed(2), e.feedback, e.tier, e.score?.toFixed(2), e.source ?? 'unrecorded', e.note].map(csvCell).join(',');
   });
   return [CSV_HEADER.join(','), ...rows].join('\n') + '\n';
 }

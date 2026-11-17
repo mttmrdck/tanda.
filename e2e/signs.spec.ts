@@ -127,7 +127,10 @@ test('author a pack: consent, record 5 takes, save; export, delete, import shows
   // plain export → delete → import shows licence and credits
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export', exact: true }).click()]);
   const plain = await readFile((await dl.path())!, 'utf8');
-  expect(plain).not.toMatch(/face|jpeg|png|base64,/i);
+  // landmarks only: every template has exactly the landmark fields, and nothing in the file is an image
+  const parsed = JSON.parse(plain) as { signs: { templates: Record<string, unknown>[] }[] };
+  for (const s of parsed.signs) for (const tpl of s.templates) expect(Object.keys(tpl).every((k) => ['n', 'd', 'data', 'hand', 'signerId', 'recordedAt'].includes(k))).toBe(true);
+  expect(plain).not.toContain('data:image');
   await page.getByRole('button', { name: 'Delete pack' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Delete pack' }).click();
   await expect(page).toHaveURL(/#\/signs$/);

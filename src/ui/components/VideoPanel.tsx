@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { Battery, Camera, CircleCheck, CircleExclamationPoint, LoaderCircle, PersonStanding, ScanLine, Square, SwitchCamera } from 'lucide-react';
+import { Battery, Camera, CircleCheck, CircleExclamationPoint, FlaskConical, LoaderCircle, PersonStanding, ScanLine, Square, SwitchCamera } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useT, type MsgKey } from '../../i18n';
 import type { GestureName } from '../../engine/simulator';
@@ -76,6 +76,12 @@ export function VideoPanel({
     <div className="video-panel">
       <CameraStage skeleton={skeleton} label={label}>
         {overlay}
+        {active && s.kind === 'demo' && (
+          <p className="stage-pill pointer-events-none absolute bottom-2 left-2 z-10 flex min-h-9 items-center gap-1.5 px-3 text-sm font-semibold text-rising-fg sm:bottom-3 sm:left-3" data-testid="demo-stage-note">
+            <FlaskConical aria-hidden className="size-4 shrink-0" />
+            {t('demoStageNote')}
+          </p>
+        )}
         {active && (
           <div className="stage-toolbar pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 p-2 sm:p-3">
             <p className={clsx('stage-pill pointer-events-auto flex min-h-12 items-center gap-2 px-4 font-bold', status.tone)} data-testid="status-line">

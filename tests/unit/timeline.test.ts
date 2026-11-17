@@ -33,4 +33,10 @@ describe('timeline data', () => {
     expect(lines[1]).toContain('"I want ""water"", please"');
     expect(csv).not.toContain(',=HYPERLINK');
   });
+  it('CSV says where each event came from (camera, demo, or unrecorded for older data) and keeps caregiver notes', () => {
+    const csv = toCsv([{ ...evs[0]!, source: 'demo', note: 'Rocking before lunch' }, { ...evs[0]!, id: '6' }], [sig], (s) => ({ name: s.name.en, meaning: s.meaning.en }), () => '10:05');
+    const [, demo, old] = csv.trim().split('\n');
+    expect(demo!.endsWith(',demo,Rocking before lunch')).toBe(true);
+    expect(old!.endsWith(',unrecorded,')).toBe(true);
+  });
 });

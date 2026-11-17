@@ -8,6 +8,7 @@ import { CLIP_N, D, IDLE_ENERGY, MAX_INVALID_FRACTION } from '../../engine/const
 import { bestSubWindow, featureMotionEnergy } from '../../engine/motion';
 import { resampleClip } from '../../engine/resample';
 import { TEACHABLE_GESTURES, type GestureName } from '../../engine/simulator';
+import type { CaptureSource } from '../../engine/types';
 import { pickText, useT, type MsgKey } from '../../i18n';
 import { addExample, createSignal, RepoError } from '../../store/repo';
 import { useSettings } from '../../store/useApp';
@@ -31,6 +32,8 @@ interface Take {
   id: number;
   clip: Float32Array;
   invalid: number;
+  /** camera or simulated demo performer (unknown for a moment handed over without it) */
+  capture?: CaptureSource;
 }
 
 type Phase = 'idle' | 'countdown' | 'recording' | 'review';
@@ -108,7 +111,8 @@ export default function Teach() {
   const [draft, setDraft] = useState<SignalDraft>(emptyDraft);
   const [draftError, setDraftError] = useState('');
   const preloaded = useTeachDraft((s) => s.preloaded);
-  const [takes, setTakes] = useState<Take[]>(() => (preloaded ? [{ id: 0, clip: preloaded, invalid: 0 }] : []));
+  const preloadedCapture = useTeachDraft((s) => s.capture);
+  const [takes, setTakes] = useState<Take[]>(() => (preloaded ? [{ id: 0, clip: preloaded, invalid: 0, ...(preloadedCapture ? { capture: preloadedCapture } : {}) }] : []));
   const [usedPreload] = useState(!!preloaded);
   const [pending, setPending] = useState<Omit<Take, 'id'> | null>(null);
   const [notice, setNotice] = useState<MsgKey | null>(null);
@@ -141,7 +145,7 @@ export default function Teach() {
 
   const keep = () => {
     if (!pending) return;
-    setTakes((ts) => [...ts, { ...pending, id: nextId.current++ }]);
+    setTakes((ts) => [...ts, { ...pending, id: nextId.current++, capture: sourceKind === 'camera' ? 'camera' : 'demo' }]);
     setPending(null);
     rec.setPhase('idle');
   };
@@ -165,7 +169,7 @@ export default function Teach() {
         signalId = s.id;
         name = pickText(s.name, lang);
       }
-      for (const take of takes) await addExample({ signalId: signalId!, n: CLIP_N, d: D, data: take.clip, source: 'teach' });
+      for (const take of takes) await addExample({ signalId: signalId!, n: CLIP_N, d: D, data: take.clip, source: 'teach', ...(take.capture ? { capture: take.capture } : {}) });
       await useData.getState().refresh();
       setSavedName(name);
       setStep(steps.length - 1);
@@ -203,7 +207,7 @@ export default function Teach() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-4">
+      <header className="teach-heading space-y-4">
         <h1 className="text-2xl sm:text-3xl">{addTo ? t('teachAddingTo', { name: pickText(addTo.name, lang) }) : t('teachTitle')}</h1>
         <Stepper steps={steps.map((s) => t(s))} current={step} />
       </header>

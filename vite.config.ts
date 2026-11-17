@@ -46,5 +46,6 @@ export default defineConfig(({ mode }) => ({
     // Never inline fonts as data: URIs — the CSP allows fonts only from 'self'.
     assetsInlineLimit: (file: string) => (/\.woff2?$/.test(file) ? false : undefined),
   },
+  server: { proxy: { '/edge-api': { target:'http://127.0.0.1:4321', rewrite:path=>path.replace(/^\/edge-api/,'') } } },
   preview: { port: mode === 'e2e' ? 4319 : 4174, strictPort: true },
 }));

@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { CircleCheck, CircleQuestionMark, Leaf, Pencil, Sparkles, TriangleExclamationPoint, WavesHorizontal } from 'lucide-react';
+import { Activity, CircleCheck, CircleQuestionMark, FlaskConical, Leaf, Pencil, Sparkles, WavesHorizontal } from 'lucide-react';
 import type { CalmState } from '../../engine/calmWatch';
 import type { CalmTier, EventRecord, Signal } from '../../engine/types';
 import { pickText, useT, type Lang, type MsgKey } from '../../i18n';
@@ -30,7 +30,8 @@ export function ConfidenceBar({ confidence, compact = false }: { confidence: num
 const TIERS: { tier: CalmTier; label: MsgKey; Icon: typeof Leaf; on: string }[] = [
   { tier: 'calm', label: 'tierCalm', Icon: Leaf, on: 'bg-calm-bg text-calm-fg ring-2 ring-calm-fg' },
   { tier: 'rising', label: 'tierRising', Icon: WavesHorizontal, on: 'bg-rising-bg text-rising-fg ring-2 ring-rising-fg' },
-  { tier: 'high', label: 'tierHigh', Icon: TriangleExclamationPoint, on: 'bg-high-bg text-high-fg ring-2 ring-high-fg' },
+  // "well above usual" is an observation, not an alarm: same warm tone as "above usual", stronger mark
+  { tier: 'high', label: 'tierHigh', Icon: Activity, on: 'bg-rising-bg text-rising-fg ring-[3px] ring-rising-fg' },
 ];
 
 export const tierLabel = (tier: CalmTier): MsgKey => TIERS.find((x) => x.tier === tier)!.label;
@@ -85,6 +86,17 @@ export function FeedbackState({ fb }: { fb: EventRecord['feedback'] }) {
   );
 }
 
+/** Marks a record produced by the simulated demo performer (never a real person). */
+export function SimulatedTag() {
+  const t = useT();
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-ink-muted" data-testid="simulated-tag">
+      <FlaskConical aria-hidden className="size-3.5" />
+      {t('evSimulated')}
+    </span>
+  );
+}
+
 /** Recent events list (newest first). */
 export function EventList({ events, signals, lang }: { events: EventRecord[]; signals: Signal[]; lang: Lang }) {
   const t = useT();
@@ -103,7 +115,10 @@ export function EventList({ events, signals, lang }: { events: EventRecord[]; si
               <p className="truncate font-bold">
                 {e.kind === 'signal' ? (s ? pickText(s.name, lang) : t('deletedSignal')) : t('eventTier', { tier: t(tierLabel(e.tier ?? 'calm')) })}
               </p>
-              {e.kind === 'signal' && <FeedbackState fb={e.feedback} />}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                {e.kind === 'signal' && <FeedbackState fb={e.feedback} />}
+                {e.source === 'demo' && <SimulatedTag />}
+              </div>
             </div>
             <time dateTime={e.ts} className="text-sm text-ink-muted tabular">
               {timeOfDay(e.ts, lang)}

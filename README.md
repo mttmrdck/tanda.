@@ -1,20 +1,24 @@
 # Tanda
 
-**Teach the camera what your child already says.**
+**Unified Assistive Intelligence Platform**
 
-Tanda (Malay: "signal") is a communication aid for caregivers, special-education teachers (PPKI) and therapists of children who are non-verbal or minimally verbal. A caregiver shows the camera a gesture the child already uses ("tapping the table twice means *I want water*"), a few times, and writes what it means. From then on Tanda watches for that signal and shows the caregiver the meaning, with **Yes / Not quite / New meaning** buttons so the caregiver always has the final say.
+Understand Individuals. Recognise Changes. Support Better Care.
 
-It also offers **Calm Watch**, a movement-pattern indicator (energy, rhythm, suddenness) with the caregiver's own comfort steps, and **Handover**, an encrypted file that passes a child's whole signal vocabulary to a new teacher or relief carer.
+Tanda helps caregivers review observable changes for children and older adults, with individually configured consent, environments and policies. It preserves personalised gesture communication: Teach → Recognise → Confirm → Improve. Caregivers provide context and make care decisions.
 
-> Tanda is a communication aid. It does not diagnose, treat, screen for any condition, or replace therapists, doctors or caregivers. It does not read minds or detect emotions, and it only works for the child it was taught. **We deliberately do not read faces.**
+The hybrid foundation adds a metadata-only monitoring pipeline, experimental personal baseline, temporal event review, and a separate local gateway service. The repeatable browser demonstration uses clearly labelled simulated observations. The existing webcam/MediaPipe path can supply actual movement observations after separate monitoring consent. RTSP/ONVIF, audio classification, fall detection and remote notifications are not operational.
 
-## Privacy, in one paragraph
+The interface uses an architectural monochrome system with selective glass controls; see the [design report](docs/design/SIGNATURE-REPORT.md) and [desktop/mobile gallery](docs/screenshots/refinement/README.md).
 
-All camera processing happens in the browser. Video frames are never stored, uploaded or logged; only abstract body/hand landmark numbers from signals the caregiver deliberately records are kept, in this browser's IndexedDB. No account, no server, no analytics, no third-party fonts or CDNs, no microphone. The production build ships a strict Content-Security-Policy and an automated test fails if any request leaves `localhost`. Details: [docs/PRIVACY.md](docs/PRIVACY.md).
+Start at `/#/overview`. See [architecture](docs/architecture/HYBRID.md), [gateway setup](docs/deployment/EDGE-GATEWAY.md), and [implementation and validation report](docs/validation/HYBRID-REPORT.md). Existing communication bookmarks and encrypted `.isyarat` files remain supported.
+
+## Privacy
+
+Camera frames are processed locally and are not stored or transmitted. Recorded gesture landmarks, local events, consent and experimental baseline summaries remain in IndexedDB. There is no microphone capture, analytics or cloud account. The optional authenticated loopback gateway stores metadata on disk; the Devices page checks its health only on request. Remote notification delivery is unavailable. See [privacy details](docs/PRIVACY.md).
 
 ## Quick start
 
-Needs Node 20+ and Chrome or Edge (desktop or Android).
+Tested with Node 24.14.0; Vite 8 requires Node 20.19+ or 22.12+. Use Node 24+ and Chrome or Edge (desktop or Android).
 
 ```bash
 npm install

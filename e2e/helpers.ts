@@ -34,7 +34,7 @@ export async function onboard(page: Page, name = 'Adam') {
   await page.getByRole('button', { name: 'Get started' }).click();
   for (const box of await page.getByRole('checkbox').all()) await box.check({ force: true });
   await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByLabel('Child’s nickname').fill(name);
+  await page.getByLabel('Individual’s nickname').fill(name);
   await page.getByRole('button', { name: 'Create profile' }).click();
   await expect(page.getByRole('heading', { name: `All set for ${name}` })).toBeVisible();
 }

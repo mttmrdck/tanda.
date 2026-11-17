@@ -22,20 +22,20 @@ test('onboarding: consent gate, profile, demo start — no camera before a butto
 
   await page.getByRole('button', { name: 'Create profile' }).click();
   await expect(page.getByText('Please enter a nickname.')).toBeVisible();
-  await page.getByLabel('Child’s nickname').fill('Aisyah');
+  await page.getByLabel('Individual’s nickname').fill('Aisyah');
   await page.getByRole('button', { name: 'Create profile' }).click();
   await expect(page.getByRole('heading', { name: 'All set for Aisyah' })).toBeVisible();
   expect(await gumCalls(page)).toBe(0);
 
   await page.getByRole('button', { name: 'Try the demo first' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Live' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Live recognition' })).toBeVisible();
   await expect(page.getByTestId('status-line')).toHaveText('Seeing the child');
   await expect(page.getByRole('heading', { name: 'No signals taught yet' })).toBeVisible();
   expect(await gumCalls(page)).toBe(0);
 
   // reload keeps the profile and consent
   await page.reload();
-  await expect(page.getByRole('heading', { level: 1, name: 'Live' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Live recognition' })).toBeVisible();
 });
 
 test('language preference lives in Settings and persists', async ({ page, guard }) => {

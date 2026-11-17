@@ -2,9 +2,8 @@ import { Share2, Trash } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
-import type { AgeBand, ComfortSteps } from '../../engine/types';
-import { useT, type MsgKey } from '../../i18n';
-import { deleteAllData, deleteProfile, updateProfile } from '../../store/repo';
+import { useT } from '../../i18n';
+import { deleteAllData } from '../../store/repo';
 import { useSettings } from '../../store/useApp';
 import { useData } from '../../store/useData';
 import { session } from '../../store/useSession';
@@ -13,8 +12,9 @@ import { disposeLandmarkers } from '../../vision/loader';
 import { AppearanceControl } from '../components/AppearanceControl';
 import { PrivacyChip } from '../components/Shell';
 import { Button } from '../components/Button';
+import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/Card';
-import { SegmentedControl, Select, Slider, Switch, TextField } from '../components/Controls';
+import { SegmentedControl, Select, Slider, Switch } from '../components/Controls';
 import { ConfirmDelete } from '../components/Dialog';
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
@@ -28,25 +28,12 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
-const AGE: { value: AgeBand | 'none'; label: MsgKey }[] = [
-  { value: 'none', label: 'ageNone' },
-  { value: 'under5', label: 'ageUnder5' },
-  { value: '5to8', label: 'age5to8' },
-  { value: '9to12', label: 'age9to12' },
-  { value: '13plus', label: 'age13plus' },
-];
-
 export default function Settings() {
   const t = useT();
   const s = useSettings();
-  const profile = useData((x) => x.profile);
   const [, navigate] = useLocation();
   const [cams, setCams] = useState<{ deviceId: string; label: string }[]>([]);
-  const [nick, setNick] = useState(profile?.nickname ?? '');
-  const [age, setAge] = useState<AgeBand | 'none'>(profile?.ageBand ?? 'none');
-  const [comfort, setComfort] = useState<ComfortSteps>(profile?.comfortSteps ?? { calm: '', rising: '', high: '' });
   const [delAll, setDelAll] = useState(false);
-  const [delProfile, setDelProfile] = useState(false);
 
   useEffect(() => {
     void listCameras()
@@ -54,26 +41,9 @@ export default function Settings() {
       .catch(() => setCams([]));
   }, []);
 
-  useEffect(() => {
-    setNick(profile?.nickname ?? '');
-    setAge(profile?.ageBand ?? 'none');
-    setComfort(profile?.comfortSteps ?? { calm: '', rising: '', high: '' });
-  }, [profile]);
-
-  const saveProfile = async (patch: Parameters<typeof updateProfile>[1]) => {
-    if (!profile) return;
-    try {
-      const p = await updateProfile(profile.id, patch);
-      useData.getState().setProfile(p);
-      toast.success(t('saved'));
-    } catch {
-      toast.error(t('storageError'));
-    }
-  };
-
   return (
     <div className="profile-page space-y-5">
-      <h1 className="text-2xl sm:text-3xl">{t('settingsTitle')}</h1>
+      <PageHeader title={t('settingsTitle')} description={t('vdSettingsIntro')}/>
       <div className="settings-layout">
         <Section id="s-general" title={t('secGeneral')}>
           <PrivacyChip />
@@ -87,28 +57,6 @@ export default function Settings() {
             ]}
           />
           <AppearanceControl value={s.theme} onChange={theme => s.set({ theme })} />
-        </Section>
-
-        <Section id="s-profile" title={t('secProfile')}>
-          <form
-            className="settings-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!nick.trim()) return;
-              const patch: Parameters<typeof updateProfile>[1] = { nickname: nick.trim() };
-              if (age !== 'none') patch.ageBand = age;
-              void saveProfile(age === 'none' ? { ...patch, ageBand: undefined } : patch);
-            }}
-          >
-            <TextField label={t('obNickname')} hint={t('obNicknameHint')} value={nick} onChange={setNick} maxLength={40} error={nick.trim() ? undefined : t('obNicknameRequired')} />
-            <Select label={`${t('obAgeBand')} (${t('optional')})`} value={age} onChange={setAge} options={AGE.map((a) => ({ value: a.value, label: t(a.label) }))} />
-            <div className="flex flex-wrap justify-between gap-3">
-              <Button type="submit">{t('profileSave')}</Button>
-              <Button variant="quiet" className="text-high-fg hover:bg-high-bg" icon={<Trash aria-hidden className="size-5" />} onClick={() => setDelProfile(true)}>
-                {t('deleteProfile')}
-              </Button>
-            </div>
-          </form>
         </Section>
 
         <Section id="s-recog" title={t('secRecognition')}>
@@ -156,22 +104,6 @@ export default function Settings() {
             onChange={(v) => s.set({ cameraDeviceId: v === 'default' ? '' : v })}
             options={[{ value: 'default', label: t('cameraDefault') }, ...cams.filter((c) => c.deviceId && c.deviceId !== 'default').map((c) => ({ value: c.deviceId, label: c.label }))]}
           />
-        </Section>
-
-        <Section id="s-comfort" title={t('secComfort')}>
-          <p className="text-ink-muted">{t('comfortHint')}</p>
-          <form
-            className="settings-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void saveProfile({ comfortSteps: { calm: comfort.calm.trim(), rising: comfort.rising.trim(), high: comfort.high.trim() } });
-            }}
-          >
-            <TextField label={t('comfortCalm')} value={comfort.calm} onChange={(calm) => setComfort({ ...comfort, calm })} placeholder={t('comfortPlaceholderCalm')} multiline maxLength={300} />
-            <TextField label={t('comfortRising')} value={comfort.rising} onChange={(rising) => setComfort({ ...comfort, rising })} placeholder={t('comfortPlaceholderRising')} multiline maxLength={300} />
-            <TextField label={t('comfortHigh')} value={comfort.high} onChange={(high) => setComfort({ ...comfort, high })} placeholder={t('comfortPlaceholderHigh')} multiline maxLength={300} />
-            <Button type="submit">{t('save')}</Button>
-          </form>
         </Section>
 
         <Section id="s-labs" title={t('labsTitle')}>
@@ -222,21 +154,6 @@ export default function Settings() {
           await useData.getState().load();
           toast.success(t('deleteAllDone'));
           navigate('/onboarding');
-        }}
-      />
-      <ConfirmDelete
-        open={delProfile}
-        onOpenChange={setDelProfile}
-        title={t('deleteProfileTitle', { name: profile?.nickname ?? '' })}
-        body={t('deleteProfileBody', { name: profile?.nickname ?? '' })}
-        confirmLabel={t('delete')}
-        onConfirm={async () => {
-          if (!profile) return;
-          await deleteProfile(profile.id);
-          useSettings.getState().set({ activeProfileId: '' });
-          await useData.getState().load();
-          toast.success(t('profileDeleted'));
-          navigate(useData.getState().profiles.length ? '/' : '/onboarding/profile');
         }}
       />
     </div>

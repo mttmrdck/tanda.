@@ -49,7 +49,8 @@ export const LEAVE_MS = 8000;
 export const PRIOR_MEDIAN = 0.25;
 export const PRIOR_MAD = 0.1;
 const MAD_FLOOR = 0.06;
-const BASELINE_MIN_SAMPLES = 10;
+/** settled readings needed before the personal baseline replaces the prior */
+export const BASELINE_MIN_SAMPLES = 10;
 const BASELINE_CAP = 300;
 const FAST_INIT_MS = 90_000;
 

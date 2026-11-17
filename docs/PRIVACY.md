@@ -1,27 +1,29 @@
-# Isyarat — Privacy (for parents and school administrators)
+# Tanda — Privacy for individuals and authorised caregivers
 
-**Short version:** everything stays on the device you use. There is no account, no server and no upload. You can delete everything at any time.
+**Short version:** browser camera processing and stored data remain local. No video is recorded or uploaded. An optional authenticated local gateway prototype stores monitoring metadata on disk. Remote alerts and microphone capture are unavailable.
 
 ## What data exists
 
 | Data | Example | Where it lives |
 |---|---|---|
-| Child profile | Nickname "Adam", optional age band "5–8", your comfort steps | This browser's IndexedDB |
+| Individual profile | Nickname "Adam", optional age band "5–8", your comfort steps | This browser's IndexedDB |
 | Signals | Name and meaning you wrote, type, urgency, a picture icon | IndexedDB |
 | Examples | Numbers describing body and hand **positions** (about 1 700 numbers per example) from signals you chose to record | IndexedDB |
 | Events | "Water, 10:05, confirmed"; "Calm Watch: Rising, 11:20" | IndexedDB |
+| Monitoring sidecar | Category, assigned room/camera, authority/video consent, schedule, baseline summary, event review history | IndexedDB; optional independent gateway snapshot on local disk |
 | Settings | Language, theme, sensitivity | This browser's localStorage |
 | Sign packs (Labs, off by default) | Packs you recorded or imported: glosses, signer credit (a name, or anonymous), and landmark numbers for each take | IndexedDB |
 | Sign practice progress (Labs) | "Practised 4 times, best run 3", per sign | IndexedDB |
 
 There is no photo, surname, date of birth, face data, audio or video anywhere.
 
-## What Isyarat never does
+## What Tanda never does
 
 - Never stores, uploads or logs camera video or pictures. Each frame is turned into body and hand points inside the browser and then discarded.
 - Never reads faces. No face model is included.
 - Never uses the microphone.
-- Never sends data to a server. There is no server. The app makes no internet requests while it runs (an automated test fails if it ever does), and the production build enforces this with a Content-Security-Policy.
+- No cloud service or remote notification delivery. Devices can explicitly send an authenticated health request to the optional loopback gateway via a same-origin proxy. The browser demo runs independently; raw video and gesture points are not sent to that service.
+- Gateway API clients can submit validated simulated observation metadata. The token is local access control, not per-caregiver identity or an audited permission system. Protect the host and browser profile.
 - No analytics, trackers, adverts, third-party fonts or CDNs.
 - Never diagnoses, screens for or treats any condition. Calm Watch describes a movement pattern only.
 - "Speak aloud" uses only voices installed on the device; network voices are skipped.
@@ -59,3 +61,11 @@ On first use the adult must confirm they are the parent, legal guardian or an au
 ## For schools and centres
 
 Because nothing leaves the device, Isyarat does not create a central database of children's information. Devices should still be protected (screen lock, user accounts), because anyone with access to the browser profile can open the app. For pilots, keep a written consent form from parents alongside the in-app consent.
+
+## Monitoring consent, access and deletion
+
+Monitoring requires explicit authority and video consent in addition to the existing camera workflow. Selecting a child or older-adult category enables no policy. Movement evaluation and reviewed baseline context require explicit configuration. Audio remains disabled. Informed individual consent, autonomy, guardian authority, assent and institutional approval must be considered for each setting; the app cannot establish legal authority. Avoid covert or unnecessary bedroom monitoring.
+
+Relationship labels are local context, not authorisation or remote invitations. Per-caregiver accounts, role enforcement and access logs remain planned. Browser access implies access to its local data; use device accounts and screen locks.
+
+Deleting an individual also deletes their browser monitoring sidecar. Delete-all removes browser IndexedDB and settings. Independent gateway disk snapshots and manually downloaded metadata exports are outside browser deletion: stop the gateway and delete its configured data file/directory separately. Communication handovers preserve the `.isyarat` format and do not transfer monitoring consent, baseline or events; configure monitoring anew on the receiving device. Metadata export is not encrypted automatically. No automatic raw evidence retention exists. Event/history capacity failures are surfaced; retention controls need pilot review.

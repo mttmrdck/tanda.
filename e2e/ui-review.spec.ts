@@ -10,7 +10,7 @@ for (const theme of ['light', 'dim'] as const) {
     await seedSignals(page, ['wave', 'tapTable', 'coverEars'], true);
     await page.evaluate(th => localStorage.setItem('isyarat.settings.v1', JSON.stringify({ ...JSON.parse(localStorage.getItem('isyarat.settings.v1') ?? '{}'), theme:th })), theme);
     await page.goto('/#/home'); await page.reload();
-    await expect(page.getByRole('heading', { level:1, name:'Today with Adam' })).toBeVisible();
+    await expect(page.getByRole('heading', { level:1, name:'Communication' })).toBeVisible();
     await expectAccessible(page, `Home ${theme}`);
     await page.goto('/#/timeline');
     await expect(page.getByRole('button',{name:'Export CSV'})).not.toBeVisible();
@@ -63,7 +63,7 @@ for (const theme of ['light', 'dim'] as const) {
       }
       await page.setViewportSize({width:1280,height:900});
       await page.goto('/#/home');
-      await page.getByRole('region', {name:'Signals learned',exact:true}).screenshot({path:`docs/screenshots/component-stat-card-${theme}.png`});
+      await page.getByRole('region', {name:'Gestures taught',exact:true}).screenshot({path:`docs/screenshots/component-stat-card-${theme}.png`});
       await page.goto('/#/timeline');
       for (const [title,slug] of [['Gesture frequency','bar-chart'],['Gesture distribution','donut-chart'],['When gestures happen','activity-heatmap']] as const) {
         await page.getByRole('heading',{name:title,exact:true}).locator('..').screenshot({path:`docs/screenshots/component-${slug}-${theme}.png`});
@@ -85,7 +85,7 @@ for (const theme of ['light', 'dim'] as const) {
       await expect(handover).toBeVisible();
       await handover.click();
       await expect(page.getByRole('heading',{level:1})).toContainText('Hand');
-      await page.goto('/#/settings');
+      await page.goto('/#/individuals');
       await page.getByRole('button',{name:'Save profile',exact:true}).click();
       await page.locator('[data-sonner-toast]').first().screenshot({path:`docs/screenshots/component-undo-toast-${theme}.png`});
       await page.goto('/#/');
@@ -106,13 +106,13 @@ test('Tanda keeps preferences in Settings and uses skeleton page transitions', a
   await page.setViewportSize({width:390,height:844});
   await onboard(page);
   await page.getByRole('button',{name:'Use camera'}).click();
-  await expect(page.getByRole('heading',{level:1,name:'Live'})).toBeVisible();
+  await expect(page.getByRole('heading',{level:1,name:'Live recognition'})).toBeVisible();
   await expect(page).toHaveTitle('Tanda');
   await expect(page.locator('header').getByRole('button',{name:/Switch language|Theme:/})).toHaveCount(0);
-  await page.getByRole('navigation').last().getByRole('link',{name:'Home',exact:true}).click();
+  await page.getByRole('navigation').last().getByRole('link',{name:'Communication',exact:true}).click();
   await expect(page.locator('.route-skeleton-cover')).toBeVisible();
   expect(await page.locator('.route-skeleton-cover .ld-shimmer i').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('page-shimmer');
-  await expect(page.getByRole('heading',{name:'Today with Adam'})).toBeVisible();
+  await expect(page.getByRole('heading',{level:1,name:'Communication'})).toBeVisible();
   await expect(page.locator('.route-skeleton-cover')).toHaveCount(0);
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.getByRole('navigation').last().getByRole('link',{name:'Insights',exact:true}).click();

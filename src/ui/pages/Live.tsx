@@ -1,4 +1,4 @@
-import { Info, TriangleExclamationPoint, Volume2 } from 'lucide-react';
+import { Activity, FlaskConical, Info, Volume2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Link, useLocation } from 'wouter';
@@ -7,7 +7,7 @@ import { dtw } from '../../engine/dtw';
 import { ALL_GESTURES } from '../../engine/simulator';
 import { guessKey } from '../../engine/guess';
 import type { Sighting } from '../../engine/recognizer';
-import type { EventRecord } from '../../engine/types';
+import type { CaptureSource, EventRecord } from '../../engine/types';
 import { pickText, useT } from '../../i18n';
 import { addEvent, addExample, listEvents, updateEvent } from '../../store/repo';
 import { useSettings } from '../../store/useApp';
@@ -16,6 +16,7 @@ import { session, useSession } from '../../store/useSession';
 import { useTeachDraft } from '../../store/useTeachDraft';
 import { announce } from '../components/Announcer';
 import { Button } from '../components/Button';
+import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/Card';
 import { Dialog } from '../components/Dialog';
 import { EmptyState } from '../components/EmptyState';
@@ -32,7 +33,12 @@ interface Current {
   confidence: number;
   window: Float32Array;
   feedback?: EventRecord['feedback'];
+  /** camera or the simulated demo performer, at the moment of recognition */
+  source: CaptureSource;
 }
+
+/** The video source right now ('demo' unless the real camera is running). */
+const currentSource = (): CaptureSource => (useSession.getState().kind === 'camera' ? 'camera' : 'demo');
 
 /** A "not taught yet" description stays up this long after it was last seen. */
 const SIGHTING_HOLD_MS = 6000;
@@ -110,10 +116,11 @@ export default function Live() {
       const meaning = pickText(sig.meaning, l);
       announce(tt('announceSignal', { name, meaning }));
       if (sa) speak(meaning, l);
-      void addEvent({ profileId: p.id, ts: new Date().toISOString(), kind: 'signal', signalId: sig.id, confidence: e.confidence })
+      const source = currentSource();
+      void addEvent({ profileId: p.id, ts: new Date().toISOString(), kind: 'signal', signalId: sig.id, confidence: e.confidence, source })
         .then((ev) => {
           setEvents((xs) => [ev, ...xs]);
-          setCurrent({ eventId: ev.id, signalId: sig.id, confidence: e.confidence, window: e.window });
+          setCurrent({ eventId: ev.id, signalId: sig.id, confidence: e.confidence, window: e.window, source });
         })
         .catch(() => toast.error(tt('storageError')));
     });
@@ -122,7 +129,7 @@ export default function Live() {
       if (!u.tierChanged || !p) return;
       announce(tt('announceTier', { tier: tt(tierLabel(u.tierChanged)) }));
       if (u.tierChanged === 'high' && useSettings.getState().vibration) navigator.vibrate?.(200);
-      void addEvent({ profileId: p.id, ts: new Date().toISOString(), kind: 'calm-tier', tier: u.tierChanged, score: u.state.score })
+      void addEvent({ profileId: p.id, ts: new Date().toISOString(), kind: 'calm-tier', tier: u.tierChanged, score: u.state.score, source: currentSource() })
         .then((ev) => setEvents((xs) => [ev, ...xs]))
         .catch(() => undefined);
     });
@@ -149,7 +156,7 @@ export default function Live() {
       if (model) {
         const nearest = Math.min(...model.examples.map((e) => dtw(current.window, e, CLIP_N, D)));
         if (nearest > ADD_IF_FARTHER_THAN * model.tau) {
-          await addExample({ signalId: current.signalId, n: CLIP_N, d: D, data: current.window, source: 'feedback' });
+          await addExample({ signalId: current.signalId, n: CLIP_N, d: D, data: current.window, source: 'feedback', capture: current.source });
           await useData.getState().refresh();
         }
       }
@@ -164,7 +171,7 @@ export default function Live() {
     setSheet(false);
     try {
       await setFeedback(current.eventId, { feedback: 'no', signalId });
-      await addExample({ signalId, n: CLIP_N, d: D, data: current.window, source: 'feedback' });
+      await addExample({ signalId, n: CLIP_N, d: D, data: current.window, source: 'feedback', capture: current.source });
       await useData.getState().refresh();
       const s = signals.find((x) => x.id === signalId);
       toast.success(t('fbRelabelled', { name: s ? pickText(s.name, lang) : '' }));
@@ -177,7 +184,7 @@ export default function Live() {
     if (!current) return;
     setSheet(false);
     await setFeedback(current.eventId, { feedback: 'new' }).catch(() => undefined);
-    useTeachDraft.getState().set(current.window);
+    useTeachDraft.getState().set(current.window, current.source);
     navigate('/teach');
   };
 
@@ -189,11 +196,11 @@ export default function Live() {
 
   return (
     <div className="space-y-6 [--stage-reserve:300px] max-sm:[--stage-reserve:420px]">
-      <h1 className="max-sm:sr-only text-2xl sm:text-3xl">{t('liveTitle')}</h1>
+      <PageHeader title={t('liveTitle')}/>
 
       {calm?.tier === 'high' && (
-        <div role="status" className="flex items-start gap-3 rounded-[16px] border border-high-fg/40 bg-high-bg p-4 text-high-fg" data-testid="high-banner">
-          <TriangleExclamationPoint aria-hidden className="mt-0.5 size-6 shrink-0" />
+        <div role="status" className="flex items-start gap-3 rounded-[16px] border border-rising-fg/40 bg-rising-bg p-4 text-rising-fg" data-testid="high-banner">
+          <Activity aria-hidden className="mt-0.5 size-6 shrink-0" />
           <p className="font-bold">
             {t('calmBanner')} {profile?.comfortSteps.high.trim() ? t('calmBannerSteps', { steps: profile.comfortSteps.high.trim() }) : t('calmBannerNoSteps', { name: profile?.nickname ?? '' })}
           </p>
@@ -239,6 +246,12 @@ export default function Live() {
                       </p>
                     </div>
                   </div>
+                  {current.source === 'demo' && (
+                    <p className="flex items-start gap-2 rounded-[12px] bg-rising-bg px-3 py-2 text-sm font-semibold text-rising-fg" data-testid="demo-result-note">
+                      <FlaskConical aria-hidden className="mt-0.5 size-4 shrink-0" />
+                      {t('demoResultNote')}
+                    </p>
+                  )}
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <ConfidenceBar confidence={current.confidence} />
                     {speechAvailable() && (
@@ -278,17 +291,20 @@ export default function Live() {
             <SightingCard
               sighting={sighting}
               onTeach={() => {
-                useTeachDraft.getState().set(sighting.window);
+                useTeachDraft.getState().set(sighting.window, currentSource());
                 navigate('/teach');
               }}
             />
           )}
 
           <Card aria-labelledby="calm-h" data-testid="calm-card">
-            <div className="flex items-baseline justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="calm-h" className="text-lg">
-                {t('calmTitle')}
+                <Link href="/movement" className="underline-offset-4 hover:underline">
+                  {t('calmTitle')}
+                </Link>
               </h2>
+              <span className="status-tag">{t('tagExperimental')}</span>
             </div>
             <div className="mt-4">
               <CalmMeter state={calm} />
@@ -301,7 +317,7 @@ export default function Live() {
                   {steps ? (
                     <p className="mt-1 font-bold">{steps}</p>
                   ) : (
-                    <Link href="/settings" className="mt-1 inline-flex min-h-12 items-center font-bold text-primary underline underline-offset-4">
+                    <Link href="/movement" className="mt-1 inline-flex min-h-12 items-center font-bold text-primary underline underline-offset-4">
                       {t('calmNoSteps')}
                     </Link>
                   )}

@@ -4,6 +4,7 @@ import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
 import { useT } from './i18n';
 import { useSettings } from './store/useApp';
 import { useData } from './store/useData';
+import { MonitoringSync } from './ui/MonitoringSync';
 import { Announcer } from './ui/components/Announcer';
 import { Button } from './ui/components/Button';
 import { ErrorBoundary } from './ui/components/ErrorBoundary';
@@ -13,7 +14,14 @@ import { useTransitionHashLocation } from './ui/navigation';
 import Live from './ui/pages/Live';
 
 const Splash = lazy(() => import('./ui/pages/Splash'));
+const Overview = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.PlatformOverview})));
+const Monitoring = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.MonitoringPage})));
+const Events = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.EventsPage})));
+const Devices = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.DevicesPage})));
 const Home = lazy(() => import('./ui/pages/Home'));
+const Movement = lazy(() => import('./ui/pages/Movement'));
+const Individuals = lazy(() => import('./ui/pages/Individuals'));
+const Research = lazy(() => import('./ui/pages/Research'));
 const Styleguide = lazy(() => import('./ui/pages/Styleguide'));
 const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
 const About = lazy(() => import('./ui/pages/About'));
@@ -173,6 +181,16 @@ function Routes() {
         <Switch>
           <Route path="/" component={Live} />
           <Route path="/home" component={Home} />
+          <Route path="/overview" component={Overview} />
+          <Route path="/monitoring" component={Monitoring} />
+          <Route path="/events" component={Events} />
+          <Route path="/devices" component={Devices} />
+          <Route path="/communication">
+            <Redirect to="/home" />
+          </Route>
+          <Route path="/movement" component={Movement} />
+          <Route path="/individuals" component={Individuals} />
+          <Route path="/research" component={Research} />
           <Route path="/teach" component={Teach} />
           <Route path="/teach/:signalId/add" component={Teach} />
           <Route path="/signals" component={Signals} />
@@ -224,6 +242,7 @@ export function App() {
     <Router hook={useTransitionHashLocation} hrefs={(href) => `#${href}`}>
       <RouteFocus />
       <SessionSync />
+      <MonitoringSync />
       <Announcer />
       <Routes />
       <FeedbackToasts theme={toastTheme} />

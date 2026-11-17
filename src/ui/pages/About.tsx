@@ -14,8 +14,10 @@ export default function About() {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl sm:text-3xl">{t('aboutTitle')}</h1>
-        <p className="mt-3 max-w-2xl text-lg text-ink-muted">{t('tagline')}</p>
+        <p className="mt-3 max-w-2xl text-lg text-ink-muted">{t('monTagline')}</p>
       </header>
+
+      <p className="max-w-3xl text-ink-muted">{t('monPhilosophy')}</p>
 
       <section aria-labelledby="how">
         <h2 id="how" className="text-xl">

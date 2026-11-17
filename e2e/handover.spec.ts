@@ -18,7 +18,7 @@ test('export → delete all → wrong passphrase error → import → signals re
   const [csvDl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
   expect(csvDl.suggestedFilename()).toMatch(/^adam-timeline-\d{8}\.csv$/);
   const csv = readFileSync((await csvDl.path())!, 'utf8');
-  expect(csv.split('\n')[0]).toBe('time_utc,local_time,kind,signal,meaning,confidence,feedback,calm_tier,calm_score');
+  expect(csv.split('\n')[0]).toBe('time_utc,local_time,kind,signal,meaning,confidence,feedback,calm_tier,calm_score,source,caregiver_note');
   expect(csv).toContain('Water');
 
   // Export handover file
@@ -68,7 +68,7 @@ test('export → delete all → wrong passphrase error → import → signals re
   await expect(page.getByTestId('import-preview')).toHaveText('Adam: 2 signals, 10 examples', { timeout: 20_000 });
   await expectAccessible(page, 'import-preview');
   await page.getByRole('button', { name: 'Import as a new profile' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Live' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Live recognition' })).toBeVisible();
 
   // restored signals still recognise
   await startDemo(page);

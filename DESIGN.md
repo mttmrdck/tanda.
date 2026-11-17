@@ -1,62 +1,56 @@
-# Tanda interface system
+# Tanda — Care, in focus
 
-Updated 17 November 2026. This is a local, on-device communication aid for caregivers. The interface should feel familiar, calm, and direct. The pose view and the caregiver’s interpretation take priority over metrics.
+17 November 2026. The user's signature brief governs this system: architectural monochrome, selective glass and human-centred operational clarity. The supplied blue Tanda icon remains the original brand asset. This is an assistive-care workspace, with actual individual/source context and caregiver actions ahead of decorative metrics.
+
+## Colour and material
+
+Runtime source: `src/index.css`. Automated semantic contrast fixture: `src/ui/theme/tokens.json`.
+
+| Role | Light | Dim |
+| --- | --- | --- |
+| Foundation | #F5F5F5 | #0A0A0A |
+| Opaque reading surface | #FAFAFA | #171717 |
+| Secondary surface | #EDEDED | #262626 |
+| Primary text/action label | #171717 | #F5F5F5 |
+| Secondary text | #666666 | #A3A3A3 |
+| Filled action | #171717 | #EDEDED |
+| Text on filled action | #FAFAFA | #171717 |
+| Soft boundary | #DEDEDE | #333333 |
+| Form boundary | #858585 | #777777 |
+| Focus | #4D4D4D | #D4D4D4 |
+
+The requested 60/30/10 balance is a compositional principle: neutral foundation, strong typographic/action contrast, silver/grey supporting detail. It is not a measured screen-area claim. Green means supported positive state, amber means review/experimental, red means destructive/high-priority. Colour never substitutes for text. No decorative teal, purple, neon, chart gradients or generated camera imagery.
+
+Glass is limited to navigation, profile identity, contextual controls and occasional overlays. Light reading-overlay material: 94% #FAFAFA, fine white border, inset highlight, offset soft shadow. Dim material: 84% graphite, restrained white edge and deeper neutral shadow. The icon-only dock can use 82% material, with graphical contrast and no translucent body text. CSS blur is bounded to 16–20px; event records and forms stay opaque. Reduced-transparency preferences and unsupported filters use solid fallbacks. This is a web material treatment, not native Apple refraction.
 
 ## Typography
 
-Use `-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, Inter, sans-serif`. Inter 400/600/700 is bundled with Fontsource; no font CDN or SF download. Body is 17px, headline 17px semibold, title 22px, large title 34/41px bold, footnote 13px, caption 12px. Tab labels alone are 11px. Use tabular figures and the `NumberRoll` component for changing summary values. Keep explanatory prose left aligned.
+Bundled Inter 400/600/700 leads a system fallback stack; no remote fonts. Body 16px; working descriptions 14–15px, line-height 1.6–1.7; page title 32px desktop/28px mobile; section title 18–20px; metadata 12–13px. Small source/timestamp labels may use 11px, never essential explanatory prose. Individual identity can reach 40px on desktop/32px mobile, with no invented score beside it. Tabular numerals for time/counts. Readable measures around 60–75ch. No ornamental eyebrows or editorial display font in controls.
 
-## Palette and surfaces
+## Composition
 
-Runtime truth: `src/index.css`; checked contrast pairs: `src/ui/theme/tokens.json`.
+Desktop: 248px solid rail, compact 72px translucent header and up to 1160px content. Main destinations: Overview, Live Monitoring, Individuals, Events & Alerts, Communication, Insights, Devices & Cameras, Settings. Movement/research/About are secondary; Communication retains its four route tabs. Collapsing the rail moves destination access into a horizontally scrollable header without document overflow.
 
-| Role | Light | Dark |
-| --- | --- | --- |
-| Grouped background | #F2F2F7 | #000000 |
-| Surface | #FFFFFF | #1C1C1E |
-| Secondary surface | #F2F2F7 | #2C2C2E |
-| Primary label | #1C1C1E | #FFFFFF |
-| Secondary label | #636366 | #AEAEB2 |
-| Action label | #0062CC | #69B4FF |
-| Filled action | #0069DD | #0069DD |
+Mobile/tablet: no squeezed sidebar or wrapping primary-navigation strip. A five-destination floating glass icon dock serves Overview, Monitoring, Events, Communication and Insights. Accessible names remain. Header menu opens all destinations in a focus-trapped sheet; profile opens Individuals. 16px phone margins, 24px tablet insets, safe-area dock clearance and comfortable primary targets. All six widths—320, 375, 390, 768, 1024, 1440—are explicit QA targets. Header actions stack below copy on small screens.
 
-Blue is reserved for actions and selection. Small blue text and white-on-blue controls use contrast-adjusted shades of system blue to meet AA. Calm/rising/high use green/orange/red with an icon and a word; light-theme status text uses darker shades. Gesture categories use blue and neutral grays, not diagnostic status colors.
+Overview uses an individual/environment dossier, divided operating-status strip, caregiver review records, compact communication entry and honest capability states. No four-card metric grid. Monitoring separates the labelled simulation workbench from actual local browser input. Events use a margin-marked timeline, review priority, consistent metadata and preserved notes/history. Forms use grouped individual/environment, consent/privacy and observation preferences. Insights charts retain actual data, source labels, text alternatives and exports. Settings keeps language/appearance/privacy and destructive controls findable.
 
-Cards are flat opaque surfaces. No gradients, colored shadows, drifting backgrounds, or pulsing chart markers. Apply translucent material only to navigation bars, dialogs/sheets, popovers, and feedback. The light material is 94% white to preserve contrast over a scrim. Blur is 24px with saturation; reduced transparency and unsupported backdrop filters use opaque fallback surfaces.
+## Components and states
 
-## Structure
+`PageHeader` and `StatusBadge` join the existing product wrappers. `Button`, Card, Controls, Dialog, Shell, HistoryLog, SummaryStat and chart wrappers extend one semantic token system. Adapted EasyUI source stays in `src/ui/vendor`; no screen imports a second component library.
 
-Desktop has a 232px rail, a quiet top bar, and a maximum 1160px content area. Phone/tablet has four tabs: Home, Teach, Live, Insights. Profile remains accessible from the avatar; the Home library links to Signals. Keep 16px mobile margins and 48px primary actions. Bottom navigation includes safe-area padding and 49px tab targets. Preserve every existing route and workflow.
+Panels use 16px radius, identity 20px, controls 12px, floating dock 24px, sheets 28–32px. 4/8px spacing rhythm, 20–28px panel insets, larger separation between functional groups. Borders and separators define density; shadows indicate real layering. Primary buttons are solid monochrome. Secondary controls use neutral surfaces; destructive actions use semantic red and retain confirmation safeguards. Switch thumb/checkmark colours invert with the theme.
 
-Large titles remain 34px; the desktop bar shows a 17px title after the large title scrolls away. Home combines one primary Live entry with compact summaries and grouped library/recent-event lists. Live uses an asymmetric pose/interpretation layout; cards never animate the camera geometry. Settings uses inset groups and separators; History becomes a compact grouped list on phones while retaining table semantics. Insights adds independently selected Day/7-day/31-day charts while retaining the existing daily timeline and export scope.
-
-## Components
-
-Product-facing wrappers live in `src/ui/components`. Installed and adapted EasyUI source lives in `src/ui/vendor`; screens never import it directly. `SummaryStat`, `MotionTrace`, `InsightsVisuals`, `HistoryLog`, `Button`, `Dialog`, `FeedbackToasts`, and `Shell` own the product contract.
-
-Radii: cards 20px, groups 16px, controls 14px or capsules, sheets 28–32px. Use continuous corners where supported. Switches and segmented controls retain native/Radix semantics. Sheets compose EasyUI-style drag springs with Radix focus trapping, Escape dismissal, explicit close buttons, and a keyboard-operable expand/collapse grabber. Delete confirmations retain their typed confirmation safeguard.
+Source vocabulary always distinguishes browser-camera input, metadata simulation and unavailable integrations. Monitoring state does not prove a person is visible. Experimental baseline sample/coverage displays do not claim validated calibration. No fake sound results, camera video, remote alerts or confidence percentages.
 
 ## Motion and accessibility
 
-Press feedback is scale .97 and subtle dimming. Sheet and digit transitions use stiffness 360 and damping 32–34. Page changes show a 260ms content-shaped skeleton shimmer; lazy loading uses the same skeleton. The route updates immediately and the new screen mounts behind the loading presentation, preserving effects and camera teardown. There are no page slides. Reduced motion removes translations and digit rolling, retaining fades. No decorative infinite animation is added.
+160ms press/hover feedback, 180–250ms state and panel transitions, existing 260ms skeleton route cover. Motion answers an action or communicates actual state. No perpetual decorative status pulse, shader/WebGL context, background parallax or animated chart fabrication. A baseline progress indicator uses actual accepted sample count and remains labelled experimental. The existing user-requested CSS-checkbox export fan retains its spring/stagger; reduced motion removes its movement. Existing Motion/Radix sheets retain focus management, Escape, close and keyboard detent controls.
 
-The movement trace subscribes read-only to the existing Calm Watch output. It draws when a new reading or inspection arrives instead of continuously repainting alongside inference. It stores no history outside the mounted UI. Camera data, consent, capture, recognition, haptics, speech, crypto, storage schemas, and handover behavior remain owned by their existing modules.
+Visible 3px neutral focus ring; native labels, switches, radios and keyboard order; typed delete confirmations preserved. Icon-only navigation keeps accessible names. Important states carry text and icons. Scroll margin accounts for sticky header/dock. Contrast script checks 48 semantic pairings; axe tests cover EN/BM, light/dim, populated and unconfigured routes. Browser checks do not constitute formal WCAG certification or physical-device validation.
 
-Run `npm run typecheck`, `npm test`, `npm run contrast`, `npm run build`, and `npm run e2e` for release checks. The unlisted `/#/styleguide` route provides visual inspection of typography, semantic states, controls, sheets, and number cards. Screenshots and the audit are under `docs/`.
+## Compatibility and standalone surfaces
 
-## Colorion refinement
+Routes, gateway contracts, engines, camera lifecycle, IndexedDB and encrypted `.isyarat` handover are outside visual redesign ownership. Existing user data is not rewritten. The standalone `/#/splash` retains the user's separate midnight/blue gesture-mark direction and has no automatic launch redirect. Navigation uses the original PNG; no raster redraw.
 
-The bottom navigation now floats in a blurred glass capsule and uses icons only, with accessible names retained. Teach uses Lucide Hand. The Timeline header has one date control; an export entry aligned beside the date fans out CSV, JSON, and Print. Actions open below the header. Its hidden checkbox owns open state, with CSS-only staggered fan motion and plus-to-close rotation. The requested spring curve (`.34, 1.56, .64, 1`) is deliberately limited to this occasional interaction. Reduced motion removes the fan movement. The existing Radix switches gain a small checkmark and restrained thumb compression; loading buttons use three signal strokes. These are local CSS adaptations inspired by the user’s Colorion references, not external scripts or runtime requests.
-
-
-## Tanda identity and header
-
-Use the supplied `public/brand/tanda-icon.png` directly. The visual wordmark is `tanda.`; document titles and app copy use Tanda. The app header contains identity and profile access. Language, appearance, and privacy controls live in Settings. Appearance uses a sun/moon/device selector inspired by Colorion, preserving the existing Match device preference. Persisted database keys and `.isyarat` handover compatibility remain unchanged. The supplied splash-screen document is reference context, not a new automatic launch screen.
-
-## Profile density
-
-Settings/Profile groups use 16px insets, 16px content gaps, 17px section headings, and 44px control targets. Related fields live in one content wrapper so section separators cannot accidentally restyle a button. Desktop groups flow in two independent columns rather than stretching into equal-height rows. The handover action is a full-width, clearly filled button. Destructive copy is compact and secondary, with the destructive action still visibly red.
-
-## Splash preview
-
-The standalone `/#/splash` preview follows the supplied Tanda splash brief: midnight navy, four separated blue vector strokes, `tanda.` at 44px, a short tagline, and a quiet privacy note. Its one-time staggered entrance settles completely; reduced motion shows the final composition immediately. It has no app chrome or automatic redirect. The navigation icon continues to use the supplied PNG directly.
+See [direction and resources](docs/design/SIGNATURE-DIRECTION.md), [verification report](docs/design/SIGNATURE-REPORT.md) and [screenshot gallery](docs/screenshots/refinement/README.md).

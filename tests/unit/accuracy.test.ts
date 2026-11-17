@@ -107,6 +107,7 @@ describe('synthetic benchmark (not a clinical or real-child result)', () => {
     console.log(`classify latency: ${avg.toFixed(3)} ms / window (6 signals × 10 examples)`);
     report.latencyMsPerWindow = Number(avg.toFixed(3));
     expect(avg).toBeLessThan(15);
-    writeFileSync('docs/benchmark-synthetic.json', JSON.stringify({ ...report, generatedBy: 'tests/unit/accuracy.test.ts' }, null, 2) + '\n');
+    // regenerate the committed report only on request (WRITE_BENCHMARK=1 npm test), so a normal run never edits docs/
+    if (process.env.WRITE_BENCHMARK) writeFileSync('docs/benchmark-synthetic.json', JSON.stringify({ ...report, generatedBy: 'tests/unit/accuracy.test.ts' }, null, 2) + '\n');
   });
 });

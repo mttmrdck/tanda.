@@ -1,4 +1,4 @@
-import { Pencil, Play, Plus, Search, Trash } from 'lucide-react';
+import { FlaskConical, Pencil, Play, Plus, Search, Trash } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Link } from 'wouter';
@@ -60,6 +60,15 @@ function SignalCard({ s, lastSeen, onEdit, onDelete }: { s: Signal; lastSeen?: s
           <dt className="sr-only">{t('addExamples')}</dt>
           <dd className="tabular">{t('examplesCount', { n: examples.length })}</dd>
         </div>
+        {examples.some((e) => e.capture === 'demo') && (
+          <div className="flex items-center" data-testid="library-demo-tag">
+            <dt className="sr-only">{t('tagSimulated')}</dt>
+            <dd className="inline-flex items-center gap-1 font-semibold text-rising-fg">
+              <FlaskConical aria-hidden className="size-4" />
+              {t('libDemoTag')}
+            </dd>
+          </div>
+        )}
         <div className="flex items-center">
           <dt className="sr-only">{t('lastSeen', { when: '' })}</dt>
           <dd>{lastSeen ? t('lastSeen', { when: relativeTime(lastSeen, lang) }) : t('neverSeen')}</dd>
@@ -120,7 +129,7 @@ export default function Signals() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="page-heading">
         <div>
           <h1 className="text-2xl sm:text-3xl">{t('signalsTitle')}</h1>
           <p className="mt-1 text-ink-muted tabular">{t('signalsCount', { n: signals.length })}</p>

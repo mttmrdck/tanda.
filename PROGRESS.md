@@ -71,3 +71,27 @@
 - [x] Measured: 4 ms from capture end to result; ranking ~1.4 ms; synthetic demo top-1 95.8 % / top-3 100 %.
 - [ ] Early stop on stillness, so a short sign does not wait for the full 2.5 s window.
 - [ ] Real ASL needs recorded signs/alphabet from real signers and a Deaf signer's review.
+
+## Hybrid assistive monitoring foundation — 17 November 2026
+
+- [x] Baseline audited: typecheck/lint/build, 131 unit tests, 52 browser passes and 4 intentional skips.
+- [x] Additive shared Zod contracts, independent baseline/event core, simulated camera interface and disabled IP/audio boundaries.
+- [x] Separate authenticated loopback simulation service with atomic metadata persistence and HTTP integration test.
+- [x] IndexedDB v3 sidecar with tested legacy migration and profile-delete cascade; existing communication data and encrypted handover preserved.
+- [x] Overview, Monitoring, Events and Devices; explicit child/older-adult care configuration; actual event review/history and local metadata Insights.
+- [x] Repeatable labelled simulation, no automatic age policies, explicit monitoring consent, camera quality/disconnection distinct from inactivity.
+- [x] EN/BM and light/dim accessibility checks, 320px reflow, rendered screenshot review.
+- [x] 148 unit tests, 48 contrast pairs, typecheck/lint/production build; full browser suite 60 passed/1 opt-in skip; final focused suite 16 passed; separate performance and gateway probes passed. Details: docs/validation/HYBRID-REPORT.md.
+- [ ] Real IP camera decoder/inference, edge pairing/event transport, caregiver roles, validated risk detectors, remote notifications and audio remain future work.
+
+## Signature monochrome workspace — 17 November 2026
+
+- [x] Supplied monochrome/liquid-glass brief applied over the preserved hybrid foundation; original blue brand icon retained.
+- [x] Three directions compared; local skills/tool availability inspected; chosen system documented in DESIGN.md and docs/design/SIGNATURE-DIRECTION.md.
+- [x] Refined shell and all eight primary destinations, shared page headers/status badges, grouped consent forms, real source and event metadata.
+- [x] Five-icon glass dock, keyboard-accessible mobile menu, six explicit viewport widths, clear EN/BM and light/dim states.
+- [x] Manual rendered review, populated/unconfigured profile checks and 50 screenshot artifacts in docs/screenshots/refinement.
+- [x] 148 unit tests, 48 contrast pairs, strict typecheck, zero-warning lint, gateway integration and production build.
+- [x] Corrected full browser suite: 63 passed/1 opt-in skip; separate performance probe passed; final focused UI/reflow/gallery suite: 6 passed.
+- [x] Detector: zero primary findings; one intentional advisory for the previously requested export spring.
+- [x] Performance, limitations and resources recorded in docs/design/SIGNATURE-REPORT.md. No production CCTV/audio/remote-alert claim added.

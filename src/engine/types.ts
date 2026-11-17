@@ -62,6 +62,8 @@ export interface Example {
   /** n*d */
   data: Float32Array;
   source: 'teach' | 'feedback';
+  /** how the example was captured; absent on data recorded before this was tracked */
+  capture?: CaptureSource;
   createdAt: string;
 }
 
@@ -78,6 +80,9 @@ export interface Recognition {
 
 export type CalmTier = 'calm' | 'rising' | 'high';
 
+/** Where a recording or event came from. 'demo' = the simulated performer, never a real person. */
+export type CaptureSource = 'camera' | 'demo';
+
 export interface EventRecord {
   id: string;
   profileId: string;
@@ -88,6 +93,10 @@ export interface EventRecord {
   feedback?: 'yes' | 'no' | 'new';
   tier?: CalmTier;
   score?: number;
+  /** camera or simulated demo performer; absent on events recorded before this was tracked */
+  source?: CaptureSource;
+  /** a caregiver's own observation, kept separate from what the system measured */
+  note?: string;
 }
 
 export type AgeBand = 'under5' | '5to8' | '9to12' | '13plus';
@@ -104,6 +113,8 @@ export interface Profile {
   ageBand?: AgeBand;
   comfortSteps: ComfortSteps;
   createdAt: string;
+  /** Added without rewriting legacy profiles; readers fall back to createdAt when absent. */
+  updatedAt?: string;
   /** Calm Watch baseline: calm-period motion-energy samples (numbers only) */
   calmBaseline?: number[];
 }

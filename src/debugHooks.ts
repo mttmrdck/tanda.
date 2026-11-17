@@ -44,7 +44,7 @@ export function install(): void {
       for (const [i, d] of defs.entries()) {
         const sig = await repo.createSignal({ profileId, name: { en: d.en, ms: d.ms }, meaning: { en: d.mEn, ms: d.mMs }, category: 'need', urgency: d.urgency, icon: d.icon });
         ids.push(sig.id);
-        for (const ex of simulatedExamples(d.g, 5, 7000 + i * 100)) await repo.addExample({ signalId: sig.id, n: CLIP_N, d: D, data: ex, source: 'teach' });
+        for (const ex of simulatedExamples(d.g, 5, 7000 + i * 100)) await repo.addExample({ signalId: sig.id, n: CLIP_N, d: D, data: ex, source: 'teach', capture: 'demo' });
       }
       if (withEvents) {
         // place the day's events in the past, ending ~10 minutes ago, keeping their relative spacing
@@ -54,10 +54,10 @@ export function install(): void {
           [9, 5, 0, 'yes'], [10, 12, 0, 'yes'], [10, 40, 0, 'yes'], [10, 55, 2, undefined], [11, 30, 1, 'no'], [13, 15, 2, 'yes'], [15, 2, 0, 'yes'],
         ];
         for (const [h, m, k, fb] of plan) {
-          await repo.addEvent({ profileId, ts: at(h, m), kind: 'signal', signalId: ids[k0(k)]!, confidence: 0.7 + (m % 20) / 100, ...(fb ? { feedback: fb } : {}) });
+          await repo.addEvent({ profileId, ts: at(h, m), kind: 'signal', signalId: ids[k0(k)]!, confidence: 0.7 + (m % 20) / 100, source: 'demo', ...(fb ? { feedback: fb } : {}) });
         }
-        await repo.addEvent({ profileId, ts: at(11, 20), kind: 'calm-tier', tier: 'rising', score: 0.48 });
-        await repo.addEvent({ profileId, ts: at(11, 34), kind: 'calm-tier', tier: 'calm', score: 0.2 });
+        await repo.addEvent({ profileId, ts: at(11, 20), kind: 'calm-tier', tier: 'rising', score: 0.48, source: 'demo' });
+        await repo.addEvent({ profileId, ts: at(11, 34), kind: 'calm-tier', tier: 'calm', score: 0.2, source: 'demo' });
       }
       return ids;
     },

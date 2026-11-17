@@ -1,4 +1,5 @@
-import { Table } from 'lucide-react';
+import { ChevronRight, FlaskConical, Table } from 'lucide-react';
+import { Link } from 'wouter';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
@@ -8,10 +9,12 @@ import { listEvents } from '../../store/repo';
 import { useSettings } from '../../store/useApp';
 import { useData } from '../../store/useData';
 import { Button } from '../components/Button';
+import { MonitoringInsights } from '../components/MonitoringInsights';
 import { ExportFan } from '../components/ExportFan';
 import { HistoryLog } from '../components/HistoryLog';
 import { InsightsVisuals } from '../components/InsightsVisuals';
 import { Card } from '../components/Card';
+import { Switch } from '../components/Controls';
 import { downloadBlob, fileStem, ymd } from '../components/download';
 import { dayLabel, hourLabel, timeOfDay } from '../components/format';
 import { tierLabel } from '../components/LiveBits';
@@ -51,7 +54,11 @@ export default function Timeline() {
   const profile = useData((s) => s.profile);
   const signals = useData((s) => s.signals);
   const [date, setDate] = useState(todayStr());
-  const [events, setEvents] = useState<EventRecord[] | null>(null);
+  const [allEvents, setEvents] = useState<EventRecord[] | null>(null);
+  const [showDemo, setShowDemo] = useState(true);
+  // simulated (demo performer) activity is always labelled, and can be left out of every chart and export
+  const events = useMemo(() => (allEvents && !showDemo ? allEvents.filter((e) => e.source !== 'demo') : allEvents), [allEvents, showDemo]);
+  const demoCount = (allEvents ?? []).filter((e) => e.source === 'demo').length;
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -119,7 +126,7 @@ export default function Timeline() {
   return (
     <div className="timeline-page space-y-6">
       <header className="timeline-heading">
-        <div>
+        <div><p className="page-eyebrow">{t('navIndividuals')} · {profile?.nickname}</p>
           <h1 className="text-2xl sm:text-3xl">{t('navInsights')}</h1>
           <p className="mt-1 text-ink-muted">{dayLabel(dayBounds(date || todayStr()).date, lang)}</p>
         </div>
@@ -136,6 +143,28 @@ export default function Timeline() {
           </label>
         </div><ExportFan disabled={!events} onCsv={() => exportFile('csv')} onJson={() => exportFile('json')} /></div>
       </header>
+
+      <div className="insights-context grid items-start gap-3 lg:grid-cols-[1fr_1fr]">
+        <div className="space-y-2 rounded-[16px] bg-surface p-4">
+          <Switch label={t('insShowDemo')} checked={showDemo} onChange={setShowDemo} />
+          {demoCount > 0 && (
+            <p className="flex items-start gap-2 text-sm text-ink-muted" data-testid="insights-demo-note">
+              <FlaskConical aria-hidden className="mt-0.5 size-4 shrink-0" />
+              {t('insDemoNote', { n: demoCount })}
+            </p>
+          )}
+          <Link href="/movement" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary">
+            {t('insMovementLink')}
+            <ChevronRight aria-hidden className="size-4" />
+          </Link>
+        </div>
+        <details className="export-explain rounded-[16px] bg-surface p-4">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-semibold">{t('insExportTitle')}<ChevronRight aria-hidden className="size-4 shrink-0"/></summary>
+          <p className="mt-2 text-sm text-ink-muted">{t('insExportBody', { name: profile?.nickname ?? '' })}</p>
+        </details>
+      </div>
+
+      <MonitoringInsights />
 
       {error && (
         <p role="alert" className="rounded-[16px] bg-high-bg p-4 font-bold text-high-fg">
@@ -187,7 +216,7 @@ export default function Timeline() {
               }
             >
               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                <BarChart data={hours} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
+                <BarChart data={hours} margin={{ top: 24, right: 8, bottom: 0, left: -16 }}>
                   <CartesianGrid vertical={false} stroke="var(--border-soft)" />
                   <XAxis dataKey="hour" tick={axis} tickLine={false} axisLine={{ stroke: 'var(--border)' }} interval={3} tickFormatter={(h: number) => String(h).padStart(2, '0')} />
                   <YAxis allowDecimals={false} tick={axis} tickLine={false} axisLine={false} width={68} />
@@ -222,7 +251,7 @@ export default function Timeline() {
               }
             >
               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                <LineChart data={calm.length ? calm : [{ h: 0, level: 0, score: 0 }, { h: 24, level: 0, score: 0 }]} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
+                <LineChart data={calm.length ? calm : [{ h: 0, level: 0, score: 0 }, { h: 24, level: 0, score: 0 }]} margin={{ top: 24, right: 8, bottom: 0, left: 8 }}>
                   <CartesianGrid vertical={false} stroke="var(--border-soft)" />
                   <XAxis dataKey="h" type="number" domain={[0, 24]} ticks={[0, 6, 12, 18, 24]} tick={axis} tickLine={false} axisLine={{ stroke: 'var(--border)' }} tickFormatter={(h: number) => String(Math.floor(h)).padStart(2, '0')} />
                   <YAxis domain={[0, 2]} ticks={[0, 1, 2]} tick={axis} tickLine={false} axisLine={false} width={68} tickFormatter={(v: number) => t(TIER_KEYS[v] ?? 'tierCalm')} />
@@ -232,7 +261,7 @@ export default function Timeline() {
             </ChartFrame>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
             <Card aria-labelledby="top-h">
               <h2 id="top-h" className="text-lg">
                 {t('topSignals')}
