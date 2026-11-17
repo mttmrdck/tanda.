@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+*.local
+.DS_Store
+public/models
+public/mediapipe
+test-results
+playwright-report
+blob-report
+e2e/__screens__
+.env*
