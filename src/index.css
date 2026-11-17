@@ -121,6 +121,10 @@ h3 {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
+/* Programmatic focus targets (page <main>, step headings) are not interactive: no ring. */
+[tabindex='-1']:focus {
+  outline: none;
+}
 ::selection {
   background: var(--primary-soft);
 }
@@ -142,5 +146,29 @@ h3 {
   :root {
     --border-soft: var(--border);
     --ink-muted: var(--ink);
+  }
+}
+
+/* Dialog / sheet entry — opacity + small translate/scale only; instant under reduced motion. */
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes content-in {
+  from {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+.dialog-overlay[data-state='open'] {
+  animation: overlay-in var(--duration-base) var(--ease-out);
+}
+.dialog-content[data-state='open'] {
+  animation: content-in var(--duration-base) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-content[data-state='open'] {
+    animation-name: overlay-in;
   }
 }

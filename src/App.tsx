@@ -1,29 +1,145 @@
-import { lazy, Suspense } from 'react';
-import { Route, Router, Switch } from 'wouter';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { Toaster } from 'sonner';
+import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
 import { useT } from './i18n';
+import { useSettings } from './store/useApp';
+import { useData } from './store/useData';
+import { Announcer } from './ui/components/Announcer';
+import { Button } from './ui/components/Button';
+import { ErrorBoundary } from './ui/components/ErrorBoundary';
+import { AppShell, BareShell } from './ui/components/Shell';
+import { SessionSync } from './ui/SessionSync';
+import Live from './ui/pages/Live';
 
+const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
+const About = lazy(() => import('./ui/pages/About'));
 const DebugPage = import.meta.env.DEV || import.meta.env.MODE === 'e2e' ? lazy(() => import('./ui/pages/DebugPage')) : null;
 
-function Home() {
-  const t = useT();
+function PageSkeleton() {
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl">{t('appName')}</h1>
-      <p className="mt-2 text-ink-muted">{t('tagline')}</p>
-    </main>
+    <div aria-hidden className="space-y-6">
+      <div className="h-10 w-48 rounded-[12px] bg-surface-2" />
+      <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+        <div className="aspect-[4/3] rounded-[20px] bg-surface-2" />
+        <div className="h-64 rounded-[20px] bg-surface-2" />
+      </div>
+    </div>
+  );
+}
+
+/** Focus <main> and scroll to top on route change, so keyboard and screen-reader users land on the new page. */
+function RouteFocus() {
+  const [loc] = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.getElementById('main')?.focus({ preventScroll: true });
+  }, [loc]);
+  return null;
+}
+
+function Page({ children }: { children: ReactNode }) {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function Routes() {
+  const t = useT();
+  const status = useData((s) => s.status);
+  const profiles = useData((s) => s.profiles);
+  const consented = useSettings((s) => s.consented);
+  const [loc] = useLocation();
+
+  if (status === 'loading') {
+    return (
+      <BareShell>
+        <PageSkeleton />
+      </BareShell>
+    );
+  }
+  if (status === 'error') {
+    return (
+      <BareShell>
+        <div role="alert" className="mt-10 rounded-[20px] border border-border-soft bg-surface p-6">
+          <h1 className="text-xl">{t('loadError')}</h1>
+          <p className="mt-2 text-ink-muted">{t('storageError')}</p>
+          <Button className="mt-4" onClick={() => void useData.getState().load()}>
+            {t('errorRetry')}
+          </Button>
+        </div>
+      </BareShell>
+    );
+  }
+
+  const onboarded = consented && profiles.length > 0;
+  if (loc.startsWith('/onboarding')) {
+    return (
+      <BareShell>
+        <Page>
+          <Onboarding key={loc} {...(loc === '/onboarding/profile' && consented ? { startAt: 'profile' as const } : {})} />
+        </Page>
+      </BareShell>
+    );
+  }
+  if (!onboarded) {
+    if (loc === '/about') {
+      return (
+        <BareShell>
+          <Page>
+            <About />
+          </Page>
+        </BareShell>
+      );
+    }
+    if (DebugPage && loc === '/debug') {
+      return (
+        <Page>
+          <DebugPage />
+        </Page>
+      );
+    }
+    return <Redirect to="/onboarding" />;
+  }
+
+  return (
+    <AppShell>
+      <Page>
+        <Switch>
+          <Route path="/" component={Live} />
+          <Route path="/about" component={About} />
+          {DebugPage && <Route path="/debug" component={DebugPage} />}
+          <Route>
+            <Redirect to="/" />
+          </Route>
+        </Switch>
+      </Page>
+    </AppShell>
   );
 }
 
 export function App() {
+  const theme = useSettings((s) => s.theme);
+  useEffect(() => {
+    void useData.getState().load();
+  }, []);
+  const toastTheme = theme === 'system' ? 'system' : theme === 'dim' ? 'dark' : 'light';
   return (
     <Router hook={useHashLocation}>
-      <Suspense fallback={null}>
-        <Switch>
-          {DebugPage && <Route path="/debug" component={DebugPage} />}
-          <Route component={Home} />
-        </Switch>
-      </Suspense>
+      <RouteFocus />
+      <SessionSync />
+      <Announcer />
+      <Routes />
+      <Toaster
+        position="top-center"
+        theme={toastTheme}
+        closeButton
+        toastOptions={{
+          style: { background: 'var(--surface)', color: 'var(--ink)', border: '1px solid var(--border-soft)', fontSize: '1rem', borderRadius: '16px' },
+        }}
+      />
     </Router>
   );
 }

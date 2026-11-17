@@ -24,6 +24,8 @@ export interface SessionUiState {
   lastEval: Evaluation | null;
   calm: CalmState | null;
   demoGesture: GestureName;
+  /** source to offer first on Live/Teach (set from onboarding) */
+  preferredSource: SourceKind;
 }
 
 export const useSession = create<SessionUiState>(() => ({
@@ -35,6 +37,7 @@ export const useSession = create<SessionUiState>(() => ({
   lastEval: null,
   calm: null,
   demoGesture: 'idle',
+  preferredSource: 'demo',
 }));
 
 const LOST_MS = 1000;

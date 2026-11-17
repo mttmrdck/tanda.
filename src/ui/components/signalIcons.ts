@@ -1,0 +1,60 @@
+import {
+  BatteryLow,
+  Bandage,
+  Bed,
+  Blocks,
+  BookOpen,
+  Car,
+  CircleCheck,
+  EighthNotes,
+  GlassWater,
+  Hand,
+  HandHeart,
+  HeartHandshake,
+  LifeBuoy,
+  Plus,
+  Snowflake,
+  Sun,
+  ThumbsDown,
+  ThumbsUp,
+  Toilet,
+  ToyBrick,
+  Trees,
+  Tv,
+  Utensils,
+  VolumeX,
+  type LucideIcon,
+} from 'lucide-react';
+import type { MsgKey } from '../../i18n';
+
+/** Curated pictograms for signals (key → icon + label). */
+export const SIGNAL_ICONS: { key: string; Icon: LucideIcon; label: MsgKey }[] = [
+  { key: 'water', Icon: GlassWater, label: 'icWater' },
+  { key: 'food', Icon: Utensils, label: 'icFood' },
+  { key: 'toilet', Icon: Toilet, label: 'icToilet' },
+  { key: 'pain', Icon: Bandage, label: 'icPain' },
+  { key: 'tired', Icon: BatteryLow, label: 'icTired' },
+  { key: 'play', Icon: Blocks, label: 'icPlay' },
+  { key: 'music', Icon: EighthNotes, label: 'icMusic' },
+  { key: 'quiet', Icon: VolumeX, label: 'icQuiet' },
+  { key: 'hug', Icon: HeartHandshake, label: 'icHug' },
+  { key: 'stop', Icon: Hand, label: 'icStop' },
+  { key: 'more', Icon: Plus, label: 'icMore' },
+  { key: 'finished', Icon: CircleCheck, label: 'icFinished' },
+  { key: 'help', Icon: LifeBuoy, label: 'icHelp' },
+  { key: 'hot', Icon: Sun, label: 'icHot' },
+  { key: 'cold', Icon: Snowflake, label: 'icCold' },
+  { key: 'yes', Icon: ThumbsUp, label: 'icYes' },
+  { key: 'no', Icon: ThumbsDown, label: 'icNo' },
+  { key: 'toy', Icon: ToyBrick, label: 'icToy' },
+  { key: 'outdoor', Icon: Trees, label: 'icOutdoor' },
+  { key: 'care', Icon: HandHeart, label: 'icCare' },
+  { key: 'sleep', Icon: Bed, label: 'icSleep' },
+  { key: 'tv', Icon: Tv, label: 'icTv' },
+  { key: 'book', Icon: BookOpen, label: 'icBook' },
+  { key: 'car', Icon: Car, label: 'icCar' },
+];
+
+export function iconFor(key: string): LucideIcon {
+  return SIGNAL_ICONS.find((i) => i.key === key)?.Icon ?? Hand;
+}
