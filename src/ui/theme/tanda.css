@@ -480,8 +480,7 @@ a.ov-card:active { transform: scale(0.985); }
 .ov-kicker.is-strong, .ov-hero[data-live] .ov-kicker { color: var(--ink); }
 .ov-pulse { position: relative; flex: none; width: 8px; height: 8px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--ink-muted); }
 .ov-pulse.is-live { background: var(--ink); box-shadow: none; }
-.ov-pulse.is-live::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--ink); animation: ov-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite; }
-@keyframes ov-ping { 75%, 100% { transform: scale(2.4); opacity: 0; } }
+.ov-pulse { transition: background-color var(--m-micro) var(--m-ease-out), box-shadow var(--m-micro) var(--m-ease-out); }
 .ov-source { flex: none; padding: 2px 8px; border: 1px dashed var(--border); border-radius: 999px; font-size: 11px; font-weight: 500; color: var(--ink-muted); }
 .ov-source.is-live { border: 0; background: var(--ink); color: var(--bg); }
 .ov-hero-title { margin: 12px 0 0; font-size: 22px; font-weight: 650; letter-spacing: -0.025em; line-height: 1.25; }
@@ -558,7 +557,6 @@ a.ov-card:active { transform: scale(0.985); }
   .ov-privacy { white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ov-pulse.is-live::after { animation: none; }
   .ov-card, .ov-btn { transition: none; }
 }
 
@@ -659,3 +657,70 @@ a.ov-card:active { transform: scale(0.985); }
   .ea-actions .ov-btn { padding: 0 22px; }
 }
 @media (prefers-reduced-motion: reduce) { .ea-segments button { transition: none; } }
+
+/* ── Motion language (mirrors src/ui/motion.ts). Purpose only: orient, connect, confirm, reveal, state change. ── */
+:root {
+  --m-press: 120ms; --m-hover: 150ms; --m-micro: 180ms; --m-tab: 200ms; --m-screen: 240ms; --m-exit: 140ms;
+  --m-modal: 240ms; --m-modal-exit: 160ms; --m-step: 260ms; --m-disclosure: 280ms;
+  --m-ease-out: cubic-bezier(0.22, 1, 0.36, 1); --m-ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* One active surface that travels between destinations (rail, top nav, filters) — shared layout, never re-created. */
+.nav-rail .nav-link.is-active { background: transparent; box-shadow: none; }
+.nav-rail .nav-link.is-active::before { content: none; }
+.nav-indicator {
+  position: absolute; inset: 0; z-index: 0; border-radius: inherit;
+  background: var(--surface); box-shadow: 0 0 0 1px var(--border-soft), 0 1px 2px rgb(0 0 0 / 0.04);
+}
+.nav-indicator::before { content: ''; position: absolute; left: -14px; top: 10px; bottom: 10px; width: 2px; border-radius: 2px; background: var(--ink); }
+.nav-rail .nav-link > :not(.nav-indicator) { position: relative; z-index: 1; }
+.top-nav-link { position: relative; }
+.top-nav-link.is-active { background: transparent; }
+.top-nav-indicator { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: var(--primary-fill); }
+.top-nav-text { position: relative; z-index: 1; }
+
+.ea-segments button { position: relative; }
+.ea-segments button[aria-pressed='true'] { background: transparent; box-shadow: none; }
+.ea-seg-bg { position: absolute; inset: 0; z-index: 0; border-radius: 14px; background: var(--surface); box-shadow: 0 1px 2px rgb(23 23 23 / 0.06), inset 0 0 0 1px var(--border-soft); }
+.ea-segments button > span:not(.ea-seg-bg) { position: relative; z-index: 1; }
+.ea-segments button:active { transform: scale(0.98); }
+.ea-segments button { transition: color var(--m-micro) var(--m-ease-out), transform var(--m-press) var(--m-ease-out); }
+
+/* Disclosure: height + fade from motion/react; the panel's spacing lives inside so it animates with it. */
+.ea-principle-wrap { overflow: hidden; }
+.ea-principle-wrap > .ea-principle { margin-top: 10px; }
+.ea-list:empty { display: none; }
+.ea-history summary svg { transition: transform var(--m-tab) var(--m-ease-out); }
+.ea-history[open] > ul { animation: m-reveal var(--m-micro) var(--m-ease-out) both; }
+@keyframes m-reveal { from { opacity: 0; transform: translateY(-4px); } }
+
+/* Feedback: press scale and calm hover, only where hover exists. */
+.ov-btn, .ea-why, .ea-close, .profile-pill { transition: background-color var(--m-hover) ease, border-color var(--m-hover) ease, color var(--m-hover) ease, transform var(--m-press) var(--m-ease-out); }
+.ea-why:active, .profile-pill:active, .ea-close:active { transform: scale(0.98); }
+.ov-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+@media (hover: none) { a.ov-card:hover { border-color: var(--border-soft); } }
+a.ov-card { transition: border-color var(--m-hover) ease, transform var(--m-press) var(--m-ease-out), box-shadow var(--m-hover) ease; }
+@media (hover: hover) { a.ov-card:hover { box-shadow: 0 6px 18px -12px rgb(23 23 23 / 0.18); } }
+
+/* Theme change: a single short crossfade of surfaces, borders and ink (class lives for 240ms). */
+.theme-sync, .theme-sync *, .theme-sync *::before, .theme-sync *::after {
+  transition: background-color var(--m-tab) var(--m-ease-out), border-color var(--m-tab) var(--m-ease-out), color var(--m-tab) var(--m-ease-out),
+    fill var(--m-tab) var(--m-ease-out), stroke var(--m-tab) var(--m-ease-out), box-shadow var(--m-tab) var(--m-ease-out) !important;
+  transition-delay: 0s !important;
+}
+
+/* Switch: thumb and track move together. */
+.switch-control { transition: background-color var(--m-micro) var(--m-ease-out), box-shadow var(--m-micro) ease; }
+.switch-control > span:last-child { transition: transform var(--m-micro) var(--m-ease-out), background-color var(--m-micro) ease; }
+
+/* Onboarding: continuous progress + restrained completion mark. */
+.ob-progress { height: 4px; margin: 10px 0 4px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.ob-progress span { display: block; height: 100%; border-radius: inherit; background: var(--ink); transform-origin: left center; transition: transform var(--m-disclosure) var(--m-ease-out); }
+.ob-done { display: block; margin-bottom: 14px; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ob-done circle { stroke: var(--border-soft); stroke-width: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ea-history[open] > ul { animation: none; }
+  .ob-progress span, .ea-history summary svg { transition: none; }
+  .ea-segments button:active, .ea-why:active, .profile-pill:active, .ea-close:active, a.ov-card:active, .ov-btn:active { transform: none; }
+}

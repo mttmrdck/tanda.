@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
+import { motion } from 'motion/react';
+import { indicator } from '../motion';
 import { useT, type MsgKey } from '../../i18n';
 import { useSettings } from '../../store/useApp';
 import { useData } from '../../store/useData';
@@ -249,6 +251,7 @@ function NavRail({ hidden }: { hidden: boolean }) {
     return (
       <li key={it.href}>
         <Link href={it.href} aria-current={active ? 'page' : undefined} className={clsx('nav-link press', nested && 'is-nested', active && 'is-active')}>
+          {active && <motion.span layoutId="rail-active" className="nav-indicator" transition={indicator} aria-hidden />}
           <it.Icon aria-hidden strokeWidth={STROKE} className="nav-icon" />
           <span className="nav-label">{t(it.label)}</span>
           {it.tag && <span className="nav-tag">{t(it.tag)}</span>}
@@ -425,7 +428,8 @@ function TopBar() {
                 return (
                   <li key={it.href}>
                     <Link href={it.href} aria-current={active ? 'page' : undefined} className={clsx('top-nav-link press', active && 'is-active')}>
-                      {t(it.label)}
+                      {active && <motion.span layoutId="top-active" className="top-nav-indicator" transition={indicator} aria-hidden />}
+                      <span className="top-nav-text">{t(it.label)}</span>
                     </Link>
                   </li>
                 );

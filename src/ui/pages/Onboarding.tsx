@@ -1,5 +1,7 @@
 import { Camera, Check, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import { dur, ease } from '../motion';
 import { Link, useLocation } from 'wouter';
 import { useT, type MsgKey } from '../../i18n';
 import type { AgeBand } from '../../engine/types';
@@ -12,6 +14,7 @@ import { TandaSymbol } from '../components/TandaSymbol';
 import { SegmentedControl, Select, TextField } from '../components/Controls';
 
 type Step = 'welcome' | 'consent' | 'profile' | 'ready';
+const ORDER: Record<Step, number> = { welcome: 0, consent: 1, profile: 2, ready: 3 };
 
 const AGE: { value: AgeBand | 'none'; label: MsgKey }[] = [
   { value: 'none', label: 'ageNone' },
@@ -26,6 +29,12 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
   const settings = useSettings();
   const [, navigate] = useLocation();
   const [step, setStep] = useState<Step>(startAt ?? (settings.consented ? 'profile' : 'welcome'));
+  // Direction of travel: Continue enters from the right, Back from the left. 0 = first paint (no movement).
+  const [dir, setDir] = useState(0);
+  const go = (next: Step) => {
+    setDir(ORDER[next] >= ORDER[step] ? 1 : -1);
+    setStep(next);
+  };
   const [consent, setConsent] = useState([false, false, false]);
   const [nickname, setNickname] = useState('');
   const [age, setAge] = useState<AgeBand | 'none'>('none');
@@ -53,7 +62,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
       settings.set({ activeProfileId: p.id });
       await useData.getState().load();
       setCreatedName(p.nickname);
-      setStep('ready');
+      go('ready');
     } catch (err) {
       setSaveError(t(err instanceof RepoError && err.code === 'quota' ? 'storageQuota' : 'storageError'));
     } finally {
@@ -64,8 +73,19 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
   return (
     <div className={step === 'welcome' ? undefined : 'pt-4'}>
       {step !== 'ready' && step !== 'welcome' && (
-        <p className="text-sm font-bold text-ink-muted tabular">{t('obStep', { n: stepIndex, total: 3 })}</p>
+        <>
+          <p className="text-sm font-bold text-ink-muted tabular">{t('obStep', { n: stepIndex, total: 3 })}</p>
+          <div className="ob-progress" aria-hidden>
+            <span style={{ transform: `scaleX(${stepIndex / 3})` }} />
+          </div>
+        </>
       )}
+      <motion.div
+        key={step}
+        initial={dir === 0 ? false : { opacity: 0, x: 16 * dir }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: dur.step, ease: ease.out }}
+      >
 
       {step === 'welcome' && (
         <section aria-labelledby="ob-h" className="ob-welcome">
@@ -75,7 +95,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
               {t('obWelcomeTitle')}
             </h1>
             <p className="ob-welcome-body">{t('obWelcomeBody')}</p>
-            <Button size="lg" className="ob-welcome-cta" onClick={() => setStep('consent')}>
+            <Button size="lg" className="ob-welcome-cta" onClick={() => go('consent')}>
               {t('obStart')}
             </Button>
             <details className="ob-welcome-not">
@@ -126,14 +146,14 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
             </Link>
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={() => setStep('welcome')}>
+            <Button variant="secondary" onClick={() => go('welcome')}>
               {t('back')}
             </Button>
             <Button
               disabled={!consent.every(Boolean)}
               onClick={() => {
                 settings.set({ consented: true });
-                setStep('profile');
+                go('profile');
               }}
             >
               {t('continue')}
@@ -182,7 +202,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
             )}
             <div className="flex flex-wrap gap-3">
               {!settings.consented && (
-                <Button variant="secondary" onClick={() => setStep('consent')}>
+                <Button variant="secondary" onClick={() => go('consent')}>
                   {t('back')}
                 </Button>
               )}
@@ -201,6 +221,15 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
 
       {step === 'ready' && (
         <section aria-labelledby="ob-h" className="mt-2">
+          <svg className="ob-done" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden>
+            <circle cx="22" cy="22" r="20.5" />
+            <motion.path
+              d="M14 22.5l5.5 5.5L30.5 16.5"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.32, ease: ease.out, delay: 0.12 }}
+            />
+          </svg>
           <h1 id="ob-h" ref={heading} tabIndex={-1} className="text-2xl outline-none sm:text-3xl">
             {t('obReadyTitle', { name: createdName })}
           </h1>
@@ -225,6 +254,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
           </div>
         </section>
       )}
+      </motion.div>
     </div>
   );
 }

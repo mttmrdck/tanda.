@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { X } from 'lucide-react';
 import { SheetSurface } from '../vendor/sheet';
 import { useDragControls } from 'motion/react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT } from '../../i18n';
 import { Button, IconButton } from './Button';
 
@@ -23,6 +23,12 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
   const t = useT();
   const drag = useDragControls();
   const [expanded, setExpanded] = useState(false);
+  // Controlled dialogs have no Radix Trigger, so remember what opened them and return focus there on close.
+  const opener = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = document.activeElement;
+    if (open && el instanceof HTMLElement && el !== document.body && !el.closest('[role="dialog"]')) opener.current = el;
+  }, [open]);
   return (
     <RD.Root open={open} onOpenChange={onOpenChange}>
       <RD.Portal>
@@ -35,6 +41,14 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
               : 'left-1/2 top-1/2 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[32px]',
           )}
           {...(description ? {} : { 'aria-describedby': undefined })}
+          onCloseAutoFocus={(e) => {
+            const back = opener.current;
+            opener.current = null;
+            if (back?.isConnected) {
+              e.preventDefault();
+              back.focus();
+            }
+          }}
         >
           <SheetSurface sheet={sheet} expanded={expanded} controls={drag} onDismiss={() => onOpenChange(false)}>
           {sheet && <button type="button" className="sheet-grabber min-h-11 shrink-0" aria-label={t(expanded ? 'collapseSheet' : 'expandSheet')} aria-expanded={expanded} onClick={() => setExpanded(v => !v)} onPointerDown={e => drag.start(e)} />}

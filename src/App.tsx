@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
 import { FeedbackToasts } from './ui/components/FeedbackToasts';
+import { MotionConfig } from 'motion/react';
 import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
 import { useT } from './i18n';
 import { useSettings } from './store/useApp';
@@ -82,20 +83,13 @@ function RouteFocus() {
   return null;
 }
 
+/** Pages arrive with a short fade and 8px lift (no blank cover); the skeleton appears only while code is loading. */
 function Page({ children }: { children: ReactNode }) {
   const [loc] = useLocation();
-  const [settled, setSettled] = useState(loc);
-  const transitioning = loc !== settled;
-  useEffect(() => {
-    if (!transitioning) return;
-    const timer = window.setTimeout(() => setSettled(loc), 260);
-    return () => window.clearTimeout(timer);
-  }, [loc, transitioning]);
   return (
     <ErrorBoundary>
-      <div className="route-shell" aria-busy={transitioning}>
-        {transitioning && <div className="route-skeleton-cover"><PageSkeleton /></div>}
-        <div className="route-content" data-ready={!transitioning} inert={transitioning} style={{ visibility: transitioning ? 'hidden' : 'visible' }}>
+      <div className="route-shell" aria-busy={false}>
+        <div key={loc} className="route-content" data-ready>
           <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
         </div>
       </div>
@@ -239,6 +233,7 @@ export function App() {
   }, []);
   const toastTheme = theme === 'system' ? 'system' : theme === 'dim' ? 'dark' : 'light';
   return (
+    <MotionConfig reducedMotion="user">
     <Router hook={useTransitionHashLocation} hrefs={(href) => `#${href}`}>
       <RouteFocus />
       <SessionSync />
@@ -247,5 +242,6 @@ export function App() {
       <Routes />
       <FeedbackToasts theme={toastTheme} />
     </Router>
+    </MotionConfig>
   );
 }

@@ -101,7 +101,7 @@ for (const theme of ['light', 'dim'] as const) {
 }
 
 
-test('Tanda keeps preferences in Settings and uses skeleton page transitions', async ({page,guard}) => {
+test('Tanda keeps preferences in Settings and pages arrive without a blank cover', async ({page,guard}) => {
   void guard;
   await page.setViewportSize({width:390,height:844});
   await onboard(page);
@@ -110,15 +110,14 @@ test('Tanda keeps preferences in Settings and uses skeleton page transitions', a
   await expect(page).toHaveTitle('Tanda');
   await expect(page.locator('header').getByRole('button',{name:/Switch language|Theme:/})).toHaveCount(0);
   await page.getByRole('navigation').last().getByRole('link',{name:'Communication',exact:true}).click();
-  await expect(page.locator('.route-skeleton-cover')).toBeVisible();
-  expect(await page.locator('.route-skeleton-cover .ld-shimmer i').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('page-shimmer');
+  // The new page is never hidden behind a cover: it fades in with a small lift.
   await expect(page.getByRole('heading',{level:1,name:'Communication'})).toBeVisible();
-  await expect(page.locator('.route-skeleton-cover')).toHaveCount(0);
+  await expect(page.locator('.route-shell')).toHaveAttribute('aria-busy','false');
+  expect(await page.locator('.route-content').evaluate(el=>getComputedStyle(el).animationName)).toBe('route-arrive');
   await page.emulateMedia({reducedMotion:'reduce'});
   // Insights lives behind the dock's "More" sheet on phones
   await page.getByRole('button',{name:'Show menu',exact:true}).click();
   await page.getByRole('dialog',{name:'Explore Tanda'}).getByRole('link',{name:'Insights',exact:true}).click();
-  await expect(page.locator('.route-skeleton-cover')).toBeVisible();
-  expect(await page.locator('.route-skeleton-cover .ld-shimmer i').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   await expect(page.getByRole('heading',{level:1,name:'Insights'})).toBeVisible();
+  expect(await page.locator('.route-content').evaluate(el=>getComputedStyle(el).animationName)).toBe('fade-only');
 });

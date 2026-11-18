@@ -16,7 +16,9 @@ import {
   Plus,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ReactNode, type Ref } from 'react';
+import { AnimatePresence, motion, useIsPresent } from 'motion/react';
+import { dur, ease, indicator } from '../motion';
 import { Link } from 'wouter';
 import { toast } from 'sonner';
 import { useMonitoring } from '../../store/useMonitoring';
@@ -194,8 +196,15 @@ export function PlatformOverview() {
         </div>
 
         <section className="ov-review-slot" aria-label={t('monEventQueue')}>
+          <AnimatePresence initial={false} mode="popLayout">
           {moment ? (
-            <div className="ov-card ov-moment">
+            <motion.div
+              key={moment.id}
+              className="ov-card ov-moment"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out } }}
+              exit={{ opacity: 0, y: -4, transition: { duration: dur.exit, ease: ease.in } }}
+            >
               <p className="ov-kicker is-strong">
                 <span className="ov-pulse is-live" aria-hidden />
                 {t('ovNeedsConfirm', { time: clock(moment.at) })}
@@ -214,8 +223,15 @@ export function PlatformOverview() {
                   {t('monDismiss')}
                 </button>
               </div>
-            </div>
+            </motion.div>
           ) : (
+            <motion.div
+              key="clear"
+              className="ov-clear-wrap"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out } }}
+              exit={{ opacity: 0, transition: { duration: dur.exit, ease: ease.in } }}
+            >
             <Link href="/events" className="ov-card ov-clear">
               <span className="ov-clear-main">
                 <CheckCircle2 size={17} aria-hidden />
@@ -226,7 +242,9 @@ export function PlatformOverview() {
                 <ArrowRight size={14} aria-hidden />
               </span>
             </Link>
+            </motion.div>
           )}
+          </AnimatePresence>
         </section>
       </div>
 
@@ -481,6 +499,54 @@ export function MonitoringPage() {
   );
 }
 
+/**
+ * One review item. Changing between the full card and the compact row swaps keys, so the old shape fades out while
+ * the new one rises in and neighbours glide into place. While leaving, the item is hidden from assistive technology.
+ */
+function EventItem({
+  children,
+  className,
+  priority,
+  state,
+  ref,
+}: {
+  children: ReactNode;
+  className: string;
+  priority: MonitoringEvent['priority'];
+  state: MonitoringEvent['status'];
+  ref?: Ref<HTMLLIElement>;
+}) {
+  const present = useIsPresent();
+  return (
+    <motion.li
+      ref={ref}
+      layout="position"
+      className={className}
+      data-testid={present ? 'monitor-event' : undefined}
+      data-priority={priority}
+      data-review-state={state}
+      aria-hidden={present ? undefined : true}
+      inert={!present}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out, delay: 0.09 } }}
+      exit={{ opacity: 0, transition: { duration: 0.09, ease: ease.in } }}
+      transition={{ layout: { duration: dur.screen, ease: ease.out } }}
+    >
+      {children}
+    </motion.li>
+  );
+}
+
+/** Acknowledged: the tick draws once, as a quiet confirmation. */
+function AckMark() {
+  return (
+    <svg className="ea-done-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="10" />
+      <motion.path d="m9 12 2 2 4-4" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.22, ease: ease.out, delay: 0.08 }} />
+    </svg>
+  );
+}
+
 export function EventsPage() {
   const t = useT(),
     m = useMonitoringProfile(),
@@ -540,8 +606,17 @@ export function EventsPage() {
             {t('eaPhilosophy')}
           </button>
         </div>
-        {why && (
-          <div id="ea-principle" className="ea-principle">
+        <AnimatePresence initial={false}>
+          {why && (
+          <motion.div
+            key="principle"
+            id="ea-principle"
+            className="ea-principle-wrap"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1, transition: { height: { duration: dur.disclosure, ease: ease.out }, opacity: { duration: dur.micro, delay: 0.04 } } }}
+            exit={{ height: 0, opacity: 0, transition: { height: { duration: dur.micro, ease: ease.in }, opacity: { duration: 0.1 } } }}
+          >
+          <div className="ea-principle">
             <div className="ea-principle-top">
               <span className="ov-label">{t('eaPrinciple')}</span>
               <button type="button" className="ea-close" aria-label={t('eaClose')} onClick={() => setWhy(false)}>
@@ -551,7 +626,9 @@ export function EventsPage() {
             <p>{t('monPhilosophy')}</p>
             <p className="ea-principle-sub">{t('monEventIntro')}</p>
           </div>
-        )}
+          </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <div className="ea-segments" role="group" aria-label={t('eaFilterLabel')}>
@@ -563,6 +640,7 @@ export function EventsPage() {
           ] as const
         ).map(([id, label, n]) => (
           <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(id)}>
+            {filter === id && <motion.span layoutId="ea-segment" className="ea-seg-bg" transition={indicator} aria-hidden />}
             <span>{t(label)}</span>
             <span className="ea-count">({n})</span>
           </button>
@@ -571,7 +649,14 @@ export function EventsPage() {
       {m.error && <p role="alert">{t('monActionError')}</p>}
 
       {!events.length ? (
-        <section className="ov-card ea-empty" aria-labelledby="ea-empty-h">
+        <motion.section
+          key={filter}
+          className="ov-card ea-empty"
+          aria-labelledby="ea-empty-h"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: dur.screen, ease: ease.out }}
+        >
           <span className="ea-rings" aria-hidden>
             <span />
             <span />
@@ -583,9 +668,10 @@ export function EventsPage() {
             {t('monOpenMonitoring')}
             <ArrowUpRight size={16} aria-hidden />
           </Link>
-        </section>
+        </motion.section>
       ) : (
         <ul className="ea-list">
+          <AnimatePresence initial={false} mode="popLayout">
           {events.map((e) => {
             const state = (
               <span className={`ea-state state-${e.status}`} role="status" data-testid="review-state">
@@ -594,9 +680,15 @@ export function EventsPage() {
             );
             if (!isPending(e))
               return (
-                <li key={e.id} className="ov-card ea-done" data-testid="monitor-event" data-priority={e.priority} data-review-state={e.status}>
+                <EventItem key={`${e.id}:row`} className="ov-card ea-done" priority={e.priority} state={e.status}>
                   <div className="ea-done-row">
-                    {e.status === 'new' ? <Info size={17} aria-hidden className="ea-done-icon" /> : <CheckCircle2 size={17} aria-hidden className="ea-done-icon" />}
+                    {e.status === 'new' ? (
+                      <Info size={17} aria-hidden className="ea-done-icon" />
+                    ) : e.status === 'acknowledged' ? (
+                      <AckMark />
+                    ) : (
+                      <CheckCircle2 size={17} aria-hidden className="ea-done-icon" />
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="ea-done-time">
                         <time dateTime={e.at}>{clock(e.at)}</time> · {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}
@@ -621,10 +713,10 @@ export function EventsPage() {
                     {contextButton(e)}
                   </div>
                   {historyBlock(e)}
-                </li>
+                </EventItem>
               );
             return (
-              <li key={e.id} className="ov-card ea-card" data-testid="monitor-event" data-priority={e.priority} data-review-state={e.status}>
+              <EventItem key={`${e.id}:card`} className="ov-card ea-card" priority={e.priority} state={e.status}>
                 <div className="ea-card-top">
                   <p className="ov-kicker is-strong">
                     <span className={`ea-dot node-${e.priority}`} aria-hidden />
@@ -667,9 +759,10 @@ export function EventsPage() {
                   {contextButton(e)}
                 </div>
                 {historyBlock(e)}
-              </li>
+              </EventItem>
             );
           })}
+          </AnimatePresence>
         </ul>
       )}
       <Dialog
