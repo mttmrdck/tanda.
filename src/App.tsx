@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { FeedbackToasts } from './ui/components/FeedbackToasts';
 import { MotionConfig } from 'motion/react';
 import { Redirect, Route, Router, Switch, useLocation } from 'wouter';
@@ -13,12 +13,13 @@ import { AppShell, BareShell } from './ui/components/Shell';
 import { SessionSync } from './ui/SessionSync';
 import { useTransitionHashLocation } from './ui/navigation';
 import Live from './ui/pages/Live';
+import Splash from './ui/pages/Splash';
+import { entry, loadPlatform, markIntroSeen, shouldPlayIntro } from './ui/entry';
 
-const Splash = lazy(() => import('./ui/pages/Splash'));
-const Overview = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.PlatformOverview})));
-const Monitoring = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.MonitoringPage})));
-const Events = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.EventsPage})));
-const Devices = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.DevicesPage})));
+const Overview = lazy(() => loadPlatform().then(m=>({default:m.PlatformOverview})));
+const Monitoring = lazy(() => loadPlatform().then(m=>({default:m.MonitoringPage})));
+const Events = lazy(() => loadPlatform().then(m=>({default:m.EventsPage})));
+const Devices = lazy(() => loadPlatform().then(m=>({default:m.DevicesPage})));
 const Home = lazy(() => import('./ui/pages/Home'));
 const Movement = lazy(() => import('./ui/pages/Movement'));
 const Individuals = lazy(() => import('./ui/pages/Individuals'));
@@ -98,15 +99,38 @@ function Page({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Opening Tanda at its root plays the introduction once per session (/splash replays it). It hands over without a
+ * gap: as the identity starts to leave, Home mounts underneath and arrives while the introduction fades away.
+ */
 function Routes() {
+  const [loc, navigate] = useLocation();
+  const [phase, setPhase] = useState<'intro' | 'leaving' | 'off'>(() => (loc === '/' && shouldPlayIntro() ? 'intro' : 'off'));
+  if (phase === 'off' && loc !== '/splash') return <AppRoutes />;
+  return (
+    <>
+      {phase === 'leaving' && <AppRoutes />}
+      <Splash
+        leaving={phase === 'leaving'}
+        onLeave={() => {
+          markIntroSeen();
+          entry.fromIntro = true;
+          setPhase('leaving');
+          navigate('/overview', { replace: true });
+        }}
+        onDone={() => setPhase('off')}
+      />
+    </>
+  );
+}
+
+function AppRoutes() {
   const t = useT();
   const status = useData((s) => s.status);
   const profiles = useData((s) => s.profiles);
   const consented = useSettings((s) => s.consented);
   const signsOn = useSettings((s) => s.labsSignPacks);
   const [loc] = useLocation();
-
-  if (loc === '/splash') return <Suspense fallback={<div className="splash-loading" />}><Splash /></Suspense>;
 
   if (status === 'loading') {
     return (
@@ -174,7 +198,10 @@ function Routes() {
     <AppShell>
       <Page>
         <Switch>
-          <Route path="/" component={Live} />
+          <Route path="/live" component={Live} />
+          <Route path="/">
+            <Redirect to="/overview" replace />
+          </Route>
           <Route path="/home" component={Home} />
           <Route path="/overview" component={Overview} />
           <Route path="/monitoring" component={Monitoring} />

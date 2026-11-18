@@ -141,7 +141,6 @@ export const en = {
   monQualityReason: 'The current observation is missing or has insufficient quality. Movement comparison is paused.',
   monBaselineReason: 'The configured sample and coverage thresholds were reached for one room and time context. This is an experimental statistical reference, not validated safety monitoring.',
   monDeviationReason: 'Several good-quality observations differed from the reviewed personal baseline. Review the context; this is not a diagnosis or confirmed emergency.',
-  splashTagline: 'Every gesture has meaning.',
   splashPrivacy: 'Private by design.',
   exportActions: 'Timeline exports',
   exportOptions: 'Export options',

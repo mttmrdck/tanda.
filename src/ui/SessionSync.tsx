@@ -5,7 +5,7 @@ import { useSettings } from '../store/useApp';
 import { useData } from '../store/useData';
 import { session, useSession, type SourceKind } from '../store/useSession';
 
-const CAMERA_ROUTES = ['/monitoring', '/', '/teach', '/debug', '/signs'];
+const CAMERA_ROUTES = ['/monitoring', '/live', '/teach', '/debug', '/signs'];
 
 /** Keeps the imperative session in step with routes, settings and the active profile. */
 export function SessionSync() {
@@ -24,7 +24,7 @@ export function SessionSync() {
   // Stop clears that choice. Leaving the app or reloading never resumes it.
   const resume = useRef<SourceKind | null>(null);
   useEffect(() => {
-    const onCameraPage = CAMERA_ROUTES.some((r) => loc === r || (r !== '/' && loc.startsWith(`${r}/`)));
+    const onCameraPage = CAMERA_ROUTES.some((r) => loc === r || loc.startsWith(`${r}/`));
     // Sign pages use 'teach' mode: no child recognition and no Calm Watch events are recorded there.
     session.setMode(loc.startsWith('/teach') || loc.startsWith('/signs') ? 'teach' : 'live');
     if (!onCameraPage) {

@@ -146,7 +146,6 @@ export const ms: Record<MsgKey, string> = {
   monQualityReason: 'Pemerhatian semasa hilang atau tidak berkualiti. Perbandingan pergerakan dijeda.',
   monBaselineReason: 'Ambang sampel dan liputan dicapai bagi satu bilik dan konteks masa. Ini rujukan statistik eksperimen, bukan pemantauan keselamatan disahkan.',
   monDeviationReason: 'Beberapa pemerhatian berkualiti berbeza daripada garis dasar peribadi disemak. Semak konteks; ini bukan diagnosis atau kecemasan disahkan.',
-  splashTagline: 'Setiap gerak isyarat membawa makna.',
   splashPrivacy: 'Privasi diutamakan.',
   exportActions: 'Eksport garis masa',
   exportOptions: 'Pilihan eksport',

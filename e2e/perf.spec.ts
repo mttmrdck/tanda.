@@ -34,7 +34,7 @@ test('frame time: Live with demo performer, and with fake camera + MediaPipe', a
   await onboard(page);
   await page.getByRole('button', { name: 'Use camera' }).click();
   await seedSignals(page, ['wave', 'tapTable']);
-  await page.goto('/#/');
+  await page.goto('/#/live');
   await startDemo(page);
   await page.getByRole('button', { name: 'Rock', exact: true }).click();
   console.log('DEMO', JSON.stringify(await frameStats(page, 8000)));

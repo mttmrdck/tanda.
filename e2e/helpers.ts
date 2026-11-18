@@ -29,7 +29,8 @@ export const gumCalls = (page: Page) => page.evaluate(() => (window as unknown a
 
 /** Complete onboarding through the UI and land on Live. */
 export async function onboard(page: Page, name = 'Adam') {
-  await page.goto('/');
+  // Deep link: the root URL's introduction is covered in splash.spec / onboarding.spec, not on every test.
+  await page.goto('/#/onboarding');
   await expect(page).toHaveURL(/#\/onboarding/);
   await page.getByRole('button', { name: 'Get started' }).click();
   for (const box of await page.getByRole('checkbox').all()) await box.check({ force: true });

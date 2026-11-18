@@ -61,7 +61,7 @@ test('rocking performer → Movement Insights shows “Above usual” within 20 
   // BM translation of the reason
   await page.goto('/#/settings');
   await page.getByRole('radio', { name:'Bahasa Malaysia', exact:true }).press('Space');
-  await page.goto('/#/');
+  await page.goto('/#/live');
   // video was running when we left, so it resumes on return — no second "Demo performer" press needed
   await expect(page.getByRole('button', { name:'Pelakon demo', exact:true })).toHaveCount(0);
   await page.getByRole('button', { name:'Bergoyang', exact:true }).click();

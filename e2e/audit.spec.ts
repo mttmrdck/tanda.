@@ -111,7 +111,8 @@ test('reduced motion: transforms disabled, app fully usable', async ({ page, gua
 test('keyboard only: complete onboarding without a pointer', async ({ page, guard }) => {
   void guard;
   await seedSettings(page, { lang: 'en' });
-  await page.goto('/');
+  // Deep link: a first visit to the root plays the introduction before onboarding (covered in splash.spec).
+  await page.goto('/#/onboarding');
   await expect(page).toHaveURL(/#\/onboarding/);
   // skip link is first
   await page.keyboard.press('Tab');

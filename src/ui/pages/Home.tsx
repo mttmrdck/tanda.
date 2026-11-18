@@ -22,8 +22,8 @@ const FLOW: { title: MsgKey; body: MsgKey; Icon: typeof Hand }[] = [
 const DEMO_PATH: { label: MsgKey; href: string }[] = [
   { label: 'demoPath1', href: '/individuals' },
   { label: 'demoPath2', href: '/teach' },
-  { label: 'demoPath3', href: '/' },
-  { label: 'demoPath4', href: '/' },
+  { label: 'demoPath3', href: '/live' },
+  { label: 'demoPath4', href: '/live' },
   { label: 'demoPath5', href: '/timeline' },
   { label: 'demoPath6', href: '/handover' },
 ];
@@ -76,7 +76,7 @@ export default function Home() {
             <p className="mt-2 max-w-md text-ink-muted">{t('homeLiveBody', { name })}</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/" className="press flex min-h-12 w-fit items-center gap-3 rounded-full bg-primary-fill px-5 font-semibold text-on-primary hover:bg-primary-hover">
+            <Link href="/live" className="press flex min-h-12 w-fit items-center gap-3 rounded-full bg-primary-fill px-5 font-semibold text-on-primary hover:bg-primary-hover">
               {t('homeOpenLive')}
               <ArrowUpRight aria-hidden className="size-5" />
             </Link>

@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 
 /* The Tanda mark: four rising strokes — a gesture in motion. Monochrome: one ink colour, stepped in tone so the
    movement still reads at small sizes. Paths are shared by the open symbol and the app-icon form. */
-const STROKES: { d: string; o: number }[] = [
+export const STROKES: readonly { d: string; o: number }[] = [
   { d: 'M42 145L69 95', o: 1 },
   { d: 'M105 114L116 26', o: 0.82 },
   { d: 'M146 91L168 150', o: 0.62 },

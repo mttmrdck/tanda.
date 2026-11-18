@@ -274,7 +274,7 @@ export default function Handover() {
           <ImportPanel
             onDone={(id) => {
               void useData.getState().selectProfile(id);
-              navigate('/');
+              navigate('/live');
             }}
           />
         </TabPanel>

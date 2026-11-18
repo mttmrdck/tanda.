@@ -35,6 +35,7 @@ import { useTranslateCam } from '../../store/translateSession';
 import { Button } from './Button';
 import { Select } from './Controls';
 import { BrandMark } from './TandaSymbol';
+import { entry } from '../entry';
 import { Dialog } from './Dialog';
 
 interface NavItem {
@@ -55,7 +56,7 @@ interface NavItem {
 export const COMM: NavItem[] = [
   { href: '/home', label: 'navHome', Icon: LayoutGrid },
   { href: '/teach', label: 'navTeach', Icon: Hand },
-  { href: '/', label: 'navLive', Icon: Radio },
+  { href: '/live', label: 'navLive', Icon: Radio },
   { href: '/signals', label: 'navSignals', Icon: BookOpen },
 ];
 const PLATFORM: NavItem[] = [
@@ -80,7 +81,7 @@ const UTIL: NavItem[] = [
   { href: '/settings', label: 'navProfile', Icon: Settings },
   { href: '/about', label: 'navAbout', Icon: Info },
 ];
-const COMMUNICATION: NavItem = { href: '/home', label: 'navCommunication', Icon: Hand, match: ['/teach', '/signals', '/'] };
+const COMMUNICATION: NavItem = { href: '/home', label: 'navCommunication', Icon: Hand, match: ['/teach', '/signals', '/live'] };
 
 /**
  * Caregiver-first structure: four destinations (Home · People · Activity · Settings) carry everyday care;
@@ -462,8 +463,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const t = useT();
   const navHidden = useSettings((s) => s.navHidden);
   const [loc] = useLocation();
+  // Coming straight from the introduction: navigation and content make one arrival, then never again.
+  const [arriving] = useState(() => entry.fromIntro);
+  useEffect(() => {
+    entry.fromIntro = false;
+  }, []);
   return (
-    <div className="app-shell min-h-dvh" data-nav={navHidden ? 'hidden' : 'shown'}>
+    <div className="app-shell min-h-dvh" data-nav={navHidden ? 'hidden' : 'shown'} data-arrive={arriving || undefined}>
       <Backdrop />
       <a
         href="#main"

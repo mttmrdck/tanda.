@@ -68,9 +68,11 @@ test('export → delete all → wrong passphrase error → import → signals re
   await expect(page.getByTestId('import-preview')).toHaveText('Adam: 2 signals, 10 examples', { timeout: 20_000 });
   await expectAccessible(page, 'import-preview');
   await page.getByRole('button', { name: 'Import as a new profile' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Live recognition' })).toBeVisible();
+  // Importing completes onboarding, so the caregiver lands on Home (not Live Recognition).
+  await expect(page.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening)$/ })).toBeVisible();
 
   // restored signals still recognise
+  await page.goto('/#/live');
   await startDemo(page);
   await page.waitForTimeout(2500);
   await page.getByRole('button', { name: 'Wave', exact: true }).click();

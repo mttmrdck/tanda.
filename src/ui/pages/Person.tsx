@@ -182,7 +182,7 @@ export default function Person() {
                 <section className="ov-card person-card-pad">
                   <p className="person-summary">{t('ppCommIntro', { name: profile.nickname })}</p>
                   <div className="person-actions-row">
-                    <Link href="/" className="ov-btn ov-btn-primary">
+                    <Link href="/live" className="ov-btn ov-btn-primary">
                       <Radio size={16} aria-hidden />
                       {t('liveTitle')}
                     </Link>

@@ -380,7 +380,7 @@ export default function Teach() {
             <Button variant="secondary" onClick={reset}>
               {t('teachAnother')}
             </Button>
-            <Button onClick={() => navigate('/')}>{t('teachGoLive')}</Button>
+            <Button onClick={() => navigate('/live')}>{t('teachGoLive')}</Button>
           </div>
         </Card>
       )}

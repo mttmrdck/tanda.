@@ -13,7 +13,7 @@ export default function ImportPage() {
       <ImportPanel
         onDone={(id) => {
           void useData.getState().selectProfile(id);
-          navigate('/');
+          navigate('/live');
         }}
       />
     </div>

@@ -239,7 +239,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
               size="lg"
               onClick={() => {
                 useSession.setState({ preferredSource: 'demo' });
-                navigate('/');
+                navigate('/live');
                 void session.start('demo');
               }}
             >
@@ -247,7 +247,7 @@ export default function Onboarding({ startAt }: { startAt?: Step }) {
             </Button>
             <Button size="lg" variant="secondary" icon={<Camera aria-hidden className="size-5" />} onClick={() => {
                 useSession.setState({ preferredSource: 'camera' });
-                navigate('/');
+                navigate('/live');
               }}>
               {t('obUseCamera')}
             </Button>

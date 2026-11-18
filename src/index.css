@@ -539,24 +539,15 @@ li {
 .settings-content > .text-sm:last-child { font-size:12px; }
 @media(min-width:1200px) { .settings-layout { display:block; columns:2; column-gap:20px; } .settings-layout > .settings-group { break-inside:avoid; margin-bottom:20px; } }
 
-/* Tanda splash — the supplied launch-screen direction, isolated from app chrome. */
-.splash-loading { min-height:100dvh; background:#080f20; }
-.tanda-splash { position:relative; display:grid; place-items:center; min-height:100svh; overflow:hidden; isolation:isolate; background:radial-gradient(ellipse at 50% 40%,#101d36 0%,#0b1529 34%,#080f20 72%); color:#f7faff; outline:none; }
-.splash-atmosphere { position:absolute; inset:0; z-index:-1; background:radial-gradient(ellipse 35% 28% at 50% 43%,rgb(22 139 255 / .055),transparent 85%); animation:splash-atmosphere-in .8s ease-out both; }
-.splash-identity { display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px; transform:translateY(-24px); }
+/* Tanda symbol strokes (onboarding welcome mark). The introduction lives in tanda.css (.tanda-intro). */
 .splash-symbol { width:174px; height:145px; overflow:visible; margin-bottom:16px; }
 .splash-stroke { stroke-width:27px; stroke-linecap:round; animation:splash-stroke-in .55s cubic-bezier(.22,1,.36,1) both; transform-box:fill-box; transform-origin:center; }
 .splash-stroke:nth-child(1) { animation-delay:.3s; }
 .splash-stroke:nth-child(2) { animation-delay:.38s; }
 .splash-stroke:nth-child(3) { animation-delay:.46s; }
 .splash-stroke:nth-child(4) { animation-delay:.54s; }
-.tanda-splash .splash-wordmark { font-size:44px !important; font-weight:600; line-height:1.12; letter-spacing:-.045em; margin:0; animation:splash-text-in .5s .8s ease-out both; }
-.splash-tagline { color:#9fafc6; font-size:15px; font-weight:400; line-height:1.5; letter-spacing:.015em; margin:12px 0 0; animation:splash-text-in .45s 1.1s ease-out both; }
-.splash-privacy { position:absolute; left:24px; right:24px; bottom:calc(max(env(safe-area-inset-bottom),12px) + 44px); display:flex; align-items:center; justify-content:center; gap:7px; margin:0; color:#7789a3; font-size:12px; font-weight:500; letter-spacing:.02em; animation:splash-text-in .5s 1.25s ease-out both; }
-@keyframes splash-atmosphere-in { from { opacity:0; } to { opacity:1; } }
 @keyframes splash-stroke-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-@keyframes splash-text-in { from { opacity:0; } to { opacity:1; } }
-@media(prefers-reduced-motion:reduce) { .splash-atmosphere,.splash-stroke,.splash-wordmark,.splash-tagline,.splash-privacy { animation:none !important; } }
+@media(prefers-reduced-motion:reduce) { .splash-stroke { animation:none !important; } }
 
 /* The workspace shell: a quiet rail, compact header and one mobile dock. */
 .top-bar { background:color-mix(in srgb,var(--bg) 94%,transparent); border-bottom:1px solid var(--border-soft); padding-top:0; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }

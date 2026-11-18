@@ -90,7 +90,7 @@ for (const theme of ['light', 'dim'] as const) {
       await page.getByRole('tab',{name:'Setup',exact:true}).click();
       await page.getByRole('button',{name:'Save profile',exact:true}).click();
       await page.locator('[data-sonner-toast]').first().screenshot({path:`docs/screenshots/component-undo-toast-${theme}.png`});
-      await page.goto('/#/');
+      await page.goto('/#/live');
       await startDemo(page);
       await page.getByRole('button',{name:'Rock',exact:true}).click();
       await page.waitForTimeout(3000);

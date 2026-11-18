@@ -132,7 +132,7 @@ export default function Movement() {
           ) : (
             <div className="space-y-3">
               <p className="text-ink-muted">{t('mvNotRunning')}</p>
-              <Link href="/" className="press inline-flex min-h-12 items-center gap-2 rounded-full bg-surface-2 px-5 font-semibold hover:bg-primary-soft">
+              <Link href="/live" className="press inline-flex min-h-12 items-center gap-2 rounded-full bg-surface-2 px-5 font-semibold hover:bg-primary-soft">
                 <Activity aria-hidden className="size-5" />
                 {t('mvOpenLive')}
               </Link>
