@@ -1,7 +1,7 @@
-import { Share2, Trash } from 'lucide-react';
+import { ArrowUpRight, Share2, ShieldCheck, Trash } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import { useLocation } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useT } from '../../i18n';
 import { deleteAllData } from '../../store/repo';
 import { useSettings } from '../../store/useApp';
@@ -16,6 +16,8 @@ import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/Card';
 import { SegmentedControl, Select, Slider, Switch } from '../components/Controls';
 import { ConfirmDelete } from '../components/Dialog';
+import { useMonitoringProfile } from '../hooks/useMonitoringProfile';
+import { cameraLabel, cameraTone } from '../cameraStatus';
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -34,6 +36,9 @@ export default function Settings() {
   const [, navigate] = useLocation();
   const [cams, setCams] = useState<{ deviceId: string; label: string }[]>([]);
   const [delAll, setDelAll] = useState(false);
+  const health = useMonitoringProfile().snapshot?.health;
+  const camState = health?.camera.state ?? 'not-configured';
+  const camTone = cameraTone(camState);
 
   useEffect(() => {
     void listCameras()
@@ -45,6 +50,44 @@ export default function Settings() {
     <div className="profile-page space-y-5">
       <PageHeader title={t('settingsTitle')} description={t('vdSettingsIntro')}/>
       <div className="settings-layout">
+        <Section id="s-exp" title={t('setExpTitle')}>
+          <Switch label={t('setAdvanced')} hint={t('setAdvancedHint')} checked={s.advanced} onChange={(advanced) => s.set({ advanced })} />
+        </Section>
+
+        <Section id="s-devices" title={t('monDevices')}>
+          <dl className="person-facts">
+            <div>
+              <dt>{t('monCamera')}</dt>
+              <dd>
+                <span className={`pill tone-${camTone}`}>{t(cameraLabel(camState))}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>{t('monLocalProcessing')}</dt>
+              <dd>{t(health?.gateway.state === 'running' ? 'monRunning' : 'monStopped')}</dd>
+            </div>
+            <div>
+              <dt>{t('setRemote')}</dt>
+              <dd>{t('setRemoteOff')}</dd>
+            </div>
+          </dl>
+          <Link href="/devices" className="ov-btn ov-btn-ghost self-start">
+            {t('setOpenDevices')}
+            <ArrowUpRight size={16} aria-hidden />
+          </Link>
+        </Section>
+
+        <Section id="s-privacy" title={t('setPrivacy')}>
+          <ul className="privacy-list">
+            {(['setPriv1', 'setPriv2', 'setPriv3'] as const).map((k) => (
+              <li key={k}>
+                <ShieldCheck size={16} aria-hidden className="tone-text-ok" />
+                {t(k)}
+              </li>
+            ))}
+          </ul>
+        </Section>
+
         <Section id="s-general" title={t('secGeneral')}>
           <PrivacyChip />
           <SegmentedControl

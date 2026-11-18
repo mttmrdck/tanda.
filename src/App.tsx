@@ -22,6 +22,7 @@ const Devices = lazy(() => import('./ui/pages/Platform').then(m=>({default:m.Dev
 const Home = lazy(() => import('./ui/pages/Home'));
 const Movement = lazy(() => import('./ui/pages/Movement'));
 const Individuals = lazy(() => import('./ui/pages/Individuals'));
+const Person = lazy(() => import('./ui/pages/Person'));
 const Research = lazy(() => import('./ui/pages/Research'));
 const Styleguide = lazy(() => import('./ui/pages/Styleguide'));
 const Onboarding = lazy(() => import('./ui/pages/Onboarding'));
@@ -184,6 +185,7 @@ function Routes() {
           </Route>
           <Route path="/movement" component={Movement} />
           <Route path="/individuals" component={Individuals} />
+          <Route path="/individuals/:id/:tab?" component={Person} />
           <Route path="/research" component={Research} />
           <Route path="/teach" component={Teach} />
           <Route path="/teach/:signalId/add" component={Teach} />

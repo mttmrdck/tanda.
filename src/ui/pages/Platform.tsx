@@ -1,19 +1,19 @@
 import {
   Activity,
-  ArrowRight,
   ArrowUpRight,
+  CameraOff,
+  ChevronRight,
   Bell,
   Camera,
   Check,
   Cpu,
   Lock,
   Radio,
-  Hand,
   ChevronDown,
   ShieldCheck,
   CheckCircle2,
+  MessageSquarePlus,
   Info,
-  Plus,
   X,
 } from 'lucide-react';
 import { useState, type ReactNode, type Ref } from 'react';
@@ -22,7 +22,7 @@ import { dur, ease, indicator } from '../motion';
 import { Link } from 'wouter';
 import { toast } from 'sonner';
 import { useMonitoring } from '../../store/useMonitoring';
-import { pickText, useT, type MsgKey } from '../../i18n';
+import { useT, type MsgKey } from '../../i18n';
 import { useData } from '../../store/useData';
 import { useSettings } from '../../store/useApp';
 import { session, useSession } from '../../store/useSession';
@@ -36,6 +36,8 @@ import { VideoPanel } from '../components/VideoPanel';
 import { MonitoringConfig } from '../components/MonitoringConfig';
 import { Dialog } from '../components/Dialog';
 import { BASELINE_SAMPLE_MIN } from '../../platform/behaviour';
+import { useSignalCounts } from '../hooks/useSignalCounts';
+import { cameraLabel, cameraTone } from '../cameraStatus';
 import type { MonitoringEvent } from '../../platform/contracts';
 
 const baselineKeys: Record<string, MsgKey> = {
@@ -44,13 +46,6 @@ const baselineKeys: Record<string, MsgKey> = {
   insufficient: 'monInsufficient',
   available: 'monAvailable',
   'requires-review': 'monRequiresReview',
-};
-const baselineShort: Record<string, MsgKey> = {
-  'not-configured': 'ovBlNone',
-  collecting: 'ovBlCollecting',
-  insufficient: 'ovBlInsufficient',
-  available: 'ovBlReady',
-  'requires-review': 'ovBlReview',
 };
 const eventKeys: Record<MonitoringEvent['type'], MsgKey> = {
   'monitoring-started': 'monStarted',
@@ -88,174 +83,241 @@ const statusTone = (state: string): 'calm' | 'review' | 'neutral' =>
       ? 'review'
       : 'neutral';
 
+const qualityTone = (q: string): 'ok' | 'warn' => (q === 'good' ? 'ok' : 'warn');
+
+/** Leaves and enters with the shared review motion: fade + lift in, quick fade out, neighbours glide. */
+function ReviewRow({ children, className, ref }: { children: ReactNode; className: string; ref?: Ref<HTMLLIElement> }) {
+  const present = useIsPresent();
+  return (
+    <motion.li
+      ref={ref}
+      layout="position"
+      className={className}
+      aria-hidden={present ? undefined : true}
+      inert={!present}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out, delay: 0.09 } }}
+      exit={{ opacity: 0, transition: { duration: 0.09, ease: ease.in } }}
+      transition={{ layout: { duration: dur.screen, ease: ease.out } }}
+    >
+      {children}
+    </motion.li>
+  );
+}
+
+/** Home: today at a glance — sources, the people in your care, what needs review, and what happened recently. */
 export function PlatformOverview() {
   const t = useT(),
     m = useMonitoringProfile(),
     profile = useData((s) => s.profile),
-    signals = useData((s) => s.signals),
+    profiles = useData((s) => s.profiles),
     s = m.snapshot;
+  const advanced = useSettings((x) => x.advanced);
   const lang = useSettings((x) => x.lang);
-  const today = new Intl.DateTimeFormat(lang === 'ms' ? 'ms-MY' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+  const counts = useSignalCounts();
+  const now = new Date();
+  const today = new Intl.DateTimeFormat(lang === 'ms' ? 'ms-MY' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'short' }).format(now);
+  const hour = now.getHours();
+  const events = s?.events ?? [];
+  const pending = events.filter((e) => e.priority !== 'information' && e.status === 'new').reverse();
+  const recent = [...events].reverse().slice(0, 3);
+  const simulated = (s?.health.camera.simulated ?? false) || events.some((e) => e.simulated);
+  const camState = s?.health.camera.state ?? 'not-configured';
+  const tone = cameraTone(camState);
   const name = profile?.nickname ?? '';
-  const live = s?.health.gateway.state === 'running';
-  const simulated = s?.health.camera.simulated ?? false;
-  const open = (s?.events ?? []).filter((e) => e.priority !== 'information' && e.status === 'new');
-  const moment = open[open.length - 1];
-  const samples = s?.baseline.count ?? 0;
-  const filled = Math.round((Math.min(samples, BASELINE_SAMPLE_MIN) / BASELINE_SAMPLE_MIN) * 7);
-  const tags = signals.slice(0, 2).map((x) => pickText(x.meaning, lang));
   const clock = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const CamIcon = tone === 'bad' ? CameraOff : Camera;
   return (
-    <div className="platform-page overview-page">
-      <header className="ov-head">
-        <p className="page-eyebrow">{today}</p>
-        <h1>{t('monOverview')}</h1>
-        <p className="ov-privacy">
-          <ShieldCheck size={15} aria-hidden />
-          {t('ovPrivacy')}
-        </p>
+    <div className="platform-page home-page">
+      <header className="home-head">
+        <div className="min-w-0">
+          <p className="home-date">
+            <span>{today}</span>
+            {simulated && <span className="sim-tag">{t('ovSimData')}</span>}
+          </p>
+          <h1>{t(hour < 12 ? 'ovMorning' : hour < 18 ? 'ovAfternoon' : 'ovEvening')}</h1>
+          <p className="home-sub">{t('ovSubtitle')}</p>
+        </div>
+        <Link href="/events" className="home-bell press">
+          <span className="sr-only">{t('ovOpenReview')}</span>
+          <Bell size={18} aria-hidden />
+          {pending.length > 0 && <span className="home-bell-count">{pending.length}</span>}
+        </Link>
       </header>
       {m.error && <p role="alert">{t('storageError')}</p>}
 
-      <div className="ov-layout">
-        <section className="ov-card ov-hero" aria-labelledby="ov-hero-h" data-live={live || undefined}>
-          <div className="ov-hero-top">
-            <p className="ov-kicker" data-testid="overview-monitoring-state">
-              <span className={live ? 'ov-pulse is-live' : 'ov-pulse'} aria-hidden />
-              {t(live ? 'ovLive' : 'ovStandby')}
+      <section className="ov-card home-monitor" aria-labelledby="home-mon-h">
+        <div className="home-monitor-row">
+          <span className={`home-mon-icon tone-${tone}`} aria-hidden>
+            <CamIcon size={17} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="home-mon-title">
+              <span id="home-mon-h">{t('monCamera')}</span>
+              <span className={`pill tone-${tone}`}>{t(cameraLabel(camState))}</span>
             </p>
-            {(live || simulated) && <span className={live && !simulated ? 'ov-source is-live' : 'ov-source'}>{t(simulated ? 'tagSimulated' : 'ovLiveTag')}</span>}
+            <p className="home-mon-meta">
+              {t('monLatest')}: <strong>{s?.health.lastSuccessfulObservation ? clock(s.health.lastSuccessfulObservation) : t('monNoObservations')}</strong>
+            </p>
           </div>
-          <h2 id="ov-hero-h" className="ov-hero-title">
-            {live ? t('ovObserving', { name }) : t('ovReady')}
-          </h2>
-          <p className="ov-hero-body">{t(live ? 'ovLiveBody' : 'ovStandbyBody')}</p>
-          <div className="ov-hero-actions">
-            <Link href="/monitoring" className="ov-btn ov-btn-primary">
-              {t(live ? 'monOpenMonitoring' : 'ovStart')}
-              <ArrowUpRight size={16} aria-hidden />
-            </Link>
-            <Link href="/teach" className="ov-btn ov-btn-ghost">
-              <Plus size={16} aria-hidden />
-              {t('ovTeach')}
-            </Link>
-          </div>
-          <p className="ov-hero-foot">
-            <span>{t('monLatest')}</span>
-            <strong>{s?.health.lastSuccessfulObservation ? clock(s.health.lastSuccessfulObservation) : t('monNoObservations')}</strong>
-          </p>
-        </section>
-
-        <div className="ov-bento">
-          <Link href="/home" className="ov-card ov-tile-card">
-            <span className="ov-label">
-              <Hand size={14} aria-hidden />
-              {t('ovSignals')}
-            </span>
-            <span className="ov-metric">
-              <span className="ov-metric-num">{signals.length}</span>
-              <span className="ov-metric-unit">{t('ovTaught')}</span>
-            </span>
-            <span className="ov-tags">
-              {tags.length ? (
-                <>
-                  {tags.map((x, i) => (
-                    <span key={i} className="ov-tag">
-                      {x}
-                    </span>
-                  ))}
-                  {signals.length > 2 && <span className="ov-tag">+{signals.length - 2}</span>}
-                </>
-              ) : (
-                <span className="ov-tag">{t('ovFirstSignal')}</span>
-              )}
-            </span>
-            <span className="ov-tile-foot">
-              {t('ovLibrary')}
-              <ArrowRight size={14} aria-hidden />
-            </span>
-          </Link>
-          <Link href="/movement" className="ov-card ov-tile-card">
-            <span className="ov-label">
-              <Activity size={14} aria-hidden />
-              {t('monBaseline')}
-            </span>
-            <span className="ov-metric ov-metric-split">
-              <span className="ov-metric-word">{t(baselineShort[s?.baseline.state ?? 'not-configured'] ?? 'ovBlNone')}</span>
-              <span className="ov-bars" aria-hidden>
-                {[42, 58, 48, 64, 52, 60, 46].map((h, i) => (
-                  <span key={i} style={{ height: `${h}%` }} className={i < filled ? 'is-on' : undefined} />
-                ))}
-              </span>
-            </span>
-            <span className="ov-tags">
-              <span className="ov-tag">{t('ovSamples', { n: samples, min: BASELINE_SAMPLE_MIN })}</span>
-            </span>
-            <span className="ov-tile-foot is-quiet">{t('ovNonDiagnostic')}</span>
+          <Link href="/devices" className="ov-btn ov-btn-ghost home-setup">
+            {t('ovSetup')}
           </Link>
         </div>
+        <Disclosure open={advanced}>
+          <dl className="tech-row">
+            <div>
+              <dt>{t('monLocalProcessing')}</dt>
+              <dd>{t(statusKeys[s?.health.gateway.state ?? 'stopped'] ?? 'monStopped')}</dd>
+            </div>
+            <div>
+              <dt>{t('ovRuntimeLabel')}</dt>
+              <dd>{t('ovRuntime')}</dd>
+            </div>
+            <div>
+              <dt>{t('monBaseline')}</dt>
+              <dd>{t(baselineKeys[s?.baseline.state ?? 'not-configured'] ?? 'monNotConfigured')} · {s?.baseline.count ?? 0}/{BASELINE_SAMPLE_MIN}</dd>
+            </div>
+          </dl>
+        </Disclosure>
+      </section>
 
-        <section className="ov-review-slot" aria-label={t('monEventQueue')}>
-          <AnimatePresence initial={false} mode="popLayout">
-          {moment ? (
+      <section className="home-section" aria-labelledby="home-people-h">
+        <header className="home-section-head">
+          <h2 id="home-people-h">{t('ovPeople')}</h2>
+          <Link href="/individuals" className="home-more">
+            {t('ovAllPeople')}
+            <ChevronRight size={15} aria-hidden />
+          </Link>
+        </header>
+        <ul className="home-people">
+          {profiles.map((p) => {
+            const active = p.id === profile?.id;
+            return (
+              <li key={p.id}>
+                <Link href={`/individuals/${p.id}`} className="ov-card person-card">
+                  <Avatar name={p.nickname} />
+                  <span className="min-w-0 flex-1">
+                    <span className="person-name">
+                      {p.nickname}
+                      {active && <span className="pill tone-ok">{t('indSelected')}</span>}
+                    </span>
+                    <span className="person-meta">
+                      {active && s?.care.environment.name ? `${s.care.environment.name} · ` : ''}
+                      {t('indGestures', { n: counts[p.id] ?? 0 })}
+                    </span>
+                  </span>
+                  <ChevronRight size={17} aria-hidden className="person-chevron" />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section className="home-section" aria-labelledby="home-review-h">
+        <header className="home-section-head">
+          <h2 id="home-review-h">
+            {t('ovNeedsReviewTitle')}
+            {pending.length > 0 && <span className="pill tone-warn tabular">{pending.length}</span>}
+          </h2>
+          <Link href="/events" className="home-more">
+            {t('ovOpenActivity')}
+            <ChevronRight size={15} aria-hidden />
+          </Link>
+        </header>
+        <AnimatePresence initial={false} mode="popLayout">
+          {pending.length === 0 ? (
             <motion.div
-              key={moment.id}
-              className="ov-card ov-moment"
+              key="none"
+              className="ov-card home-none"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out } }}
-              exit={{ opacity: 0, y: -4, transition: { duration: dur.exit, ease: ease.in } }}
             >
-              <p className="ov-kicker is-strong">
-                <span className="ov-pulse is-live" aria-hidden />
-                {t('ovNeedsConfirm', { time: clock(moment.at) })}
-              </p>
-              <p className="ov-moment-title">{t(eventKeys[moment.type])}</p>
-              <p className="ov-moment-meta">
-                {t(moment.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')} · {t(explanationKeys[moment.explanation])}
-              </p>
-              <div className="ov-moment-actions">
-                <button type="button" className="ov-btn ov-btn-primary" onClick={() => void m.review(moment.id, 'acknowledge', moment.note)}>
-                  <Check size={16} aria-hidden />
-                  {t('monAcknowledge')}
-                </button>
-                <button type="button" className="ov-btn ov-btn-ghost" onClick={() => void m.review(moment.id, 'dismiss', moment.note)}>
-                  <X size={16} aria-hidden />
-                  {t('monDismiss')}
-                </button>
-              </div>
+              <CheckCircle2 size={17} aria-hidden className="tone-text-ok" />
+              <p>{t('ovNoReview')}</p>
             </motion.div>
           ) : (
-            <motion.div
-              key="clear"
-              className="ov-clear-wrap"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out } }}
-              exit={{ opacity: 0, transition: { duration: dur.exit, ease: ease.in } }}
-            >
-            <Link href="/events" className="ov-card ov-clear">
-              <span className="ov-clear-main">
-                <CheckCircle2 size={17} aria-hidden />
-                {t('ovAttentionNone')}
-              </span>
-              <span className="ov-clear-side">
-                {t('ovHistory', { n: open.length })}
-                <ArrowRight size={14} aria-hidden />
-              </span>
-            </Link>
-            </motion.div>
+            <motion.ul key="list" className="home-review" exit={{ opacity: 0, transition: { duration: 0.09 } }}>
+              <AnimatePresence initial={false} mode="popLayout">
+                {pending.slice(0, 2).map((e) => (
+                  <ReviewRow key={e.id} className="ov-card review-card">
+                    <div className="review-top">
+                      <p className="review-who">
+                        <span className="dot tone-warn" aria-hidden />
+                        {name}
+                        <span className="review-time">· {clock(e.at)}</span>
+                      </p>
+                      <span className={`pill tone-${qualityTone(e.quality)}`}>{t(statusKeys[e.quality] ?? 'monGood')}</span>
+                    </div>
+                    <h3 className="review-title">{t(eventKeys[e.type])}</h3>
+                    <p className="review-why">
+                      <strong>{t('ovWhy')}</strong> {t(explanationKeys[e.explanation])}
+                    </p>
+                    <div className="review-actions">
+                      <Link href="/events" className="ov-btn ov-btn-primary">
+                        {t('ovReviewObs')}
+                        <ArrowUpRight size={16} aria-hidden />
+                      </Link>
+                      <button type="button" className="ov-btn ov-btn-ghost" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
+                        {t('ovQuickAck')}
+                      </button>
+                    </div>
+                  </ReviewRow>
+                ))}
+              </AnimatePresence>
+            </motion.ul>
           )}
-          </AnimatePresence>
-        </section>
-      </div>
+        </AnimatePresence>
+      </section>
 
-      <footer className="ov-footnote">
-        <ShieldCheck aria-hidden size={16} />
-        <div>
-          <p>{t('monPhilosophy')}</p>
-          <p>{t('monRemoteUnavailable')}</p>
-        </div>
-      </footer>
+      {recent.length > 0 && (
+        <section className="home-section" aria-labelledby="home-recent-h">
+          <header className="home-section-head">
+            <h2 id="home-recent-h">{t('ovRecent')}</h2>
+          </header>
+          <ul className="ov-card home-recent">
+            {recent.map((e) => {
+              const needs = e.status === 'new' && e.priority !== 'information';
+              return (
+                <li key={e.id}>
+                  <Link href="/events" className="recent-row">
+                    <span className="min-w-0 flex-1">
+                      <span className="recent-title">{t(eventKeys[e.type])}</span>
+                      <span className="recent-meta">
+                        {name} · {clock(e.at)}
+                      </span>
+                    </span>
+                    <span className={needs ? 'pill tone-warn' : 'pill'}>
+                      {t(needs ? 'ovStatusReview' : e.status === 'new' ? 'monInformation' : 'eaReviewed')}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </div>
+  );
+}
+
+/** Height + fade disclosure shared by Advanced details (content of any height; nothing jumps). */
+export function Disclosure({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          key="d"
+          className="disclosure"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1, transition: { height: { duration: dur.disclosure, ease: ease.out }, opacity: { duration: dur.micro, delay: 0.04 } } }}
+          exit={{ height: 0, opacity: 0, transition: { height: { duration: dur.micro, ease: ease.in }, opacity: { duration: 0.1 } } }}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -499,10 +561,7 @@ export function MonitoringPage() {
   );
 }
 
-/**
- * One review item. Changing between the full card and the compact row swaps keys, so the old shape fades out while
- * the new one rises in and neighbours glide into place. While leaving, the item is hidden from assistive technology.
- */
+/** One observation. It keeps its place while its review state changes; leaving the list fades it quickly. */
 function EventItem({
   children,
   className,
@@ -528,8 +587,8 @@ function EventItem({
       aria-hidden={present ? undefined : true}
       inert={!present}
       initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out, delay: 0.09 } }}
-      exit={{ opacity: 0, transition: { duration: 0.09, ease: ease.in } }}
+      animate={{ opacity: 1, y: 0, transition: { duration: dur.screen, ease: ease.out } }}
+      exit={{ opacity: 0, y: -4, transition: { duration: dur.exit, ease: ease.in } }}
       transition={{ layout: { duration: dur.screen, ease: ease.out } }}
     >
       {children}
@@ -537,22 +596,25 @@ function EventItem({
   );
 }
 
-/** Acknowledged: the tick draws once, as a quiet confirmation. */
+/** Reviewed: a quiet tick that draws once. */
 function AckMark() {
   return (
-    <svg className="ea-done-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="12" cy="12" r="10" />
-      <motion.path d="m9 12 2 2 4-4" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.22, ease: ease.out, delay: 0.08 }} />
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="8" cy="8" r="6.5" strokeWidth="1.4" />
+      <motion.path d="M5.2 8.2L7.1 10.1L11 6" strokeWidth="1.6" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.22, ease: ease.out, delay: 0.06 }} />
     </svg>
   );
 }
 
+/** Activity: observable moments surfaced for caregiver context and review. */
 export function EventsPage() {
   const t = useT(),
     m = useMonitoringProfile(),
-    profile = useData((s) => s.profile);
+    profile = useData((s) => s.profile),
+    advanced = useSettings((x) => x.advanced);
   const [filter, setFilter] = useState<'pending' | 'all' | 'history'>('all');
   const [why, setWhy] = useState(false);
+  const [techOpen, setTechOpen] = useState<Record<string, boolean>>({});
   const [editing, setEditing] = useState<string | null>(null),
     [note, setNote] = useState('');
   const all = [...(m.snapshot?.events ?? [])].sort(
@@ -564,41 +626,15 @@ export function EventsPage() {
   const pending = all.filter(isPending);
   const reviewed = all.filter((e) => e.status !== 'new');
   const events = filter === 'pending' ? pending : filter === 'history' ? reviewed : all;
+  const name = profile?.nickname ?? '';
   const clock = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const contextButton = (e: MonitoringEvent) => (
-    <button
-      type="button"
-      className="ov-btn ea-quiet"
-      onClick={() => {
-        setEditing(e.id);
-        setNote(e.note);
-      }}
-    >
-      {t('monAddContext')}
-    </button>
-  );
-  const historyBlock = (e: MonitoringEvent) =>
-    e.history.length > 0 && (
-      <details className="ea-history">
-        <summary>
-          {t('monReviewHistory')} ({e.history.length})
-          <ChevronDown aria-hidden size={14} />
-        </summary>
-        <ul>
-          {e.history.map((h, i) => (
-            <li key={i}>
-              {new Date(h.at).toLocaleString()} ·{' '}
-              {t(h.action === 'acknowledge' ? 'monAcknowledged' : h.action === 'dismiss' ? 'monDismissed' : 'monContextAdded')}
-              {h.note && ` · ${h.note}`}
-            </li>
-          ))}
-        </ul>
-      </details>
-    );
+  const saveNote = (id: string) =>
+    void m.review(id, 'note', note.trim()).then((ok) => {
+      if (ok) setEditing(null);
+    });
   return (
     <div className="platform-page ea-page">
       <header className="ea-head">
-        <p className="page-eyebrow">{t('eaEyebrow')}</p>
         <div className="ea-title-row">
           <h1>{t('monEvents')}</h1>
           <button type="button" className={why ? 'ea-why is-open' : 'ea-why'} aria-expanded={why} aria-controls="ea-principle" onClick={() => setWhy((v) => !v)}>
@@ -606,27 +642,28 @@ export function EventsPage() {
             {t('eaPhilosophy')}
           </button>
         </div>
+        <p className="home-sub">{t('eaSub')}</p>
         <AnimatePresence initial={false}>
           {why && (
-          <motion.div
-            key="principle"
-            id="ea-principle"
-            className="ea-principle-wrap"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1, transition: { height: { duration: dur.disclosure, ease: ease.out }, opacity: { duration: dur.micro, delay: 0.04 } } }}
-            exit={{ height: 0, opacity: 0, transition: { height: { duration: dur.micro, ease: ease.in }, opacity: { duration: 0.1 } } }}
-          >
-          <div className="ea-principle">
-            <div className="ea-principle-top">
-              <span className="ov-label">{t('eaPrinciple')}</span>
-              <button type="button" className="ea-close" aria-label={t('eaClose')} onClick={() => setWhy(false)}>
-                <X size={16} aria-hidden />
-              </button>
-            </div>
-            <p>{t('monPhilosophy')}</p>
-            <p className="ea-principle-sub">{t('monEventIntro')}</p>
-          </div>
-          </motion.div>
+            <motion.div
+              key="principle"
+              id="ea-principle"
+              className="ea-principle-wrap"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1, transition: { height: { duration: dur.disclosure, ease: ease.out }, opacity: { duration: dur.micro, delay: 0.04 } } }}
+              exit={{ height: 0, opacity: 0, transition: { height: { duration: dur.micro, ease: ease.in }, opacity: { duration: 0.1 } } }}
+            >
+              <div className="ea-principle">
+                <div className="ea-principle-top">
+                  <span className="ov-label">{t('eaPrinciple')}</span>
+                  <button type="button" className="ea-close" aria-label={t('eaClose')} onClick={() => setWhy(false)}>
+                    <X size={16} aria-hidden />
+                  </button>
+                </div>
+                <p>{t('monPhilosophy')}</p>
+                <p className="ea-principle-sub">{t('monEventIntro')}</p>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </header>
@@ -662,8 +699,8 @@ export function EventsPage() {
             <span />
             <Check size={16} strokeWidth={2.4} />
           </span>
-          <h2 id="ea-empty-h">{all.length ? t('ovAttentionNone') : t('monNoEvents')}</h2>
-          <p>{t('eaAllClearBody', { name: profile?.nickname ?? '' })}</p>
+          <h2 id="ea-empty-h">{all.length ? t('ovAttentionNone') : t('ovNoReview')}</h2>
+          <p>{t('eaEmptyBody')}</p>
           <Link href="/monitoring" className="ov-btn ov-btn-primary">
             {t('monOpenMonitoring')}
             <ArrowUpRight size={16} aria-hidden />
@@ -672,120 +709,170 @@ export function EventsPage() {
       ) : (
         <ul className="ea-list">
           <AnimatePresence initial={false} mode="popLayout">
-          {events.map((e) => {
-            const state = (
-              <span className={`ea-state state-${e.status}`} role="status" data-testid="review-state">
-                {t(e.status === 'new' ? 'monNew' : e.status === 'acknowledged' ? 'monAcknowledged' : 'monDismissed')}
-              </span>
-            );
-            if (!isPending(e))
+            {events.map((e) => {
+              const needs = isPending(e);
+              const tech = advanced || !!techOpen[e.id];
+              const noting = editing === e.id;
               return (
-                <EventItem key={`${e.id}:row`} className="ov-card ea-done" priority={e.priority} state={e.status}>
-                  <div className="ea-done-row">
-                    {e.status === 'new' ? (
-                      <Info size={17} aria-hidden className="ea-done-icon" />
-                    ) : e.status === 'acknowledged' ? (
-                      <AckMark />
-                    ) : (
-                      <CheckCircle2 size={17} aria-hidden className="ea-done-icon" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="ea-done-time">
-                        <time dateTime={e.at}>{clock(e.at)}</time> · {t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}
-                      </p>
-                      <h2 className="ea-done-title">{t(eventKeys[e.type])}</h2>
-                      {e.note && <p className="ea-note">{e.note}</p>}
-                    </div>
-                    {state}
+                <EventItem key={e.id} className="ov-card ea-card" priority={e.priority} state={e.status}>
+                  <div className="ea-card-top">
+                    <p className="ea-who">
+                      <span className="pill">{name}</span>
+                      <time dateTime={e.at} className="ea-time">
+                        {clock(e.at)}
+                      </time>
+                      <span className="ea-source">{t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}</span>
+                    </p>
+                    <span className={`pill tone-${qualityTone(e.quality)}`}>{t(statusKeys[e.quality] ?? 'monGood')}</span>
                   </div>
-                  <div className="ea-done-actions">
-                    {e.status === 'acknowledged' ? (
-                      <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'dismiss', e.note)}>
-                        <X size={15} aria-hidden />
-                        {t('monDismiss')}
+                  <h2 className="ea-title">{t(eventKeys[e.type])}</h2>
+                  <p className="ea-detail">
+                    <strong>{t('ovWhy')}</strong> {t(explanationKeys[e.explanation])}
+                  </p>
+
+                  {e.note && !noting && (
+                    <p className="ea-note">
+                      <strong>{t('monCaregiverNote')}:</strong> <span>{e.note}</span>
+                    </p>
+                  )}
+                  <Disclosure open={noting}>
+                    <form
+                      className="ea-note-editor"
+                      onSubmit={(ev) => {
+                        ev.preventDefault();
+                        saveNote(e.id);
+                      }}
+                    >
+                      <TextField label={t('monCaregiverNote')} value={note} onChange={setNote} maxLength={500} />
+                      <button type="submit" className="ov-btn ov-btn-primary">
+                        {t('save')}
                       </button>
+                    </form>
+                  </Disclosure>
+
+                  <AnimatePresence initial={false}>
+                    {needs ? (
+                      <motion.div
+                        key="act"
+                        className="ea-actions"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1, transition: { duration: dur.micro } }}
+                      >
+                        <button type="button" className="ov-btn ov-btn-primary" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
+                          <Check size={16} aria-hidden />
+                          {t('monAcknowledge')}
+                        </button>
+                        <button
+                          type="button"
+                          className="ov-btn ov-btn-ghost"
+                          aria-expanded={noting}
+                          onClick={() => {
+                            setEditing(noting ? null : e.id);
+                            setNote(e.note);
+                          }}
+                        >
+                          <MessageSquarePlus size={16} aria-hidden />
+                          {t(e.note ? 'eaEditNote' : 'eaAddNote')}
+                        </button>
+                        <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'dismiss', e.note)}>
+                          {t('monDismiss')}
+                        </button>
+                      </motion.div>
                     ) : (
-                      <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
-                        <Check size={15} aria-hidden />
-                        {t('monAcknowledge')}
-                      </button>
+                      <motion.div
+                        key="state"
+                        className="ea-resolved"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0, transition: { duration: dur.micro, ease: ease.out, delay: 0.06 } }}
+                      >
+                        <p className={e.status === 'acknowledged' ? 'ea-state-line tone-text-ok' : 'ea-state-line'}>
+                          {e.status === 'acknowledged' ? <AckMark /> : <Info size={16} aria-hidden />}
+                          <span role="status" data-testid="review-state">
+                            {t(e.status === 'new' ? 'monNew' : e.status === 'acknowledged' ? 'monAcknowledged' : 'monDismissed')}
+                          </span>
+                        </p>
+                        <div className="ea-done-actions">
+                          {e.status === 'acknowledged' ? (
+                            <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'dismiss', e.note)}>
+                              <X size={15} aria-hidden />
+                              {t('monDismiss')}
+                            </button>
+                          ) : (
+                            <button type="button" className="ov-btn ea-quiet" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
+                              <Check size={15} aria-hidden />
+                              {t('monAcknowledge')}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="ov-btn ea-quiet"
+                            aria-expanded={noting}
+                            onClick={() => {
+                              setEditing(noting ? null : e.id);
+                              setNote(e.note);
+                            }}
+                          >
+                            <MessageSquarePlus size={15} aria-hidden />
+                            {t(e.note ? 'eaEditNote' : 'eaAddNote')}
+                          </button>
+                        </div>
+                      </motion.div>
                     )}
-                    {contextButton(e)}
+                  </AnimatePresence>
+
+                  <div className="ea-tech">
+                    <button
+                      type="button"
+                      className="ea-tech-toggle"
+                      aria-expanded={tech}
+                      onClick={() => setTechOpen((x) => ({ ...x, [e.id]: !x[e.id] }))}
+                      disabled={advanced}
+                    >
+                      <span>{t('eaTechnical')}</span>
+                      <ChevronDown size={15} aria-hidden className="ea-chev" />
+                    </button>
+                    <Disclosure open={tech}>
+                      <dl className="tech-row">
+                        <div>
+                          <dt>{t('eaEventType')}</dt>
+                          <dd>{e.type}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('eaPriority')}</dt>
+                          <dd>{e.priority}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('monCamera')}</dt>
+                          <dd>{e.sourceId}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('eaRoom')}</dt>
+                          <dd>{m.snapshot?.care.environment.name || e.roomId}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('eaQuality')}</dt>
+                          <dd>{e.quality}</dd>
+                        </div>
+                      </dl>
+                      {e.history.length > 0 && (
+                        <ul className="ea-history-list">
+                          {e.history.map((h, i) => (
+                            <li key={i}>
+                              {new Date(h.at).toLocaleString()} ·{' '}
+                              {t(h.action === 'acknowledge' ? 'monAcknowledged' : h.action === 'dismiss' ? 'monDismissed' : 'monContextAdded')}
+                              {h.note && ` · ${h.note}`}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </Disclosure>
                   </div>
-                  {historyBlock(e)}
                 </EventItem>
               );
-            return (
-              <EventItem key={`${e.id}:card`} className="ov-card ea-card" priority={e.priority} state={e.status}>
-                <div className="ea-card-top">
-                  <p className="ov-kicker is-strong">
-                    <span className={`ea-dot node-${e.priority}`} aria-hidden />
-                    {t(e.priority === 'information' ? 'monInformation' : e.priority === 'review' ? 'monReview' : 'monHighPriority')}
-                    <span className="ea-time">
-                      · <time dateTime={e.at}>{clock(e.at)}</time>
-                    </span>
-                  </p>
-                  <span className={e.simulated ? 'ov-source' : 'ov-source is-live'}>{t(e.simulated ? 'monSimulatedEvent' : 'monBrowserObservation')}</span>
-                </div>
-                <h2 className="ea-title">{t(eventKeys[e.type])}</h2>
-                <p className="ea-detail">{t(explanationKeys[e.explanation])}</p>
-                <dl className="ea-telemetry">
-                  <div>
-                    <dt>{t('eaQuality')}</dt>
-                    <dd>{t(statusKeys[e.quality])}</dd>
-                  </div>
-                  <div>
-                    <dt>{t('monCamera')}</dt>
-                    <dd>{e.sourceId}</dd>
-                  </div>
-                  <div>
-                    <dt>{t('eaRoom')}</dt>
-                    <dd>{m.snapshot?.care.environment.name || e.roomId}</dd>
-                  </div>
-                </dl>
-                {e.note && <p className="ea-note">{e.note}</p>}
-                <div className="ea-actions">
-                  <button type="button" className="ov-btn ov-btn-primary" onClick={() => void m.review(e.id, 'acknowledge', e.note)}>
-                    <Check size={16} aria-hidden />
-                    {t('monAcknowledge')}
-                  </button>
-                  <button type="button" className="ov-btn ov-btn-ghost" onClick={() => void m.review(e.id, 'dismiss', e.note)}>
-                    <X size={16} aria-hidden />
-                    {t('monDismiss')}
-                  </button>
-                </div>
-                <div className="ea-foot">
-                  {state}
-                  {contextButton(e)}
-                </div>
-                {historyBlock(e)}
-              </EventItem>
-            );
-          })}
+            })}
           </AnimatePresence>
         </ul>
       )}
-      <Dialog
-        open={!!editing}
-        onOpenChange={(open) => {
-          if (!open) setEditing(null);
-        }}
-        title={t('monAddContext')}
-        footer={
-          <Button
-            onClick={() => {
-              if (editing)
-                void m.review(editing, 'note', note).then((ok) => {
-                  if (ok) setEditing(null);
-                });
-            }}
-          >
-            {t('save')}
-          </Button>
-        }
-      >
-        <TextField label={t('monCaregiverNote')} value={note} onChange={setNote} multiline maxLength={500} />
-      </Dialog>
     </div>
   );
 }

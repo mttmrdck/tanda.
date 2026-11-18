@@ -26,12 +26,12 @@ for (const theme of ['light', 'dim'] as const) {
     expect(material.blur).toContain('blur(26px)');
     expect(material.radius).toBe('999px');
     expect(material.bg).toMatch(/rgba\(/);
-    await page.locator('.tab-bar').getByRole('link', { name: 'Events & Alerts', exact: true }).click();
+    await page.locator('.tab-bar').getByRole('link', { name: 'Activity', exact: true }).click();
     await expect(dock).toHaveCSS('--dock-index', '2');
-    await expect(page.getByRole('heading', { level: 1, name: 'Events & Alerts' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Activity' })).toBeVisible();
     await expectAccessible(page, `curved glass dock ${theme}`);
     await page.goto('/#/overview');
-    await expect(page.getByRole('heading',{level:1,name:'Overview'})).toBeVisible();
+    await expect(page.getByRole('heading',{level:1,name:/^Good (morning|afternoon|evening)$/})).toBeVisible();
     await expect(page.locator('.route-shell')).toHaveAttribute('aria-busy','false');
     await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>undefined)));window.scrollTo(0,80);});
     if (process.env.VISUAL)

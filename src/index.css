@@ -10,8 +10,8 @@
    Dark-first: the `dim` theme is the default; `light` is the alternative. */
 :root {
   color-scheme:light;
-  /* Quiet Intelligence — warm-white editorial light theme. Monochrome by design: status is carried by
-     wording, icon and shape, never by hue. */
+  /* Quiet Intelligence — warm-white editorial light theme. Monochrome surfaces; three restrained status hues
+     (ok · warn · bad) mark real state and always travel with an icon and words. */
   --bg:#f8f8f6; --surface:#ffffff; --surface-2:#f1f1ef;
   --border:#85878c; --border-soft:#e6e6e3;
   --ink:#101114; --ink-muted:#5f6268;
@@ -26,6 +26,8 @@
   --glass-tint:rgb(255 255 255 / .78); --glass-border:rgb(16 17 20 / .08); --glass-solid:#ffffff;
   --scrim:rgb(8 9 11 / .42); --blob-a:transparent; --blob-b:transparent;
   --stage:#111214; --stage-ink:#f2f2f0; --stage-muted:#a2a5ab; --stage-line:rgb(255 255 255 / .12);
+  /* Restrained status hues, only for real state (ready · needs review · unavailable), always with icon + text. */
+  --ok-fg:#15803d; --ok-bg:#dcfce7; --warn-fg:#a14a07; --warn-bg:#fef3c7; --bad-fg:#b91c1c; --bad-bg:#fee2e2;
 }
 [data-theme='dim'] {
   color-scheme:dark;
@@ -44,6 +46,7 @@
   --glass-tint:rgb(21 22 24 / .8); --glass-border:rgb(255 255 255 / .1); --glass-solid:#151618;
   --scrim:rgb(0 0 0 / .66); --blob-a:transparent; --blob-b:transparent;
   --stage:#0d0e10; --stage-ink:#f2f2f0; --stage-muted:#a2a5ab; --stage-line:rgb(255 255 255 / .1);
+  --ok-fg:#6ee7a0; --ok-bg:#0f2619; --warn-fg:#fcc85a; --warn-bg:#2b200b; --bad-fg:#fca5a5; --bad-bg:#2c1313;
 }
 
 @theme inline {
@@ -62,6 +65,12 @@
   --color-coral: var(--coral);
   --color-on-primary: var(--on-primary);
   --color-primary-soft: var(--primary-soft);
+  --color-ok-fg: var(--ok-fg);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn-fg: var(--warn-fg);
+  --color-warn-bg: var(--warn-bg);
+  --color-bad-fg: var(--bad-fg);
+  --color-bad-bg: var(--bad-bg);
   --color-calm-fg: var(--calm-fg);
   --color-calm-bg: var(--calm-bg);
   --color-rising-fg: var(--rising-fg);

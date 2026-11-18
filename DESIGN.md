@@ -18,6 +18,9 @@ Runtime source: `src/index.css`. Automated semantic contrast fixture: `src/ui/th
 | Soft boundary | #DEDEDE | #333333 |
 | Form boundary | #858585 | #777777 |
 | Focus | #4D4D4D | #D4D4D4 |
+| Status ok (text / pill) | #15803D / #DCFCE7 | #6EE7A0 / #0F2619 |
+| Status warn (text / pill) | #A14A07 / #FEF3C7 | #FCC85A / #2B200B |
+| Status bad (text / pill) | #B91C1C / #FEE2E2 | #FCA5A5 / #2C1313 |
 
 The requested 60/30/10 balance is a compositional principle: neutral foundation, strong typographic/action contrast, silver/grey supporting detail. It is not a measured screen-area claim. Green means supported positive state, amber means review/experimental, red means destructive/high-priority. Colour never substitutes for text. No decorative teal, purple, neon, chart gradients or generated camera imagery.
 
@@ -45,9 +48,9 @@ Source vocabulary always distinguishes browser-camera input, metadata simulation
 
 ## Motion and accessibility
 
-160ms press/hover feedback, 180–320ms state and panel transitions, 420ms sliding glass dock lens, existing 260ms skeleton route cover followed by a 300ms content reveal. Motion answers an action or communicates actual state. No perpetual decorative status pulse, shader/WebGL context, background parallax or animated chart fabrication. Actual chart bars and arcs animate on reveal/range change; the dense heatmap remains static. A baseline progress indicator uses actual accepted sample count and remains labelled experimental. The existing user-requested CSS-checkbox export fan retains its spring/stagger; reduced motion removes its movement. Existing Motion/Radix sheets retain focus management, Escape, close and keyboard detent controls.
+Motion tokens (`src/ui/motion.ts`, mirrored as `--m-*`): 120ms press (scale 0.98), 150ms hover, 180ms micro state, 200ms tab/indicator, 240ms screen, 140ms exit, 260ms onboarding step, 280ms disclosure; ease-out `cubic-bezier(0.22,1,0.36,1)` to enter, ease-in to leave, no spring overshoot. Pages arrive with a 240ms fade and 8px lift (no blank cover; the skeleton only covers real code loading); deeper levels (People → profile) move laterally by direction; shared-layout indicators travel between rail, top-nav, dock-adjacent and segmented items; 420ms sliding glass dock lens. Motion answers an action or communicates actual state. No perpetual decorative status pulse, shader/WebGL context, background parallax or animated chart fabrication. Actual chart bars and arcs animate on reveal/range change; the dense heatmap remains static. A baseline progress indicator uses actual accepted sample count and remains labelled experimental. The existing user-requested CSS-checkbox export fan retains its spring/stagger; reduced motion removes its movement. Existing Motion/Radix sheets retain focus management, Escape, close and keyboard detent controls.
 
-Visible 3px neutral focus ring; native labels, switches, radios and keyboard order; typed delete confirmations preserved. Icon-only navigation keeps accessible names. Important states carry text and icons. Scroll margin accounts for sticky header/dock. Contrast script checks 48 semantic pairings; axe tests cover EN/BM, light/dim, populated and unconfigured routes. Browser checks do not constitute formal WCAG certification or physical-device validation.
+Visible 3px neutral focus ring; native labels, switches, radios and keyboard order; typed delete confirmations preserved. Icon-only navigation keeps accessible names. Important states carry text and icons. Scroll margin accounts for sticky header/dock. Contrast script checks 64 semantic pairings; axe tests cover EN/BM, light/dim, populated and unconfigured routes. Browser checks do not constitute formal WCAG certification or physical-device validation.
 
 ## Compatibility and standalone surfaces
 

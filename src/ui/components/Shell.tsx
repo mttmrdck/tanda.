@@ -9,6 +9,7 @@ import {
   ChartColumn,
   FlaskConical,
   Hand,
+  House,
   Info,
   LayoutGrid,
   Lock,
@@ -58,14 +59,14 @@ export const COMM: NavItem[] = [
   { href: '/signals', label: 'navSignals', Icon: BookOpen },
 ];
 const PLATFORM: NavItem[] = [
-  { href: '/overview', label: 'monOverview', Icon: LayoutGrid },
+  { href: '/overview', label: 'navHomeTab', Icon: House },
   { href: '/monitoring', label: 'monLiveMonitoring', Icon: Camera },
   { href: '/events', label: 'monEvents', Icon: Bell },
   { href: '/devices', label: 'monDevices', Icon: Cpu },
 ];
 const AREAS: NavItem[] = [
   { href: '/movement', label: 'navMovement', Icon: Activity, tag: 'tagExperimental' },
-  { href: '/individuals', label: 'navIndividuals', Icon: Users, match: ['/handover'] },
+  { href: '/individuals', label: 'navGroupPeople', Icon: Users, match: ['/handover'] },
   { href: '/timeline', label: 'navInsights', Icon: ChartColumn },
 ];
 const RESEARCH: NavItem = {
@@ -81,17 +82,19 @@ const UTIL: NavItem[] = [
 ];
 const COMMUNICATION: NavItem = { href: '/home', label: 'navCommunication', Icon: Hand, match: ['/teach', '/signals', '/'] };
 
-/** Desktop rail: destinations grouped by what a caregiver is doing, most frequent first. */
+/**
+ * Caregiver-first structure: four destinations (Home · People · Activity · Settings) carry everyday care;
+ * tools that a caregiver opens on purpose sit one level down. Paths are unchanged so bookmarks keep working.
+ */
+const CARE: NavItem[] = [PLATFORM[0]!, AREAS[1]!, PLATFORM[2]!, UTIL[0]!];
 const GROUPS: { label: MsgKey; items: NavItem[] }[] = [
-  { label: 'navGroupCare', items: [PLATFORM[0]!, PLATFORM[1]!, PLATFORM[2]!] },
-  { label: 'navGroupPeople', items: [AREAS[1]!, COMMUNICATION] },
-  { label: 'navGroupRecords', items: [AREAS[2]!] },
-  { label: 'navGroupSystem', items: [PLATFORM[3]!, UTIL[0]!] },
+  { label: 'navGroupCare', items: CARE },
+  { label: 'navGroupTools', items: [COMMUNICATION, PLATFORM[1]!, AREAS[2]!, PLATFORM[3]!] },
 ];
 /** Quieter tier: experimental and research areas, and About. */
 const LAB: NavItem[] = [AREAS[0]!, RESEARCH, UTIL[1]!];
-/** Phone dock: four destinations one tap away; everything else behind "More". Order is a tested contract. */
-const TABS: NavItem[] = [PLATFORM[0]!, PLATFORM[1]!, PLATFORM[2]!, COMMUNICATION];
+/** Phone dock: the four care destinations; everything else behind "More". Order is a tested contract. */
+const TABS: NavItem[] = CARE;
 const PRIMARY: NavItem[] = GROUPS.flatMap((g) => g.items);
 const ALL: NavItem[] = [...PLATFORM, ...COMM, ...AREAS, RESEARCH, ...UTIL];
 

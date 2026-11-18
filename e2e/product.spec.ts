@@ -70,7 +70,7 @@ test('individuals: add a second individual, switch, and each keeps its own gestu
   await page.getByRole('button', { name: 'Use camera' }).click();
   await seedSignals(page, ['wave', 'tapTable']);
   await page.goto('/#/individuals');
-  await expect(page.getByRole('heading', { level: 1, name: 'Individuals' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
   await expect(page.getByText('These are local profiles, not accounts', { exact: false })).toBeVisible();
   await expect(page.getByTestId('individuals')).toContainText('2 gestures');
   await page.getByRole('main').getByRole('button', { name: 'Add an individual' }).click();

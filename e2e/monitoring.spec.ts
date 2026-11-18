@@ -10,7 +10,7 @@ test('hybrid demonstration: consent, baseline, temporal event, review persistenc
   await onboard(page);
   await page.getByRole('button', { name: 'Use camera', exact: true }).click();
   await page.goto('/#/overview');
-  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening)$/ })).toBeVisible();
   await expect(page.getByText('No observations yet')).toBeVisible();
   await expectAccessible(page, 'monitoring overview');
   await page.goto('/#/devices');
@@ -43,9 +43,9 @@ test('hybrid demonstration: consent, baseline, temporal event, review persistenc
   await expect(event.getByText('Simulated event', { exact: true })).toBeVisible();
   await event.getByRole('button', { name: 'Acknowledge', exact: true }).click();
   await expect(event.getByTestId('review-state')).toHaveText('Acknowledged');
-  await event.getByRole('button', { name: 'Add context', exact: true }).click();
-  await page.getByLabel('Caregiver note').fill('Reviewed: ordinary exercise.');
-  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await event.getByRole('button', { name: 'Add caregiver note', exact: true }).click();
+  await event.getByLabel('Caregiver note').fill('Reviewed: ordinary exercise.');
+  await event.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(event.getByText('Reviewed: ordinary exercise.', {exact:true})).toBeVisible();
   await page.context().setOffline(false);
   await page.reload();

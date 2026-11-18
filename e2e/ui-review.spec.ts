@@ -86,6 +86,8 @@ for (const theme of ['light', 'dim'] as const) {
       await handover.click();
       await expect(page.getByRole('heading',{level:1})).toContainText('Hand');
       await page.goto('/#/individuals');
+      await page.getByTestId('individuals').getByRole('link').first().click();
+      await page.getByRole('tab',{name:'Setup',exact:true}).click();
       await page.getByRole('button',{name:'Save profile',exact:true}).click();
       await page.locator('[data-sonner-toast]').first().screenshot({path:`docs/screenshots/component-undo-toast-${theme}.png`});
       await page.goto('/#/');
@@ -109,9 +111,9 @@ test('Tanda keeps preferences in Settings and pages arrive without a blank cover
   await expect(page.getByRole('heading',{level:1,name:'Live recognition'})).toBeVisible();
   await expect(page).toHaveTitle('Tanda');
   await expect(page.locator('header').getByRole('button',{name:/Switch language|Theme:/})).toHaveCount(0);
-  await page.getByRole('navigation').last().getByRole('link',{name:'Communication',exact:true}).click();
+  await page.getByRole('navigation').last().getByRole('link',{name:'Activity',exact:true}).click();
   // The new page is never hidden behind a cover: it fades in with a small lift.
-  await expect(page.getByRole('heading',{level:1,name:'Communication'})).toBeVisible();
+  await expect(page.getByRole('heading',{level:1,name:'Activity'})).toBeVisible();
   await expect(page.locator('.route-shell')).toHaveAttribute('aria-busy','false');
   expect(await page.locator('.route-content').evaluate(el=>getComputedStyle(el).animationName)).toBe('route-arrive');
   await page.emulateMedia({reducedMotion:'reduce'});
