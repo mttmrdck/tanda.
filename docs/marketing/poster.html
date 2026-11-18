@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Tanda Story Poster</title>
+<style>
+  @font-face { font-family: Inter; font-weight: 400; src: url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: Inter; font-weight: 500; src: url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2'); }
+  @font-face { font-family: Inter; font-weight: 600; src: url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2'); }
+  @font-face { font-family: Inter; font-weight: 700; src: url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2'); }
+
+  :root {
+    --paper: #F5F5F5;
+    --ink: #171717;
+    --grey: #A3A3A3;
+    --muted: #5C5C5C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; }
+  body {
+    position: relative; overflow: hidden;
+    background:
+      radial-gradient(900px 700px at 78% 44%, #FFFFFF 0%, rgba(255,255,255,0) 70%),
+      linear-gradient(180deg, #F7F7F6 0%, var(--paper) 55%, #EFEFEE 100%);
+    color: var(--ink);
+    font-family: Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  /* 12-col grid: 96px outer margins */
+  .frame { position: absolute; inset: 0; padding: 0 96px; }
+
+  .eyebrow {
+    position: absolute; top: 236px; left: 96px;
+    display: flex; align-items: center; gap: 18px;
+    font-size: 22px; font-weight: 600; letter-spacing: 0.28em; color: var(--muted);
+  }
+  .eyebrow::before { content: ''; width: 44px; height: 2px; background: var(--ink); }
+
+  h1 {
+    position: absolute; top: 286px; left: 90px;
+    font-size: 160px; font-weight: 700; letter-spacing: -0.055em; line-height: 0.95;
+  }
+  h1 .dot { color: var(--grey); }
+
+  /* ── hero ── */
+  .hero { position: absolute; top: 500px; left: 0; width: 1080px; height: 690px; }
+  .hero svg.line { position: absolute; inset: 0; overflow: visible; }
+
+  .phone {
+    position: absolute; top: 18px; left: 566px; width: 420px; height: 700px;
+    border-radius: 64px 64px 0 0; padding: 14px 14px 0;
+    background: linear-gradient(160deg, #2A2A2A 0%, #171717 40%, #0E0E0E 100%);
+    box-shadow:
+      0 60px 90px -40px rgba(23,23,23,0.45),
+      0 30px 60px -30px rgba(23,23,23,0.30),
+      inset 0 0 0 1.5px rgba(255,255,255,0.10);
+    -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 98%);
+            mask-image: linear-gradient(180deg, #000 72%, transparent 98%);
+  }
+  .screen {
+    position: relative; width: 392px; height: 700px; overflow: hidden;
+    border-radius: 51px 51px 0 0; background: #F8F8F6;
+  }
+  .screen img { display: block; width: 392px; height: auto; }
+  .island { position: absolute; top: 12px; left: 50%; width: 112px; height: 32px; margin-left: -56px; border-radius: 999px; background: #0A0A0A; z-index: 2; }
+  /* status bar strip to clear the island */
+  .status { height: 50px; background: #F8F8F6; }
+
+  .stage-label {
+    position: absolute; display: grid; gap: 6px;
+    font-size: 16px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink);
+  }
+  .stage-label span { font-size: 15px; font-weight: 500; letter-spacing: 0.16em; color: var(--muted); }
+
+  /* ── copy ── */
+  .support {
+    position: absolute; top: 1222px; left: 96px; width: 888px;
+    font-size: 50px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.14;
+  }
+  .support .soft { color: var(--muted); }
+  .desc {
+    position: absolute; top: 1356px; left: 96px; width: 820px;
+    font-size: 27px; font-weight: 400; line-height: 1.5; color: #404040;
+  }
+  .caps {
+    position: absolute; top: 1496px; left: 96px; width: 888px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1.5px solid var(--ink);
+  }
+  .caps div { padding-top: 20px; font-size: 17px; font-weight: 600; letter-spacing: 0.16em; line-height: 1.55; }
+  .caps div + div { padding-left: 24px; border-left: 1px solid #D4D4D4; }
+  .caps i { display: block; font-style: normal; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+
+  .foot {
+    position: absolute; top: 1640px; left: 96px; width: 888px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 16px; font-size: 30px; font-weight: 700; letter-spacing: 0.22em; }
+  .brand svg { width: 52px; height: 52px; color: var(--ink); }
+  .closing { font-size: 22px; font-weight: 500; color: var(--muted); text-align: right; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <p class="eyebrow">INTRODUCING</p>
+  <h1>Meet Tanda<span class="dot">.</span></h1>
+</div>
+
+<section class="hero" aria-hidden="true">
+  <!-- one continuous observation line: sparse points → personal rhythm → flows into the product -->
+  <svg class="line" viewBox="0 0 1080 690" width="1080" height="690">
+    <defs>
+      <linearGradient id="fadeIn" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#171717" stop-opacity="0" />
+        <stop offset="0.12" stop-color="#171717" stop-opacity="0.9" />
+        <stop offset="1" stop-color="#171717" stop-opacity="1" />
+      </linearGradient>
+    </defs>
+    <!-- timeline baseline + ticks -->
+    <line x1="96" y1="560" x2="540" y2="560" stroke="#D4D4D4" stroke-width="1.5" />
+    <g stroke="#C4C4C4" stroke-width="1.5">
+      <line x1="96" y1="552" x2="96" y2="568" /><line x1="133" y1="556" x2="133" y2="564" /><line x1="170" y1="556" x2="170" y2="564" />
+      <line x1="207" y1="556" x2="207" y2="564" /><line x1="244" y1="552" x2="244" y2="568" /><line x1="281" y1="556" x2="281" y2="564" />
+      <line x1="318" y1="556" x2="318" y2="564" /><line x1="355" y1="556" x2="355" y2="564" /><line x1="392" y1="552" x2="392" y2="568" />
+      <line x1="429" y1="556" x2="429" y2="564" /><line x1="466" y1="556" x2="466" y2="564" /><line x1="503" y1="556" x2="503" y2="564" />
+      <line x1="540" y1="552" x2="540" y2="568" />
+    </g>
+    <!-- the line -->
+    <path d="M -20 420 C 40 420, 70 420, 110 418 S 160 392, 200 404 S 250 446, 290 412 S 340 362, 380 384 S 430 404, 460 368 S 520 330, 566 322"
+          fill="none" stroke="url(#fadeIn)" stroke-width="2.5" stroke-linecap="round" />
+    <!-- faint echo: the personal baseline -->
+    <path d="M 110 446 S 160 428, 200 436 S 250 462, 290 444 S 340 414, 380 424 S 430 432, 460 410 S 520 380, 566 372"
+          fill="none" stroke="#A3A3A3" stroke-width="1.5" stroke-dasharray="2 9" stroke-linecap="round" />
+    <!-- observation points -->
+    <g fill="#F5F5F5" stroke="#171717" stroke-width="2.5">
+      <circle cx="110" cy="418" r="9" />
+      <circle cx="290" cy="412" r="9" />
+    </g>
+    <circle cx="460" cy="368" r="11" fill="#171717" />
+    <circle cx="460" cy="368" r="24" fill="none" stroke="#171717" stroke-opacity="0.18" stroke-width="2" />
+    <!-- drop lines to the timeline -->
+    <g stroke="#A3A3A3" stroke-width="1.2" stroke-dasharray="3 6">
+      <line x1="110" y1="430" x2="110" y2="552" />
+      <line x1="290" y1="424" x2="290" y2="552" />
+      <line x1="460" y1="382" x2="460" y2="552" />
+    </g>
+    <!-- entry point into the interface -->
+    <circle cx="566" cy="322" r="6" fill="#171717" />
+  </svg>
+
+  <div class="stage-label" style="top: 588px; left: 96px;"><span>01</span>Observation</div>
+  <div class="stage-label" style="top: 588px; left: 262px;"><span>02</span>Personal<br/>context</div>
+  <div class="stage-label" style="top: 588px; left: 404px;"><span>03</span>Caregiver<br/>awareness</div>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="island"></div>
+      <div class="status"></div>
+      <img src="overview-light-390.png" alt="" />
+    </div>
+  </div>
+</section>
+
+<p class="support">A little more context.<br/><span class="soft">A better-informed approach to care.</span></p>
+<p class="desc">An assistive intelligence platform that helps caregivers understand observable activity, personal patterns and events that may deserve attention.</p>
+
+<div class="caps">
+  <div><i>01</i>ENVIRONMENTAL<br/>INTELLIGENCE</div>
+  <div><i>02</i>BEHAVIOURAL<br/>INTELLIGENCE</div>
+  <div><i>03</i>COMMUNICATION<br/>INTELLIGENCE</div>
+</div>
+
+<footer class="foot">
+  <div class="brand">
+    <svg viewBox="0 0 240 240" aria-hidden="true">
+      <rect width="240" height="240" rx="58" fill="currentColor" />
+      <g transform="translate(14 32) scale(0.88)" fill="none" stroke-linecap="round" stroke-width="27">
+        <path d="M42 145L69 95" stroke="#F5F5F5" />
+        <path d="M105 114L116 26" stroke="#F5F5F5" stroke-opacity="0.82" />
+        <path d="M146 91L168 150" stroke="#F5F5F5" stroke-opacity="0.62" />
+        <path d="M197 128L225 165" stroke="#F5F5F5" stroke-opacity="0.44" />
+      </g>
+    </svg>
+    TANDA
+  </div>
+  <p class="closing">Technology that supports<br/>the people who care.</p>
+</footer>
+</body>
+</html>

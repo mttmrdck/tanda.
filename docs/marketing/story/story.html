@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><title>Tanda — Instagram Story</title>
+<style>
+@font-face{font-family:Inter;font-weight:400;src:url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2') format('woff2');}
+@font-face{font-family:Inter;font-weight:500;src:url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2');}
+@font-face{font-family:Inter;font-weight:600;src:url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2');}
+@font-face{font-family:Inter;font-weight:700;src:url('file:///Users/zafran/isyarat/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2');}
+:root{--ink:#101114;--muted:#5f6268;--soft:#e6e6e3;--surface:#fbfaf7;--warn-bg:#fef3c7;--warn-fg:#8a3f05;--ok-bg:#dcfce7;--ok-fg:#146c36;--cream:#f4f1ea;--warm:#b9ad9b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:#0c0a08}
+body{position:relative;overflow:hidden;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:var(--cream)}
+.scene{position:absolute;inset:0}
+
+/* type */
+.brand{position:absolute;left:84px;top:216px;display:flex;align-items:center;gap:16px}
+.brand svg{width:56px;height:56px}
+.brand b{font-size:38px;font-weight:700;letter-spacing:-.04em;color:var(--cream)}
+h1{position:absolute;left:78px;top:302px;width:930px;font-size:84px;line-height:1.04;font-weight:650;letter-spacing:-.045em;color:var(--cream);text-shadow:0 2px 30px rgba(0,0,0,.45)}
+h1 span{color:var(--warm)}
+
+/* stage: real perspective, one vanishing point for every card */
+.stage{position:absolute;inset:0;perspective:1700px;perspective-origin:50% 40%}
+.card{position:absolute;background:linear-gradient(180deg,#fffdf9,var(--surface));color:var(--ink);border-radius:30px;padding:26px 28px 28px;
+  box-shadow:0 0 0 1.5px rgba(255,255,255,.55) inset,0 1px 0 rgba(255,255,255,.9) inset,0 2px 0 rgba(0,0,0,.06),0 34px 60px -22px rgba(0,0,0,.75),0 12px 22px -10px rgba(0,0,0,.5);
+  transform-style:preserve-3d}
+.card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,rgba(255,220,160,0) 40%,rgba(255,206,140,.10) 100%)}
+.card.left::after{background:linear-gradient(245deg,rgba(255,206,140,0) 40%,rgba(255,206,140,.08) 100%)}
+.cast{position:absolute;border-radius:36px;background:rgba(0,0,0,.55);filter:blur(26px)}
+.head{display:flex;align-items:center;gap:14px}
+.ic{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:999px;background:var(--ink);color:#f6f3ec}
+.card h2{font-size:27px;line-height:1.14;font-weight:650;letter-spacing:-.025em}
+.card p.sub{margin-top:12px;font-size:21px;line-height:1.42;color:var(--muted);font-weight:450}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:#efede7;color:var(--muted);font-size:15.5px;font-weight:600;white-space:nowrap}
+.tag.warn{background:var(--warn-bg);color:var(--warn-fg)}
+.tag.dash{background:none;border:1.5px dashed #c7c3b9}
+
+/* A — environmental timeline */
+.tl{position:relative;margin-top:20px;height:74px}
+.tl .line{position:absolute;left:0;right:0;top:34px;height:2px;background:#d7d4cc}
+.tl .ticks{position:absolute;left:0;right:0;top:27px;height:16px;background:repeating-linear-gradient(90deg,#c9c5bb 0 2px,transparent 2px 26px)}
+.tl .ev{position:absolute;top:22px;width:26px;height:26px;border-radius:999px;background:var(--ink)}
+.tl .ev.ring{background:#fff;box-shadow:inset 0 0 0 4px var(--ink)}
+.tl .ev.sq{border-radius:6px}
+.tl .lab{position:absolute;top:0;font-size:14.5px;font-weight:600;color:var(--muted);letter-spacing:.02em;white-space:nowrap}
+.tl .hrs{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-between;font-size:14px;color:#66635b;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* B — behavioural comparison */
+.bars{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:12px;height:74px;margin-top:14px;align-items:end}
+.bp{display:flex;align-items:flex-end;justify-content:center;gap:5px;height:100%}
+.bp i{display:block;width:11px;border-radius:999px}
+.bp .u{background:#d4d1c8}.bp .o{background:var(--ink)}.bp .o.flag{background:var(--warn-fg)}
+.legend{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;font-size:15.5px;color:var(--muted);font-weight:550}
+.legend span{display:inline-flex;align-items:center;gap:7px}.legend .d{width:11px;height:11px;border-radius:99px;display:inline-block}
+
+/* C — communication */
+.gest{display:flex;align-items:center;gap:22px;margin-top:22px}
+.gring{position:relative;display:grid;place-items:center;flex:none;width:96px;height:96px;margin-left:8px;border-radius:999px;background:#f2efe8;box-shadow:inset 0 0 0 2px #e1ddd2;color:var(--ink)}
+.gring::before{content:'';position:absolute;inset:-9px;border-radius:999px;border:2px dashed #cfcabc}
+.mean{display:grid;gap:9px}
+.mean small{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#66635b}
+.mean strong{font-size:27px;letter-spacing:-.03em;font-weight:650}
+.chips{display:flex;gap:8px;margin-top:2px}
+
+/* D — human review */
+.rev{display:grid;gap:16px}
+.rev .row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.rev .obs{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:20px;background:#f3f1ea}
+.rev .obs b{font-size:22px;letter-spacing:-.02em;font-weight:650;display:block}
+.rev .obs > div:first-child span{font-size:16px;color:var(--muted);font-weight:500}
+.btns{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 20px;border-radius:999px;font-size:19px;font-weight:600;white-space:nowrap}
+.btn.p{background:var(--ink);color:#f6f3ec}.btn.g{border:1.5px solid #c7c3b9;color:var(--ink);background:#fff}
+
+/* bottom copy */
+.meet{position:absolute;left:84px;top:1556px;font-size:58px;font-weight:700;letter-spacing:-.05em;color:var(--cream);line-height:1}
+.statement{position:absolute;left:86px;top:1630px;width:900px;font-size:28px;line-height:1.35;color:#d9d2c4;font-weight:450;letter-spacing:-.01em}
+.statement b{color:var(--cream);font-weight:600}
+.concept{position:absolute;left:86px;top:1682px;display:flex;align-items:center;gap:10px;font-size:19px;font-weight:550;color:#a99f8f;letter-spacing:.01em}
+.concept i{width:8px;height:8px;border-radius:99px;border:1.5px dashed #a99f8f;display:inline-block}
+</style></head>
+<body>
+
+<svg class="scene" viewBox="0 0 1080 1920" width="1080" height="1920" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d0b09"/><stop offset=".35" stop-color="#17130f"/><stop offset=".62" stop-color="#211b15"/><stop offset="1" stop-color="#2a221a"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17120e"/><stop offset=".5" stop-color="#0e0b09"/><stop offset="1" stop-color="#080706"/></linearGradient>
+    <radialGradient id="lamp" cx="940" cy="1010" r="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd596" stop-opacity=".62"/><stop offset=".25" stop-color="#f4b469" stop-opacity=".30"/><stop offset=".6" stop-color="#c98943" stop-opacity=".09"/><stop offset="1" stop-color="#c98943" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lampCore" cx="940" cy="945" r="150" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff0cf" stop-opacity=".95"/><stop offset=".4" stop-color="#ffc77f" stop-opacity=".45"/><stop offset="1" stop-color="#ffc77f" stop-opacity="0"/></radialGradient>
+    <radialGradient id="moon" cx="120" cy="260" r="620" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#cfd6e0" stop-opacity=".16"/><stop offset="1" stop-color="#cfd6e0" stop-opacity="0"/></radialGradient>
+    <linearGradient id="linen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a4339"/><stop offset=".55" stop-color="#7a6f5f"/><stop offset="1" stop-color="#b09a7c"/></linearGradient>
+    <linearGradient id="duvet" x1="0" y1="0" x2="1" y2="0.2"><stop offset="0" stop-color="#6b6358"/><stop offset=".5" stop-color="#a99f8f"/><stop offset="1" stop-color="#e2c9a0"/></linearGradient>
+    <linearGradient id="duvetShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
+    <linearGradient id="pillow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a9082"/><stop offset=".6" stop-color="#cdbfa6"/><stop offset="1" stop-color="#eed9b3"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a2a1e"/><stop offset=".6" stop-color="#6a4a30"/><stop offset="1" stop-color="#8a6240"/></linearGradient>
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1d6"/><stop offset="1" stop-color="#f2b86d"/></linearGradient>
+    <linearGradient id="curtain" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0c0a08"/><stop offset=".5" stop-color="#191511"/><stop offset="1" stop-color="#0f0c0a"/></linearGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="soft2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="blurFar"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .46  0 0 0 0 .4  0 0 0 .55 -.18"/></filter>
+    <radialGradient id="vig" cx="540" cy="900" r="1250" gradientUnits="userSpaceOnUse"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".62"/></radialGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#wall)"/>
+  <rect y="1330" width="1080" height="590" fill="url(#floor)"/>
+
+  <!-- architecture: wainscot panelling and skirting, softly out of focus -->
+  <g filter="url(#blurFar)" opacity=".9">
+    <rect x="0" y="1262" width="1080" height="68" fill="#120f0c"/>
+    <rect x="0" y="1258" width="1080" height="4" fill="#352b21" opacity=".9"/>
+    <g fill="none" stroke="#3b3025" stroke-width="2" opacity=".65">
+      <rect x="130" y="760" width="170" height="440"/><rect x="330" y="760" width="170" height="440"/>
+      <rect x="580" y="760" width="170" height="440"/><rect x="780" y="760" width="170" height="440"/>
+    </g>
+    <rect x="0" y="740" width="1080" height="6" fill="#3a2e22" opacity=".8"/>
+  </g>
+  <!-- curtain, far left -->
+  <rect x="0" y="0" width="132" height="1330" fill="url(#curtain)"/>
+  <g stroke="#2a231c" stroke-width="3" opacity=".7" filter="url(#blurFar)"><path d="M26 0V1330M62 0V1330M98 0V1330"/></g>
+  <rect width="1080" height="1330" fill="url(#moon)"/>
+
+  <!-- lamp light washing the wall -->
+  <rect width="1080" height="1500" fill="url(#lamp)" style="mix-blend-mode:screen"/>
+
+  <g transform="translate(0 50)">
+  <!-- headboard: upholstered linen with channel tufting -->
+  <g>
+    <rect x="46" y="668" width="772" height="470" rx="40" fill="#000" opacity=".35" filter="url(#soft2)" transform="translate(10 18)"/>
+    <rect x="44" y="650" width="772" height="480" rx="40" fill="url(#linen)"/>
+    <g stroke="#1c1712" stroke-width="3" opacity=".38">
+      <path d="M142 664V1126M240 664V1126M338 664V1126M436 664V1126M534 664V1126M632 664V1126M730 664V1126"/>
+    </g>
+    <g stroke="#e9d3a8" stroke-width="2" opacity=".16"><path d="M146 664V1126M244 664V1126M342 664V1126M440 664V1126M538 664V1126M636 664V1126M734 664V1126"/></g>
+    <rect x="44" y="650" width="772" height="480" rx="40" fill="url(#lamp)" style="mix-blend-mode:soft-light"/>
+  </g>
+
+  <!-- bed frame, pillows, duvet -->
+  <g>
+    <ellipse cx="430" cy="1346" rx="470" ry="30" fill="#000" opacity=".55" filter="url(#soft)"/>
+    <rect x="30" y="1150" width="800" height="196" rx="18" fill="url(#wood)"/>
+    <path d="M118 1160 C100 1100 140 1052 250 1040 C340 1030 440 1036 500 1056 C524 1098 518 1150 488 1180 C400 1196 210 1196 118 1160Z" fill="url(#pillow)"/>
+    <path d="M520 1056 C592 1038 692 1032 760 1046 C812 1060 818 1118 790 1170 C700 1192 560 1194 508 1176 C500 1130 506 1086 520 1056Z" fill="url(#pillow)"/>
+    <g filter="url(#soft)" opacity=".5"><path d="M160 1120 C260 1100 380 1100 470 1120" stroke="#fff4dc" stroke-width="5" fill="none"/><path d="M560 1110 C630 1096 710 1098 780 1112" stroke="#fff4dc" stroke-width="5" fill="none"/></g>
+    <path d="M26 1196 C130 1160 260 1172 380 1176 C520 1170 700 1160 834 1190 L836 1348 L24 1348Z" fill="url(#duvet)"/>
+    <path d="M26 1196 C130 1160 260 1172 380 1176 C520 1170 700 1160 834 1190 L836 1348 L24 1348Z" fill="url(#duvetShade)"/>
+    <path d="M26 1196 C130 1160 260 1172 380 1176 C520 1170 700 1160 834 1190 L836 1226 C700 1198 520 1206 380 1212 C260 1208 130 1196 26 1232Z" fill="#d9d0c0" opacity=".88"/>
+    <path d="M26 1232 C130 1196 260 1208 380 1212 C520 1206 700 1198 836 1226" fill="none" stroke="#6b6154" stroke-width="3" opacity=".55"/>
+    <path d="M24 1304 C200 1292 520 1300 836 1290 L836 1348 L24 1348Z" fill="#2f2c29"/>
+    <path d="M24 1304 C200 1292 520 1300 836 1290" fill="none" stroke="#6f6a63" stroke-width="3" opacity=".6"/>
+    <g fill="none" stroke="#2b251e" stroke-width="3" opacity=".45"><path d="M210 1126 C260 1112 330 1112 400 1130"/><path d="M600 1108 C650 1096 720 1098 770 1118"/></g>
+    <g filter="url(#soft)" fill="none" stroke-linecap="round">
+      <path d="M70 1236 C220 1212 380 1226 520 1214 C640 1204 740 1212 818 1226" stroke="#fff1d4" stroke-width="7" opacity=".28"/>
+      <path d="M60 1288 C220 1268 400 1284 560 1272 C680 1264 760 1272 826 1282" stroke="#000" stroke-width="12" opacity=".30"/>
+      <path d="M44 1190 C150 1170 280 1182 390 1184" stroke="#fff6e4" stroke-width="5" opacity=".3"/>
+    </g>
+  </g>
+
+  <!-- nightstand + lamp + book -->
+  <g>
+    <ellipse cx="948" cy="1346" rx="170" ry="22" fill="#000" opacity=".6" filter="url(#soft)"/>
+    <rect x="836" y="1096" width="250" height="248" rx="10" fill="url(#wood)"/>
+    <rect x="836" y="1096" width="250" height="26" rx="8" fill="#8a6240"/>
+    <rect x="836" y="1096" width="250" height="8" rx="4" fill="#e6bd8a" opacity=".55"/>
+    <rect x="858" y="1140" width="206" height="86" rx="6" fill="#4e3624"/>
+    <rect x="918" y="1176" width="86" height="8" rx="4" fill="#d9b27d" opacity=".8"/>
+    <rect x="862" y="1086" width="78" height="14" rx="3" fill="#2d2a27"/><rect x="866" y="1074" width="70" height="13" rx="3" fill="#cdbfa6"/>
+    <rect x="936" y="1018" width="9" height="78" rx="4" fill="#c9a574"/>
+    <ellipse cx="940" cy="1098" rx="42" ry="9" fill="#c9a574"/>
+    <path d="M866 1018 L1014 1018 L984 884 L896 884Z" fill="url(#shade)"/>
+    <path d="M866 1018 L1014 1018 L984 884 L896 884Z" fill="#fff" opacity=".12"/>
+    <circle cx="940" cy="948" r="150" fill="url(#lampCore)" style="mix-blend-mode:screen"/>
+    <ellipse cx="940" cy="1100" rx="150" ry="22" fill="#ffd9a0" opacity=".22" filter="url(#soft)"/>
+  </g>
+
+  </g>
+  <!-- rug -->
+  <path d="M170 1380 L930 1380 L1030 1520 L70 1520Z" fill="#241e18" opacity=".9"/>
+  <path d="M190 1392 L910 1392 L1000 1508 L96 1508Z" fill="none" stroke="#3a3027" stroke-width="3" opacity=".7"/>
+
+  <rect width="1080" height="1920" fill="url(#vig)"/>
+  <rect width="1080" height="1920" filter="url(#grain)" opacity=".55" style="mix-blend-mode:overlay"/>
+</svg>
+
+<div class="brand">
+  <svg viewBox="0 0 240 240" aria-label="Tanda">
+    <rect width="240" height="240" rx="58" fill="#f2f2f0"/>
+    <g transform="translate(14 32) scale(0.88)" fill="none" stroke-linecap="round" stroke-width="27">
+      <path d="M42 145L69 95" stroke="#101114" stroke-opacity="1"/><path d="M105 114L116 26" stroke="#101114" stroke-opacity="0.82"/><path d="M146 91L168 150" stroke="#101114" stroke-opacity="0.62"/><path d="M197 128L225 165" stroke="#101114" stroke-opacity="0.44"/>
+    </g>
+  </svg>
+  <b>tanda</b>
+</div>
+<h1>Care happens in<br/>the moments<br/><span>you don’t see.</span></h1>
+
+<div class="stage">
+  <!-- cast shadows onto the wall (behind each card) -->
+  <div class="cast" style="left:64px;top:650px;width:420px;height:310px;transform:rotateY(20deg)"></div>
+  <div class="cast" style="left:610px;top:650px;width:420px;height:310px;transform:rotateY(-20deg)"></div>
+
+  <!-- A · Environmental -->
+  <section class="card left" style="left:40px;top:588px;width:448px;transform:rotateY(21deg) rotateX(2deg) translateZ(-30px);transform-origin:100% 50%">
+    <div class="head"><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"  aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg></span><h2>Environmental<br/>Intelligence</h2></div>
+    <p class="sub">Observes activity, presence and movement.</p>
+    <div class="tl">
+      <span class="lab" style="left:8px">Presence</span><span class="lab" style="left:146px">Movement</span><span class="lab" style="left:300px">Review</span>
+      <div class="line"></div><div class="ticks"></div>
+      <i class="ev" style="left:24px"></i><i class="ev sq" style="left:168px"></i><i class="ev ring" style="left:314px"></i>
+      <div class="hrs"><span>21:00</span><span>00:00</span><span>03:00</span><span>06:00</span></div>
+    </div>
+  </section>
+
+  <!-- C · Communication -->
+  <section class="card" style="left:592px;top:588px;width:448px;transform:rotateY(-21deg) rotateX(2deg) translateZ(-30px);transform-origin:0% 50%">
+    <div class="head"><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"  aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></span><h2>Communication<br/>Intelligence</h2></div>
+    <p class="sub">Personalised gestures with caregiver-defined meanings.</p>
+    <div class="gest">
+      <div class="gring"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"  aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></div>
+      <div class="mean"><small>Caregiver-defined</small><strong>“I want water”</strong><div class="chips"><span class="tag">Taught · 3 takes</span></div></div>
+    </div>
+  </section>
+
+  <!-- B · Behavioural (main: flat, largest, in front of the bed) -->
+  <div class="cast" style="left:100px;top:976px;width:640px;height:250px"></div>
+  <section class="card" style="left:84px;top:930px;width:668px;padding:24px 32px 26px;transform:translateZ(60px) rotateY(5deg);transform-origin:0% 50%">
+    <div class="head" style="justify-content:space-between">
+      <div class="head"><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"  aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span><h2>Behavioural Intelligence</h2></div>
+    </div>
+    <p class="sub" style="margin-top:10px">Highlights changes against personal patterns.</p>
+    <div class="bars"><div class="bp"><i class="u" style="height:54%"></i><i class="o" style="height:52%"></i></div><div class="bp"><i class="u" style="height:58%"></i><i class="o" style="height:60%"></i></div><div class="bp"><i class="u" style="height:55%"></i><i class="o" style="height:51%"></i></div><div class="bp"><i class="u" style="height:62%"></i><i class="o" style="height:64%"></i></div><div class="bp"><i class="u" style="height:57%"></i><i class="o" style="height:55%"></i></div><div class="bp"><i class="u" style="height:48%"></i><i class="o" style="height:46%"></i></div><div class="bp"><i class="u" style="height:52%"></i><i class="o flag" style="height:78%"></i></div></div>
+    <div class="legend"><span><i class="d" style="background:#d4d1c8"></i>Usual</span><span><i class="d" style="background:#101114"></i>Observed</span><span><i class="d" style="background:var(--warn-fg)"></i>Differs</span><span class="tag dash" style="margin-left:2px">Non-diagnostic</span></div>
+  </section>
+
+  <!-- D · Human review -->
+  <div class="cast" style="left:70px;top:1384px;width:940px;height:140px"></div>
+  <section class="card rev" style="left:60px;top:1334px;width:960px;padding:18px 28px 20px;transform:translateZ(36px)">
+    <div class="row">
+      <div class="head"><span class="ic" style="width:46px;height:46px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"  aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></span><h2>Human Review</h2></div>
+      <span class="tag warn">Needs review</span>
+    </div>
+    <div class="obs"><div><b>Unusual activity pattern</b><span>Observations are surfaced for caregiver review.</span></div>
+      <div class="btns"><span class="btn p"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"  aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Acknowledge</span><span class="btn g">Add note</span></div></div>
+  </section>
+</div>
+
+<div class="meet">Meet Tanda.</div>
+<div class="statement">A little more context. <b>A better-informed approach to care.</b></div>
+<div class="concept"><i></i>Illustrative interface · Concept demo</div>
+</body></html>
